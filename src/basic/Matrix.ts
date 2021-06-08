@@ -2,6 +2,7 @@ import Base, { ExportJsonOptions } from '../core/Base'
 import { Change } from '../item/ChangeFlag'
 import Formatter from '../utils/Formatter'
 import Point from './Point'
+import Rectangle from './Rectangle'
 
 export default class Matrix extends Base {
     protected _class = 'Matrix'
@@ -618,11 +619,7 @@ export default class Matrix extends Base {
      * A faster version of transform that only takes one point and does not
      * attempt to convert it.
      */
-    protected _transformPoint(
-        point: Point,
-        dest?: Point,
-        _dontNotify?: boolean
-    ) {
+    _transformPoint(point: Point, dest?: Point, _dontNotify?: boolean) {
         const x = point.x
         const y = point.y
         if (!dest) dest = new Point()
@@ -679,7 +676,7 @@ export default class Matrix extends Base {
             }
         }
         if (!dest) dest = new Rectangle()
-        return dest.set(
+        return (dest as any)._set(
             min[0],
             min[1],
             max[0] - min[0],
@@ -716,7 +713,7 @@ export default class Matrix extends Base {
             const x = point.x - this._tx
             const y = point.y - this._ty
             if (!dest) dest = new Point()
-            res = dest.set(
+            res = (dest as any)._set(
                 (x * d - y * c) / det,
                 (y * a - x * b) / det,
                 _dontNotify

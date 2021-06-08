@@ -19,6 +19,7 @@ export default abstract class Base extends Straps {
     protected _compactSerialize?: boolean
     protected _readIndex?: boolean
     protected __read: any
+    protected __filtered: any
 
     enumerable: boolean
 
@@ -442,7 +443,143 @@ export default abstract class Base extends Straps {
         return list[(list.__index = start || list.__index || 0)]
     }
 
-    static isPlainValue(obj: any, asString: boolean): boolean {
+    /**
+     * Returns how many arguments remain to be read in the argument list.
+     */
+    static remain(list: any) {
+        return list.length - (list.__index || 0)
+    }
+
+    /**
+     * Reads all readable arguments from the list, handling nested arrays
+     * separately.
+     *
+     * @param {Array} list the list to read from, either an arguments object
+     *     or a normal array
+     * @param {Number} start the index at which to start reading in the list
+     * @param {Object} options `options.readNull` controls whether null is
+     *     returned or converted. `options.clone` controls whether passed
+     *     objects should be cloned if they are already provided in the
+     *     required type
+     * @param {Number} amount the amount of elements that should be read
+     */
+    static readList(list: any, start?: any, options?: any, amount?: any) {
+        const res = []
+        let entry
+        const begin = start || 0
+        const end = amount ? begin + amount : list.length
+        for (let i = begin; i < end; i++) {
+            res.push(
+                Array.isArray((entry = list[i]))
+                    ? this.read(entry, 0, options)
+                    : this.read(list, i, options, 1)
+            )
+        }
+        return res
+    }
+
+    /**
+     * Allows using of `Base.read()` mechanism in combination with reading named
+     * arguments form a passed property object literal. Calling
+     * `Base.readNamed()` can read both from such named properties and normal
+     * unnamed arguments through `Base.read()`. In use for example for
+     * the various `Path` constructors in `Path.Constructors.js`.
+     *
+     * @param {Array} list the list to read from, either an arguments object or
+     *     a normal array
+     * @param {String} name the property name to read from
+     * @param {Number} start the index at which to start reading in the list
+     * @param {Object} options `options.readNull` controls whether null is
+     *     returned or converted. `options.clone` controls whether passed
+     *     objects should be cloned if they are already provided in the required
+     *     type
+     * @param {Number} amount the amount of elements that can be read
+     */
+    static readNamed(
+        list: any,
+        name?: any,
+        start?: any,
+        options?: any,
+        amount?: any
+    ) {
+        const value = this.getNamed(list, name)
+        const hasValue = value !== undefined
+        if (hasValue) {
+            let filtered = list.__filtered
+            if (!filtered) {
+                const source = this.getSource(list)
+                filtered = list.__filtered = Base.create(source)
+
+                filtered.__unfiltered = source
+            }
+
+            filtered[name] = undefined
+        }
+        return this.read(hasValue ? [value] : list, start, options, amount)
+    }
+
+    /**
+     * If `list[0]` is a source object, calls `Base.readNamed()` for each key in
+     * it that is supported on `dest`, consuming these values.
+     *
+     * @param {Array} list the list to read from, either an arguments object or
+     *     a normal array
+     * @param {Object} dest the object on which to set the supported properties
+     * @return {Boolean} {@true if any property was read from the source object}
+     */
+    static readSupported(list: any, dest?: any) {
+        const source = this.getSource(list)
+        const that = this
+        let read = false
+        if (source) {
+            Object.keys(source).forEach(function (key) {
+                if (key in dest) {
+                    const value = that.readNamed(list, key)
+                    if (value !== undefined) {
+                        dest[key] = value
+                    }
+                    read = true
+                }
+            })
+        }
+        return read
+    }
+
+    /**
+     * @return the arguments object if the list provides one at `list[0]`
+     */
+    static getSource(list: any) {
+        let source = list.__source
+        if (source === undefined) {
+            const arg = list.length === 1 && list[0]
+            source = list.__source = arg && Base.isPlainObject(arg) ? arg : null
+        }
+        return source
+    }
+
+    /**
+     * @return the named value if the list provides an arguments object,
+     *     `null` if the named value is `null` or `undefined`, and
+     *     `undefined` if there is no arguments object If no name is
+     *     provided, it returns the whole arguments object
+     */
+    static getNamed(list: any, name: any) {
+        const source = this.getSource(list)
+        if (source) {
+            // Return the whole arguments object if no name is provided.
+            return name ? source[name] : list.__filtered || source
+        }
+    }
+
+    /**
+     * Checks if the argument list has a named argument with the given name. If
+     * name is `null`, it returns `true` if there are any named arguments.
+     */
+    static hasNamed(list: any, name: any) {
+        return !!this.getNamed(list, name)
+    }
+
+    static isPlainValue(obj: any, asString?: boolean): boolean {
         return (
             Base.isPlainObject(obj) ||
             Array.isArray(obj) ||
