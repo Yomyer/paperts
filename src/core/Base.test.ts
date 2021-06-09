@@ -25,32 +25,6 @@ test('getClassName()', () => {
     expect(base.getClassName()).toStrictEqual(`Rectangle`)
 })
 
-test('exportJSON()', () => {
-    const base = new Item()
-    base.set({
-        _class: 'Rectangle'
-    })
-    const json = base.exportJSON()
-
-    let imported = new Item()
-    imported = imported.importJSON(json)
-
-    expect(base).toMatchObject(imported)
-})
-
-test('equals()', () => {
-    const base = new Item()
-    base.set({
-        _class: 'Rectangle'
-    })
-    const json = base.exportJSON()
-
-    let imported = new Item()
-    imported = imported.importJSON(json)
-
-    expect(Base.equals(base, imported)).toStrictEqual(true)
-})
-
 test('static push()', () => {
     const foo = [1, 2, 3]
     const bar = [4, 5, 6]

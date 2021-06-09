@@ -1,7 +1,7 @@
-import Item from '../item/Item'
-import Layer from '../item/Layer'
-import Formatter from '../utils/Formatter'
 import Straps from './Straps'
+import Formatter from '../utils/Formatter'
+// import Item from '../item/Item'
+// import Layer from '../item/Layer'
 
 export type ExportJsonOptions = {
     asString?: boolean
@@ -134,8 +134,8 @@ export default abstract class Base extends Straps {
 
                 if (
                     args.length === 1 &&
-                    obj instanceof Item &&
-                    (useTarget || !(obj instanceof Layer))
+                    obj instanceof Base &&
+                    (useTarget || !(obj instanceof Base))
                 ) {
                     const arg = args[0]
                     if (Base.isPlainObject(arg)) {
