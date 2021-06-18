@@ -1,7 +1,10 @@
-import { Base } from '../core'
-import Numerical from '../utils/Numerical'
+import Base from '../core/Base'
 import Point from './Point'
+import Numerical from '../utils/Numerical'
+import { Point as PointType } from './Types'
+import { Exportable } from '../utils/Decorators'
 
+@Exportable()
 export default class Line extends Base {
     _class = 'Line'
 
@@ -17,10 +20,17 @@ export default class Line extends Base {
      * @param {Point} point2
      * @param {Boolean} [asVector=false]
      */
-    constructor(point1: Point, point2: Point, asVector?: boolean)
+    constructor(point1: PointType, point2: PointType, asVector?: boolean)
+    constructor(
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+        asVector?: boolean
+    )
 
     constructor(...args: any[]) {
-        super(args)
+        super(...args)
     }
 
     initialize(...args: any[]) {
@@ -80,7 +90,7 @@ export default class Line extends Base {
      * @return {Point} the intersection point of the lines, `undefined` if the
      *     two lines are collinear, or `null` if they don't intersect.
      */
-    intersect(line: Line, isInfinite: boolean): Point | null {
+    intersect(line: Line, isInfinite?: boolean): Point | null {
         return Line.intersect(
             this._px,
             this._py,
@@ -100,7 +110,7 @@ export default class Line extends Base {
      * @param {Boolean} [isInfinite=false]
      * @return {Number}
      */
-    getSide(point: Point, isInfinite: boolean): number {
+    getSide(point: Point, isInfinite?: boolean): number {
         return Line.getSide(
             this._px,
             this._py,

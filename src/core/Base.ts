@@ -9,7 +9,7 @@ export type ExportJsonOptions = {
     formatter?: Formatter
 }
 
-export default abstract class Base extends Straps {
+export default class Base extends Straps {
     protected _id: string
     protected _class = 'Ojbect'
     protected _name: string
@@ -22,6 +22,10 @@ export default abstract class Base extends Straps {
     protected __filtered: any
 
     enumerable: boolean
+
+    constructor(...args: any[]) {
+        super(...args)
+    }
 
     equals(..._: any[]): boolean {
         return false
@@ -72,8 +76,8 @@ export default abstract class Base extends Straps {
      *
      * @param {String} json the JSON data to import from
      */
-    importJSON(json: string): any {
-        return Base.importJSON(json, this)
+    importJSON(json: string): this {
+        return Base.importJSON(json, this) as this
     }
 
     /**
@@ -121,8 +125,21 @@ export default abstract class Base extends Straps {
             ? json
             : JSON.stringify(json)
     }
+    /*
+    static importJSON<T extends typeof Base>(
+        this: T,
+        json: string,
+        target?: T
+    ): InstanceType<T> {
+        // return Base.deserialize()
+    }
+    */
 
-    static importJSON(json: string, target?: object): Base {
+    static importJSON<T extends typeof Base>(
+        this: T,
+        json: string,
+        target?: any
+    ): InstanceType<T> {
         return Base.deserialize(
             typeof json === 'string' ? JSON.parse(json) : json,
 
@@ -132,6 +149,7 @@ export default abstract class Base extends Straps {
 
                 const obj = useTarget ? target : Base.create(ctor.prototype)
 
+                // Todo usar Item y Layer
                 if (
                     args.length === 1 &&
                     obj instanceof Base &&
@@ -147,12 +165,14 @@ export default abstract class Base extends Straps {
                     }
                 }
 
-                ;(useTarget ? obj.set : ctor).apply(obj, args)
+                obj.set(...args)
+                // new ctor(args)
+                // ;(useTarget ? obj.set : ctor).apply(obj, args)
 
                 if (useTarget) target = null
                 return obj
             }
-        )
+        ) as InstanceType<T>
     }
 
     static serialize(
@@ -247,6 +267,7 @@ export default abstract class Base extends Straps {
             if (json.length === 1 && /^#/.test(Type)) {
                 return _data.dictionary[Type]
             }
+
             Type = Base.exports[Type]
             res = []
 
@@ -261,9 +282,9 @@ export default abstract class Base extends Straps {
                     )
                 )
             }
+
             if (Type) {
                 const args = res
-
                 if (create) {
                     res = create(Type, args, isFirst || _isRoot)
                 } else {

@@ -7,7 +7,13 @@ type EmitterType =
       }
 
 export default abstract class Emitter extends Base {
-    protected _eventTypes: string[]
+    protected _eventTypes: {
+        [key: string]: {
+            install?: (event?: any, ...args: any) => void
+            uninstall?: (event?: any, ...args: any) => void
+        }
+    }
+
     protected _callbacks: {
         [key: string]: [(event?: any, ...args: any) => void]
     }

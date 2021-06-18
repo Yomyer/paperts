@@ -7,9 +7,11 @@ export default class PaperScope {
         handleSize: 4,
         hitTolerance: 0
     }
+    /*
     project = null,
     projects = []
     tools = []
+    */
 
     constructor() {
         this.paper = this

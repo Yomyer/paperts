@@ -1,9 +1,12 @@
 import Base, { ExportJsonOptions } from '../core/Base'
 import { Change } from '../item/ChangeFlag'
+import { Exportable } from '../utils/Decorators'
 import Formatter from '../utils/Formatter'
 import Point from './Point'
 import Rectangle from './Rectangle'
+import { Point as PointType, Size as SizeType } from './Types'
 
+@Exportable()
 export default class Matrix extends Base {
     protected _class = 'Matrix'
     protected _a: number
@@ -59,7 +62,7 @@ export default class Matrix extends Base {
     constructor(matrix: Matrix)
 
     constructor(...args: any[]) {
-        super(args)
+        super(...args)
     }
 
     initialize(...args: any[]) {
@@ -304,7 +307,11 @@ export default class Matrix extends Base {
      * @param {Point} center the anchor point to rotate around
      * @return {Matrix} this affine transform
      */
-    rotate(angle: number, center: Point): Matrix
+    rotate(angle: number, number?: number): Matrix
+    rotate(angle: number, array?: number[]): Matrix
+    rotate(angle: number, point?: PointType): Matrix
+    rotate(angle: number, size?: SizeType): Matrix
+    rotate(angle: number, center?: Point): Matrix
 
     /**
      * Concatenates this matrix with a rotation transformation around an
@@ -317,7 +324,7 @@ export default class Matrix extends Base {
      * @param {Number} y the y coordinate of the anchor point
      * @return {Matrix} this affine transform
      */
-    rotate(angle: number, x: number, y: number): Matrix
+    rotate(angle: number, x?: number, y?: number): Matrix
     rotate(...args: any[]): Matrix {
         const angle = (args[0] * Math.PI) / 180
         const center = Point.read(args, 1)
@@ -325,6 +332,7 @@ export default class Matrix extends Base {
         const y = center.y
         const cos = Math.cos(angle)
         const sin = Math.sin(angle)
+
         const tx = x - x * cos + y * sin
         const ty = y - x * sin - y * cos
         const a = this._a
@@ -757,7 +765,7 @@ export default class Matrix extends Base {
         }
         return {
             translation: this.getTranslation(),
-            rotation: rotate * degrees,
+            rotation: rotate * degrees || 0,
             scaling: new Point(scale),
             skewing: new Point(skew[0] * degrees, skew[1] * degrees)
         }

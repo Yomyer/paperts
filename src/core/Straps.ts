@@ -1,8 +1,8 @@
-export default abstract class Straps {
+export default class Straps {
     initialize(..._: any[]) {}
 
     protected constructor(...options: any[]) {
-        this.initialize(options)
+        this.initialize(...options)
     }
 
     static define = Object.defineProperty

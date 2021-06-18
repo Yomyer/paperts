@@ -142,9 +142,9 @@ export default class Numerical {
 
     static EPSILON = 1e-12
     static MACHINE_EPSILON = 1.12e-16
-    static CURVETIME_EPSILON: 1e-8
-    static GEOMETRIC_EPSILON: 1e-7
-    static TRIGONOMETRIC_EPSILON: 1e-8
+    static CURVETIME_EPSILON = 1e-8
+    static GEOMETRIC_EPSILON = 1e-7
+    static TRIGONOMETRIC_EPSILON = 1e-8
     static KAPPA = (4 * (Numerical.sqrt(2) - 1)) / 3
 
     clamp(value: number, min: number, max: number): number {
@@ -189,11 +189,14 @@ export default class Numerical {
     }
 
     static isZero(val: number): boolean {
-        return val >= -this.EPSILON && val <= this.EPSILON
+        return val >= -Numerical.EPSILON && val <= Numerical.EPSILON
     }
 
     static isMachineZero(val: number): boolean {
-        return val >= -this.MACHINE_EPSILON && val <= this.MACHINE_EPSILON
+        return (
+            val >= -Numerical.MACHINE_EPSILON &&
+            val <= Numerical.MACHINE_EPSILON
+        )
     }
 
     /**
