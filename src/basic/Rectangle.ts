@@ -840,7 +840,7 @@ export default class Rectangle extends Base {
     intersects(rect: Rectangle, epsilon?: number): boolean
     intersects(...args: any[]) {
         const rect = Rectangle.read(args)
-        const epsilon = Base.read(args) || 0
+        const epsilon: any = Base.read(args) || 0 // Todo: fix any
         return (
             rect.x + rect.width > this.x - epsilon &&
             rect.y + rect.height > this.y - epsilon &&

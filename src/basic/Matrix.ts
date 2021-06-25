@@ -15,7 +15,7 @@ export default class Matrix extends Base {
     protected _d: number
     protected _tx: number
     protected _ty: number
-    protected _owner: any
+    protected _owner: any // Todo change item
 
     /**
      * Creates a 2D affine transformation matrix that describes the identity

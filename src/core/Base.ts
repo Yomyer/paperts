@@ -1,5 +1,6 @@
 import Straps from './Straps'
 import Formatter from '../utils/Formatter'
+
 // import Item from '../item/Item'
 // import Layer from '../item/Layer'
 
@@ -15,6 +16,9 @@ export default class Base extends Straps {
     protected _name: string
     protected _index?: number
     protected _serialize?(_options?: ExportJsonOptions, _dictionary?: any): any
+
+    // Todo into item
+    protected _changed?(flag?: any): any
     protected _prioritize?: string[]
     protected _compactSerialize?: boolean
     protected _readIndex?: boolean
@@ -29,6 +33,15 @@ export default class Base extends Straps {
 
     equals(..._: any[]): boolean {
         return false
+    }
+
+    clone(): Base {
+        return Base.clone(this)
+    }
+
+    // Todo into item
+    changed(flag?: any) {
+        return this._changed(flag)
     }
 
     /**
@@ -111,7 +124,7 @@ export default class Base extends Straps {
      *     `true` that should be excluded
      * @return {Object} a reference to `this`, for chainability.
      */
-    set(props: Object, exclude?: Object) {
+    set(props: Object, exclude?: Object): this {
         if (props) Base.filter(this, props, exclude, this._prioritize)
         return this
     }
@@ -198,7 +211,6 @@ export default class Base extends Straps {
                         this.length++
                         res = create.call(item)
                         const name = item._class
-
                         if (name && res[0] !== name) res.unshift(name)
                         this.definitions[id] = res
                         ref = this.references[id] = [id]
@@ -212,6 +224,7 @@ export default class Base extends Straps {
             res = obj._serialize(options, dictionary)
 
             const name = obj._class
+
             if (
                 name &&
                 !obj._compactSerialize &&
@@ -349,11 +362,11 @@ export default class Base extends Straps {
         return dest
     }
 
-    static equals(obj1: Base, obj2: Base): boolean {
+    static equals(obj1: Object, obj2: Object): boolean {
         if (obj1 === obj2) return true
 
-        if (obj1 && obj1.equals) return obj1.equals(obj2)
-        if (obj2 && obj2.equals) return obj2.equals(obj1)
+        if (obj1 && obj1 instanceof Base) return obj1.equals(obj2)
+        if (obj2 && obj2 instanceof Base) return obj2.equals(obj1)
 
         if (
             obj1 &&
@@ -405,12 +418,13 @@ export default class Base extends Straps {
      *     type
      * @param {Number} length the amount of elements that can be read
      */
-    static read(
+    static read<T extends typeof Base>(
+        this: T,
         list: any,
         start?: number,
         options?: { readNull?: boolean; clone?: boolean },
         amount?: number
-    ) {
+    ): InstanceType<T> {
         if (this === Base) {
             const value = this.peek(list, start)
             list.__index++
@@ -432,6 +446,11 @@ export default class Base extends Straps {
         }
 
         obj = Base.create(proto)
+        if (!obj._class) {
+            obj._class =
+                Base.exports[obj.constructor.name] && obj.constructor.name
+        }
+
         if (readIndex) obj.__read = true
 
         const listArgs =
@@ -449,7 +468,7 @@ export default class Base extends Straps {
             }
             obj.__read = undefined
         }
-        return obj
+        return obj as InstanceType<T>
     }
 
     /**
@@ -484,7 +503,13 @@ export default class Base extends Straps {
      *     required type
      * @param {Number} amount the amount of elements that should be read
      */
-    static readList(list: any, start?: any, options?: any, amount?: any) {
+    static readList<T extends typeof Base>(
+        this: T,
+        list: any,
+        start?: any,
+        options?: any,
+        amount?: any
+    ): Array<InstanceType<T>> {
         const res = []
         let entry
         const begin = start || 0
@@ -496,7 +521,7 @@ export default class Base extends Straps {
                     : this.read(list, i, options, 1)
             )
         }
-        return res
+        return res as Array<InstanceType<T>>
     }
 
     /**
@@ -516,13 +541,15 @@ export default class Base extends Straps {
      *     type
      * @param {Number} amount the amount of elements that can be read
      */
-    static readNamed(
+
+    static readNamed<T extends typeof Base>(
+        this: T,
         list: any,
         name?: any,
         start?: any,
         options?: any,
         amount?: any
-    ) {
+    ): InstanceType<T> {
         const value = this.getNamed(list, name)
         const hasValue = value !== undefined
         if (hasValue) {

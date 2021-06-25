@@ -272,7 +272,7 @@ export default class Point extends Base {
         )
     }
 
-    _serialize(options?: ExportJsonOptions) {
+    protected _serialize(options?: ExportJsonOptions) {
         return [
             options.formatter.number(this.x),
             options.formatter.number(this.y)
@@ -677,7 +677,7 @@ export default class Point extends Base {
     isClose(point: PointType, tolerance: number): boolean
     isClose(...args: any[]): boolean {
         const point = Point.read(args)
-        const tolerance = Base.read(args)
+        const tolerance: any = Base.read(args) // Todo: fix any
         return this.getDistance(point) <= tolerance
     }
 

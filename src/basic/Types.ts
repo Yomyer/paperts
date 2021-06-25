@@ -11,3 +11,5 @@ export type Size =
     | number[]
     | number
 export type Rectangle = Size & Point
+
+export type Linked = {}

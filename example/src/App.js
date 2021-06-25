@@ -1,11 +1,11 @@
 import logo from './logo.svg'
 import './App.css'
-import { Point } from '@yomyer/paperts'
+import { Style } from '@yomyer/paperts'
 
 function App() {
-    const base = new Point()
-    const json = base.exportJSON()
-
+    const style = new Style()
+    style.setStrokeColor('red')
+    console.log(style)
     return (
         <div className='App'>
             <header className='App-header'>

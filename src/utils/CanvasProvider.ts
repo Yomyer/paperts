@@ -4,7 +4,7 @@ type CanvasProviderType = {
     getContext: any
     release: any
 }
-export const CanvasProvider: CanvasProviderType = {
+const CanvasProvider: CanvasProviderType = {
     canvases: [],
 
     getCanvas: function (width: any, height: any) {
@@ -53,3 +53,5 @@ export const CanvasProvider: CanvasProviderType = {
         }
     }
 }
+
+export default CanvasProvider

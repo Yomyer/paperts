@@ -1,4 +1,5 @@
 import Emitter from '../core/Emitter'
+import Style from '../style/Style'
 
 export default class Item extends Emitter {
     static NO_INSERT: { insert: false }
@@ -8,6 +9,14 @@ export default class Item extends Emitter {
     protected _applyMatrix = true
     protected _canApplyMatrix = true
     protected _canScaleStroke = false
+    project: any
+    _children: any
+
+    style: Style
+
+    _changed(flags: any) {
+        console.log(flags)
+    }
 
     /*
     protected _pivot: Point = null
