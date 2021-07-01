@@ -17,3 +17,13 @@ test('Gradient', function () {
     expect(stop3.offset).toStrictEqual(1)
     expect(stop4.offset).toStrictEqual(0.5)
 })
+
+test('exportJSON', function () {
+    const gradientStop = new GradientStop()
+    expect(gradientStop.exportJSON()).toStrictEqual(`["GradientStop",[0,0,0]]`)
+
+    gradientStop.color = '#314'
+    expect(gradientStop.exportJSON()).toStrictEqual(
+        `["GradientStop",[0.2,0.06667,0.26667]]`
+    )
+})

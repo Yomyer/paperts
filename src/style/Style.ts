@@ -28,10 +28,18 @@ export type StyleItem = {
 
 export type StyleGroup = {
     fontFamily: string
-    fontWeight: string | number
+    fontWeight:
+        | 'normal'
+        | 'bold'
+        | 'lighter'
+        | 'bolder'
+        | 'unset'
+        | 'inherit'
+        | 'uset'
+        | number
     fontSize: number
     leading: string | number
-    justification: string
+    justification: 'left' | 'right' | 'center'
 } & StyleItem
 
 export type StyleText = {} & StyleGroup
@@ -82,18 +90,17 @@ const flags = {
     fontFamily: Change.GEOMETRY,
     fontWeight: Change.GEOMETRY,
     fontSize: Change.GEOMETRY,
-    font: Change.GEOMETRY,
     leading: Change.GEOMETRY,
     justification: Change.GEOMETRY
 }
 
 export default class Style extends Base {
-    protected _class: 'Style'
+    protected _class = 'Style'
     protected _owner: Item // Todo change to item
 
     private _values = {}
-    private _project: any // Todo change to proyect
-    private _defaults: any // Todo change to proyect
+    private _project: any = [] // Todo change to proyect
+    private _defaults: any
 
     initialize(style: any, _owner: Item, _project: any) {
         // We keep values in a separate object that we can iterate over.
@@ -249,7 +256,7 @@ export default class Style extends Base {
         return this.strokeColor
     }
 
-    setStrokeColor(color: ColorType): this {
+    setStrokeColor(color: Partial<Color & ColorType>): this {
         this.strokeColor = color
         return this
     }
@@ -534,7 +541,7 @@ export default class Style extends Base {
         return this.fillColor
     }
 
-    setFillColor(color: ColorType): this {
+    setFillColor(color: Partial<Color & ColorType>): this {
         this.fillColor = color
         return this
     }
@@ -602,7 +609,7 @@ export default class Style extends Base {
         return this.shadowColor
     }
 
-    setShadowColor(color: ColorType): this {
+    setShadowColor(color: Partial<Color & ColorType>): this {
         this.shadowColor = color
         return this
     }
@@ -654,6 +661,181 @@ export default class Style extends Base {
 
     setShadowOffset(offset: PointType): this {
         this.shadowOffset = offset
+        return this
+    }
+
+    /**
+     * {@grouptitle Selection Style}
+     *
+     * The color the item is highlighted with when selected. If the item does
+     * not specify its own color, the color defined by its layer is used instead.
+     *
+     * @name Style#selectedColor
+     * @property
+     * @type ?Color
+     */
+
+    get selectedColor(): Partial<Color & ColorType> {
+        return this.getParam('selectedColor')
+    }
+
+    set selectedColor(color: Partial<Color & ColorType>) {
+        this.setParam('selectedColor', color)
+    }
+
+    getSelectedColor() {
+        return this.selectedColor
+    }
+
+    setSelectedColor(color: Partial<Color & ColorType>): this {
+        this.selectedColor = color
+        return this
+    }
+
+    /**
+     * {@grouptitle Character Style}
+     *
+     * The font-family to be used in text content.
+     *
+     * @name Style#fontFamily
+     * @type String
+     * @default 'sans-serif'
+     */
+    get fontFamily() {
+        return this.getParam('fontFamily')
+    }
+
+    set fontFamily(family: string) {
+        this.setParam('fontFamily', family)
+    }
+
+    getFontFamily() {
+        return this.fontFamily
+    }
+
+    setFontFamilty(family: string): this {
+        this.fontFamily = family
+        return this
+    }
+
+    /**
+     *
+     * The font-weight to be used in text content.
+     *
+     * @name Style#fontWeight
+     * @type String|Number
+     * @default 'normal'
+     */
+    get fontWeight() {
+        return this.getParam('fontWeight')
+    }
+
+    set fontWeight(
+        weight:
+            | 'normal'
+            | 'bold'
+            | 'lighter'
+            | 'bolder'
+            | 'unset'
+            | 'inherit'
+            | 'uset'
+            | number
+    ) {
+        this.setParam('fontWeight', weight)
+    }
+
+    getFontWeight() {
+        return this.fontWeight
+    }
+
+    setFontWeight(
+        weight:
+            | 'normal'
+            | 'bold'
+            | 'lighter'
+            | 'bolder'
+            | 'unset'
+            | 'inherit'
+            | 'uset'
+            | number
+    ): this {
+        this.fontWeight = weight
+        return this
+    }
+
+    /**
+     * The font size of text content, as a number in pixels, or as a string with
+     * optional units `'px'`, `'pt'` and `'em'`.
+     *
+     * @name Style#fontSize
+     * @type Number|String
+     * @default 10
+     */
+    get fontSize() {
+        return this.getParam('fontSize')
+    }
+
+    set fontSize(size: number) {
+        this.setParam('fontSize', size)
+    }
+
+    getFontSize() {
+        return this.fontSize
+    }
+
+    setFontSize(size: number): this {
+        this.fontSize = size
+        return this
+    }
+
+    /**
+     * The text leading of text content.
+     *
+     * @name Style#leading
+     * @type Number|String
+     * @default fontSize * 1.2
+     */
+    get leading() {
+        return this.getParam('leading')
+    }
+
+    set leading(leading: number) {
+        this.setParam('leading', leading)
+    }
+
+    getLeading() {
+        return this.leading
+    }
+
+    setLeading(leading: number): this {
+        this.leading = leading
+        return this
+    }
+
+    /**
+     * {@grouptitle Paragraph Style}
+     *
+     * The justification of text paragraphs.
+     *
+     * @name Style#justification
+     * @type String
+     * @values 'left', 'right', 'center'
+     * @default 'left'
+     */
+    get justification() {
+        return this.getParam('justification')
+    }
+
+    set justification(justification: 'left' | 'right' | 'center') {
+        this.setParam('justification', justification)
+    }
+
+    getJustification() {
+        return this.justification
+    }
+
+    setJustification(justification: 'left' | 'right' | 'center'): this {
+        this.justification = justification
         return this
     }
 }

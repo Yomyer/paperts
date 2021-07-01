@@ -1,7 +1,16 @@
+import Gradient from './Gradient'
+
 export {}
 
 test('Gradients with applyMatrix', function () {
     expect(1).toStrictEqual(1)
+})
+
+test('exportJSON', function () {
+    const gradient = new Gradient()
+    expect(gradient.exportJSON()).toStrictEqual(
+        `[["dictionary",{"#1":["Gradient",[[[1,1,1]],[[0,0,0]]],false]}],["Gradient","#1"]]`
+    )
 })
 
 /* 

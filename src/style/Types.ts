@@ -1,5 +1,4 @@
 import { Point } from '../basic/Types'
-
 export type ColorTypes = 'rgb' | 'gray' | 'hsb' | 'hsl' | 'gradient'
 
 export type ColorOptions = {
@@ -16,12 +15,10 @@ export type ColorOptions = {
         alpha?: number
     }
     gradient?: {
-        gradient?: any // Todo Gradient
-        // gradient?: Gradient
+        gradient?: Gradient
         origin?: Point
         destination?: Point
-        stops?: any // Todo GradientStop[]
-        // stops?: GradientStop[]
+        stops?: GradientStop[]
         radial?: boolean
     }
 }
@@ -36,12 +33,10 @@ export type ColorPropeties = {
     brightness?: number
     lightness?: number
     alpha?: number
-    gradient?: any // gradient?: Gradient
-    // gradient?: Gradient
+    gradient?: Gradient
     origin?: Point
     destination?: Point
-    stops?: any // Todo GradientStop[]
-    // stops?: GradientStop[]
+    stops?: GradientStop[]
     radial?: boolean
 }
 
@@ -58,3 +53,8 @@ export type GradientStop =
           offer?: number
       }
     | GradientStopPropeties
+
+export type Gradient = {
+    radial: boolean
+    stops: GradientStop[]
+}

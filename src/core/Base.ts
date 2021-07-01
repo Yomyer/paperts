@@ -12,7 +12,7 @@ export type ExportJsonOptions = {
 
 export default class Base extends Straps {
     protected _id: string
-    protected _class = 'Ojbect'
+    protected _class = 'Object'
     protected _name: string
     protected _index?: number
     protected _serialize?(_options?: ExportJsonOptions, _dictionary?: any): any

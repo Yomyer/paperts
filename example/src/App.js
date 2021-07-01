@@ -1,11 +1,13 @@
 import logo from './logo.svg'
 import './App.css'
-import { Style } from '@yomyer/paperts'
+import { Gradient, Point } from '@yomyer/paperts'
 
 function App() {
-    const style = new Style()
-    style.setStrokeColor('red')
-    console.log(style)
+    const gradient = new Gradient()
+    console.log(gradient.toJSON())
+
+    const point = new Point()
+    console.log(point)
     return (
         <div className='App'>
             <header className='App-header'>

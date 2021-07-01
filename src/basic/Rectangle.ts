@@ -281,12 +281,12 @@ export default class Rectangle extends Base {
         this.setPoint(point)
     }
 
-    protected getPoint(_dontLink?: boolean) {
+    getPoint(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.x, this.y, this, 'setPoint')
     }
 
-    protected setPoint(...args: any[]) {
+    setPoint(...args: any[]) {
         const point = Point.read(args)
         this.x = point.x
         this.y = point.y
@@ -300,12 +300,12 @@ export default class Rectangle extends Base {
         this.setSize(size)
     }
 
-    protected getSize(_dontLink?: boolean) {
+    getSize(_dontLink?: boolean) {
         const Ctor = _dontLink ? Size : LinkedSize
         return new Ctor(this.width, this.height, this, 'setSize')
     }
 
-    protected setSize(...args: any[]) {
+    setSize(...args: any[]) {
         const size = Size.read(args)
         const sx = this._sx
         const sy = this._sy
@@ -331,11 +331,11 @@ export default class Rectangle extends Base {
         this.setLeft(left)
     }
 
-    protected getLeft() {
+    getLeft() {
         return this.x
     }
 
-    protected setLeft(left?: number) {
+    setLeft(left?: number) {
         if (!this._fw) {
             const amount = left - this.x
             this.width -= this._sx === 0.5 ? amount * 2 : amount
@@ -352,11 +352,11 @@ export default class Rectangle extends Base {
         this.setTop(top)
     }
 
-    protected getTop() {
+    getTop() {
         return this.y
     }
 
-    protected setTop(top?: number) {
+    setTop(top?: number) {
         if (!this._fh) {
             const amount = top - this.y
             this.height -= this._sy === 0.5 ? amount * 2 : amount
@@ -373,11 +373,11 @@ export default class Rectangle extends Base {
         this.setRight(right)
     }
 
-    protected getRight() {
+    getRight() {
         return this.x + this.width
     }
 
-    protected setRight(right?: number) {
+    setRight(right?: number) {
         if (!this._fw) {
             const amount = right - this.x
             this.width = this._sx === 0.5 ? amount * 2 : amount
@@ -395,11 +395,11 @@ export default class Rectangle extends Base {
         this.setBottom(bottom)
     }
 
-    protected getBottom() {
+    getBottom() {
         return this.y + this.height
     }
 
-    protected setBottom(bottom?: number) {
+    setBottom(bottom?: number) {
         if (!this._fh) {
             const amount = bottom - this.y
             this.height = this._sy === 0.5 ? amount * 2 : amount
@@ -417,11 +417,11 @@ export default class Rectangle extends Base {
         this.setCenterX(x)
     }
 
-    protected getCenterX() {
+    getCenterX() {
         return this.x + this.width / 2
     }
 
-    protected setCenterX(x?: number) {
+    setCenterX(x?: number) {
         if (this._fw || this._sx === 0.5) {
             this.x = x - this.width / 2
         } else {
@@ -442,11 +442,11 @@ export default class Rectangle extends Base {
         this.setCenterY(y)
     }
 
-    protected getCenterY() {
+    getCenterY() {
         return this.y + this.height / 2
     }
 
-    protected setCenterY(y?: number) {
+    setCenterY(y?: number) {
         if (this._fh || this._sy === 0.5) {
             this.y = y - this.height / 2
         } else {
@@ -467,12 +467,12 @@ export default class Rectangle extends Base {
         this.setCenter(point)
     }
 
-    protected getCenter(_dontLink?: boolean) {
+    getCenter(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.getCenterX(), this.getCenterY(), this, 'setCenter')
     }
 
-    protected setCenter(...args: any) {
+    setCenter(...args: any) {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setCenterY(point.y)
@@ -488,12 +488,12 @@ export default class Rectangle extends Base {
         this.setTopLeft(point)
     }
 
-    protected getTopLeft(_dontLink?: boolean) {
+    getTopLeft(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.getLeft(), this.getTop(), this, 'setTopLeft')
     }
 
-    protected setTopLeft(...args: any) {
+    setTopLeft(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setTop(point.y)
@@ -507,12 +507,12 @@ export default class Rectangle extends Base {
         this.setTopRight(point)
     }
 
-    protected getTopRight(_dontLink?: boolean) {
+    getTopRight(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.getRight(), this.getTop(), this, 'setTopRight')
     }
 
-    protected setTopRight(...args: any) {
+    setTopRight(...args: any) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setTop(point.y)
@@ -526,12 +526,12 @@ export default class Rectangle extends Base {
         this.setBottomLeft(point)
     }
 
-    protected getBottomLeft(_dontLink?: boolean) {
+    getBottomLeft(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.getLeft(), this.getBottom(), this, 'setBottomLeft')
     }
 
-    protected setBottomLeft(...args: any) {
+    setBottomLeft(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setBottom(point.y)
@@ -545,7 +545,7 @@ export default class Rectangle extends Base {
         this.setBottomRight(point)
     }
 
-    protected getBottomRight(_dontLink?: boolean) {
+    getBottomRight(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(
             this.getRight(),
@@ -555,7 +555,7 @@ export default class Rectangle extends Base {
         )
     }
 
-    protected setBottomRight(...args: any) {
+    setBottomRight(...args: any) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setBottom(point.y)
@@ -569,7 +569,7 @@ export default class Rectangle extends Base {
         this.setLeftCenter(point)
     }
 
-    protected getLeftCenter(_dontLink?: boolean) {
+    getLeftCenter(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(
             this.getLeft(),
@@ -579,7 +579,7 @@ export default class Rectangle extends Base {
         )
     }
 
-    protected setLeftCenter(...args: any) {
+    setLeftCenter(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setCenterY(point.y)
@@ -593,12 +593,12 @@ export default class Rectangle extends Base {
         this.setTopCenter(point)
     }
 
-    protected getTopCenter(_dontLink?: boolean) {
+    getTopCenter(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(this.getCenterX(), this.getTop(), this, 'setTopCenter')
     }
 
-    protected setTopCenter(...args: any) {
+    setTopCenter(...args: any) {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setTop(point.y)
@@ -612,7 +612,7 @@ export default class Rectangle extends Base {
         this.setRightCenter(point)
     }
 
-    protected getRightCenter(_dontLink?: boolean) {
+    getRightCenter(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(
             this.getRight(),
@@ -622,7 +622,7 @@ export default class Rectangle extends Base {
         )
     }
 
-    protected setRightCenter(...args: any) {
+    setRightCenter(...args: any) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setCenterY(point.y)
@@ -636,7 +636,7 @@ export default class Rectangle extends Base {
         this.setBottomCenter(point)
     }
 
-    protected getBottomCenter(_dontLink?: boolean) {
+    getBottomCenter(_dontLink?: boolean) {
         const Ctor = _dontLink ? Point : LinkedPoint
         return new Ctor(
             this.getCenterX(),
@@ -646,7 +646,7 @@ export default class Rectangle extends Base {
         )
     }
 
-    protected setBottomCenter(...args: any) {
+    setBottomCenter(...args: any) {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setBottom(point.y)
@@ -1105,21 +1105,21 @@ export class LinkedRectangle extends Rectangle {
         if (!this._dontNotify) this._owner[this._setter](this)
     }
 
-    protected setPoint(...args: any) {
+    setPoint(...args: any) {
         this._dontNotify = true
         super.setPoint(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setSize(...args: any) {
+    setSize(...args: any) {
         this._dontNotify = true
         super.setSize(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setCenter(...args: any) {
+    setCenter(...args: any) {
         this._dontNotify = true
         super.setCenter(...args)
         this._dontNotify = false
@@ -1128,98 +1128,98 @@ export class LinkedRectangle extends Rectangle {
         return this
     }
 
-    protected setLeft(...args: any) {
+    setLeft(...args: any) {
         this._dontNotify = true
         super.setLeft(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setTop(...args: any) {
+    setTop(...args: any) {
         this._dontNotify = true
         super.setTop(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setRight(...args: any) {
+    setRight(...args: any) {
         this._dontNotify = true
         super.setRight(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setBottom(...args: any) {
+    setBottom(...args: any) {
         this._dontNotify = true
         super.setBottom(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setCenterX(...args: any) {
+    setCenterX(...args: any) {
         this._dontNotify = true
         super.setCenterX(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setCenterY(...args: any) {
+    setCenterY(...args: any) {
         this._dontNotify = true
         super.setCenterY(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setTopLeft(...args: any) {
+    setTopLeft(...args: any) {
         this._dontNotify = true
         super.setTopLeft(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setTopRight(...args: any) {
+    setTopRight(...args: any) {
         this._dontNotify = true
         super.setTopRight(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setBottomLeft(...args: any) {
+    setBottomLeft(...args: any) {
         this._dontNotify = true
         super.setBottomLeft(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setBottomRight(...args: any) {
+    setBottomRight(...args: any) {
         this._dontNotify = true
         super.setBottomRight(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setLeftCenter(...args: any) {
+    setLeftCenter(...args: any) {
         this._dontNotify = true
         super.setLeftCenter(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setTopCenter(...args: any) {
+    setTopCenter(...args: any) {
         this._dontNotify = true
         super.setTopCenter(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setRightCenter(...args: any) {
+    setRightCenter(...args: any) {
         this._dontNotify = true
         super.setRightCenter(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
     }
 
-    protected setBottomCenter(...args: any) {
+    setBottomCenter(...args: any) {
         this._dontNotify = true
         super.setBottomCenter(...args)
         this._dontNotify = false

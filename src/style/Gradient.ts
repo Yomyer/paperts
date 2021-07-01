@@ -5,7 +5,7 @@ import GradientStop from './GradientStop'
 import { GradientStop as GradientStopType } from './Types'
 
 export default class Gradient extends Base {
-    protected _class: 'Gradient'
+    protected _class = 'Gradient'
 
     protected _stops: GradientStop[]
     protected _radial: boolean
@@ -29,8 +29,8 @@ export default class Gradient extends Base {
         // only initialize them if that hasn't happened yet.
         if (this._stops == null) {
             this.stops = stops || [
-                new GradientStop('white'),
-                new GradientStop('black')
+                new GradientStop('#FFF'),
+                new GradientStop('#000')
             ]
         }
         if (this._radial == null) {

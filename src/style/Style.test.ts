@@ -117,3 +117,65 @@ test('shadowOffset', function () {
     style.setShadowOffset([20, 20])
     expect(style.shadowOffset).toMatchObject({ x: 20, y: 20 })
 })
+
+test('selectedColor', function () {
+    const style = new Style()
+    style.selectedColor = '#F00'
+    expect(style.getSelectedColor()).toMatchObject(new Color(1, 0, 0))
+
+    style.setSelectedColor('#FFF')
+    expect(style.selectedColor).toMatchObject(new Color(1, 1, 1))
+})
+
+test('fontFamily', function () {
+    const style = new Style()
+    style.fontFamily = 'Arial'
+    expect(style.getFontFamily()).toStrictEqual('Arial')
+
+    style.setFontFamilty('Verdana')
+    expect(style.fontFamily).toStrictEqual('Verdana')
+})
+
+test('fontWeight', function () {
+    const style = new Style()
+    style.fontWeight = 'normal'
+    expect(style.getFontWeight()).toStrictEqual('normal')
+
+    style.setFontWeight(300)
+    expect(style.fontWeight).toStrictEqual(300)
+})
+
+test('fontSize', function () {
+    const style = new Style()
+    style.fontSize = 15
+    expect(style.getFontSize()).toStrictEqual(15)
+
+    style.setFontSize(300)
+    expect(style.fontSize).toStrictEqual(300)
+})
+
+test('leading', function () {
+    const style = new Style()
+    style.leading = 15
+    expect(style.getLeading()).toStrictEqual(15)
+
+    style.setLeading(20)
+    expect(style.leading).toStrictEqual(20)
+})
+
+test('justification', function () {
+    const style = new Style()
+    style.justification = 'center'
+    expect(style.getJustification()).toStrictEqual('center')
+
+    style.setJustification('left')
+    expect(style.justification).toStrictEqual('left')
+})
+
+test('exportJSON', function () {
+    const style = new Style()
+
+    expect(style.exportJSON()).toStrictEqual(
+        `{"_values":{},"_project":[],"_defaults":{"fillColor":null,"fillRule":"nonzero","strokeColor":null,"strokeWidth":1,"strokeCap":"butt","strokeJoin":"miter","strokeScaling":true,"miterLimit":10,"dashOffset":0,"dashArray":[],"shadowColor":null,"shadowBlur":0,"shadowOffset":["Point",0,0],"selectedColor":null,"fontFamily":"sans-serif","fontWeight":"normal","fontSize":12,"leading":null,"justification":"left"},"_class":"Style"}`
+    )
+})

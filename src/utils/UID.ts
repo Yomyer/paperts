@@ -1,5 +1,5 @@
 export default class UID {
-    protected static _id: 1
+    protected static _id = 1
     protected static _pools: {}
 
     /**
