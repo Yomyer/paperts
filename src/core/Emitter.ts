@@ -1,10 +1,9 @@
 import Base from './Base'
 
-type EmitterType =
-    | string
-    | {
-          [type: string]: (event?: any, ...args: any) => void
-      }
+export type EventList = {
+    [type: string]: (event?: any, ...args: any) => void
+}
+export type EmitterType = string | EventList
 
 export default abstract class Emitter extends Base {
     protected _eventTypes: {
@@ -104,7 +103,7 @@ export default abstract class Emitter extends Base {
         return true
     }
 
-    responds(type: string) {
+    responds(type: string): boolean {
         return !!(this._callbacks && this._callbacks[type])
     }
 

@@ -184,7 +184,7 @@ export default class Matrix extends Base {
     /**
      * @return {String} a string representation of this transform
      */
-    toString() {
+    toString(): string {
         return (
             '[[' +
             [
@@ -884,5 +884,13 @@ export default class Matrix extends Base {
     set ty(value: number) {
         this._ty = value
         this._changed()
+    }
+
+    get owner() {
+        return this._owner
+    }
+
+    set owner(owner: any) {
+        this._owner = owner
     }
 }

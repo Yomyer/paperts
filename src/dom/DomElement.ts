@@ -1,8 +1,10 @@
 import { Rectangle, Size } from '../basic'
 
+type Element = HTMLElement | CSSStyleDeclaration | Document | Window
+
 export default class DomElement {
     private static handlePrefix(
-        el: HTMLElement,
+        el: Element,
         name: string,
         set?: boolean,
         value?: string
@@ -88,15 +90,15 @@ export default class DomElement {
         )
     }
 
-    static isInserted(el: HTMLElement) {
-        return document.body.contains(el)
+    static isInserted(el: Element) {
+        return document.body.contains(el as HTMLElement)
     }
 
-    static getPrefixed(el: HTMLElement, name: string) {
+    static getPrefixed(el: Element, name: string) {
         return el && DomElement.handlePrefix(el, name)
     }
 
-    static setPrefixed(el: HTMLElement, name: string | object, value: string) {
+    static setPrefixed(el: Element, name: string | object, value?: string) {
         if (typeof name === 'object') {
             for (const key in name)
                 DomElement.handlePrefix(el, key, true, name[key])

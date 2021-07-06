@@ -12,3 +12,9 @@ export const Exportable = () => {
             target.prototype.constructor
     }
 }
+
+export const OnDefined = <T>(callback: (target: T) => void) => {
+    return (target: T) => {
+        callback(target)
+    }
+}

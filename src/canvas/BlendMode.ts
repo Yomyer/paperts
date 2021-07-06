@@ -1,4 +1,19 @@
-import { CanvasProvider } from './CanvasProvider'
+import CanvasProvider from './CanvasProvider'
+
+export type BlendModes = {
+    'source-over': boolean
+    'source-in': boolean
+    'source-out': boolean
+    'source-atop': boolean
+    'destination-over': boolean
+    'destination-in': boolean
+    'destination-out': boolean
+    'destination-atop': boolean
+    lighter: boolean
+    darker: boolean
+    copy: boolean
+    xor: boolean
+}
 
 class BlendModeClass {
     private min = Math.min
@@ -273,7 +288,7 @@ class BlendModeClass {
         }
     }
 
-    public nativeModes = {
+    public nativeModes: BlendModes = {
         'source-over': true,
         'source-in': true,
         'source-out': true,
@@ -374,3 +389,4 @@ class BlendModeClass {
 }
 
 export const BlendMode = new BlendModeClass()
+export default BlendMode
