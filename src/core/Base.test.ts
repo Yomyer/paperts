@@ -1,8 +1,7 @@
-import Item from './../item/Item'
 import Base from './Base'
 
 test('toString() with _id, _class, _name', () => {
-    const base: any = new Item()
+    const base: any = new Base()
     base._id = '453172467323dfsd234fe'
     base._class = 'Rectangle'
     base._name = 'Name'
@@ -11,7 +10,7 @@ test('toString() with _id, _class, _name', () => {
 })
 
 test('toString() without _id, _class, _name', () => {
-    const base: any = new Item()
+    const base: any = new Base()
     base.number = 2313
     base.string = 'test'
 
@@ -19,7 +18,7 @@ test('toString() without _id, _class, _name', () => {
 })
 
 test('getClassName()', () => {
-    const base: any = new Item()
+    const base: any = new Base()
     base._class = 'Rectangle'
 
     expect(base.getClassName()).toStrictEqual(`Rectangle`)
@@ -35,11 +34,11 @@ test('static push()', () => {
 })
 
 test('static splice()', () => {
-    const base1 = new Item()
-    const base2 = new Item()
-    const base3 = new Item()
-    const base4 = new Item()
-    const base5 = new Item()
+    const base1 = new Base()
+    const base2 = new Base()
+    const base3 = new Base()
+    const base4 = new Base()
+    const base5 = new Base()
 
     const foo = [base1, base2, base3]
     const bar = [base4, base5]
@@ -66,3 +65,10 @@ test('static hyphenate()', () => {
 
     expect(foo).toStrictEqual('caps-lock')
 })
+
+/*
+test('contruct()', () => {
+    const point = Base.construct('Point', 10, 10)
+    console.log(point)
+})
+*/

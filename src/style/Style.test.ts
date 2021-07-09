@@ -1,6 +1,18 @@
 import Color from './Color'
 import Style from './Style'
 
+test('equals', function () {
+    const style = new Style()
+    style.fillColor = '#F00'
+
+    expect(style.equals({ fillColor: new Color([1, 0, 0]) })).toMatchObject(
+        new Color(1, 0, 0)
+    )
+
+    style.setStrokeColor('#FFF')
+    expect(style.strokeColor).toMatchObject(new Color(1, 1, 1))
+})
+
 test('strokeColor', function () {
     const style = new Style()
     style.strokeColor = '#F00'

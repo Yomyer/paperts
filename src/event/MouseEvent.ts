@@ -1,8 +1,8 @@
 import Event from './Event'
-import Item from '../item/Item'
 import Point from '../basic/Point'
+import Emitter from '../core/Emitter'
 
-type EventTypes =
+export type MouseEventTypes =
     | 'mousedown'
     | 'mouseup'
     | 'mousedrag'
@@ -15,16 +15,17 @@ type EventTypes =
 export default class MouseEvent extends Event {
     protected _class = 'MouseEvent'
 
-    type: EventTypes
+    type: MouseEventTypes
     point: Point
-    target: Item
+    target: Emitter
     delta: Point
 
     constructor(
-        type: EventTypes,
+        type: MouseEventTypes,
         event: UIEvent,
-        key: string,
-        character: string
+        point: Point,
+        target: Emitter,
+        delta: Point
     )
 
     constructor(...args: any[]) {

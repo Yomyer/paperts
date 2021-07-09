@@ -20,10 +20,6 @@ export default class Point extends Base {
     protected _x: number
     protected _y: number
 
-    lenght: number
-    angle: number
-    selected: boolean
-
     /**
      * Creates a Point object with the given width and height values.
      *
@@ -230,7 +226,9 @@ export default class Point extends Base {
      */
     equals(x: number, y: number): boolean
     equals(point: PointType): boolean
-    equals(point: any): boolean {
+    equals(...args: any[]): boolean {
+        const point = (args[0] instanceof Point && args[0]) || Point.read(args)
+
         return (
             this === point ||
             (point &&
@@ -303,6 +301,14 @@ export default class Point extends Base {
         }
     }
 
+    get length() {
+        return this.getLength()
+    }
+
+    set length(length: number) {
+        this.setLength(length)
+    }
+
     /**
      * Returns the smaller angle between two vectors. The angle is unsigned, no
      * information about rotational direction is given.
@@ -338,8 +344,24 @@ export default class Point extends Base {
         this.setAngleInRadians((angle * Math.PI) / 180)
     }
 
+    get angle() {
+        return this.getAngle()
+    }
+
+    set angle(angle: number) {
+        this.setAngle(angle)
+    }
+
     getAngleInDegrees = this.getAngle
     setAngleInDegrees = this.setAngle
+
+    get angleInDegrees() {
+        return this.getAngleInDegrees()
+    }
+
+    set angleInDegrees(angle: number) {
+        this.setAngleInDegrees(angle)
+    }
 
     /**
      * Returns the smaller angle between two vectors in radians. The angle is
@@ -386,6 +408,14 @@ export default class Point extends Base {
         }
     }
 
+    get angleInRadians() {
+        return this.getAngleInRadians()
+    }
+
+    set angleInRadians(angle: number) {
+        this.setAngleInRadians(angle)
+    }
+
     /**
      * The quadrant of the {@link #angle} of the point.
      *
@@ -415,6 +445,10 @@ export default class Point extends Base {
      */
     getQuadrant(): number {
         return this.x >= 0 ? (this.y >= 0 ? 1 : 4) : this.y >= 0 ? 2 : 3
+    }
+
+    get quadrant() {
+        return this.getQuadrant()
     }
 
     /**

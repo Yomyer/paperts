@@ -60,7 +60,7 @@ export default class PaperScope extends Base {
     public _class = 'PaperScope'
     static paper: PaperScope
 
-    agent: PapperAgent
+    agent: PapperAgent = {}
     browser: PapperAgent
     settings: PapperSettings
 
@@ -288,18 +288,25 @@ export default class PaperScope extends Base {
         delete PaperScope._scopes[this._id]
     }
 
+    /**
+     * Set the global paper object to the current scope
+     *
+     * @param {PaperScope} scope
+     */
+    static setGlobalPaper(scope: PaperScope) {
+        this.paper = scope
+    }
+
     static get(id: string) {
         return this._scopes[id] || null
     }
 
-    static getAttribute(name: string) {
-        name += 'Attribute'
-        return (el: HTMLElement, attr: string) => {
-            return el[name](attr) || el[name]('data-paper-' + attr)
-        }
+    static getAttribute(el: HTMLElement, attr: string) {
+        const name = attr + 'Attribute'
+        return el[name](attr) || el[name]('data-paper-' + attr)
     }
 
-    static hasAttribute(name: string): boolean {
-        return !!PaperScope.getAttribute(name)
+    static hasAttribute(el: HTMLElement, attr: string): boolean {
+        return !!PaperScope.getAttribute(el, attr)
     }
 }

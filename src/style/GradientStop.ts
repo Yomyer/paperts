@@ -1,4 +1,4 @@
-import Base, { ExportJsonOptions } from '../core/Base'
+import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
 import { Change } from '../item/ChangeFlag'
 import Color from './Color'
 import { Color as ColorType, GradientStop as GradientStopType } from './Types'
@@ -55,7 +55,7 @@ export default class GradientStop extends Base {
         return new GradientStop(this._color.clone(), this._offset)
     }
 
-    protected _serialize(options?: ExportJsonOptions, dictionary?: any) {
+    protected _serialize(options?: ExportJsonOptions, dictionary?: Dictionary) {
         const color = this._color
         const offset = this._offset
         return Base.serialize(
@@ -118,7 +118,7 @@ export default class GradientStop extends Base {
 
     set offset(offset: number) {
         this._offset = offset
-        this._changed()
+        this.changed()
     }
 
     /**
@@ -135,7 +135,7 @@ export default class GradientStop extends Base {
      */
     private set rampPoint(offset: number) {
         this._offset = offset
-        this._changed()
+        this.changed()
     }
 
     /**
@@ -183,7 +183,7 @@ export default class GradientStop extends Base {
     set color(color: ColorType) {
         Color._setOwner(this._color, null)
         this._color = Color._setOwner(Color.read([color], 0), this, 'setColor')
-        this._changed()
+        this.changed()
     }
 
     get owner() {

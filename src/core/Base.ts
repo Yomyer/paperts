@@ -1,5 +1,6 @@
 import Straps from './Straps'
 import Formatter from '../utils/Formatter'
+import { Change, ChangeFlag } from '../item'
 
 // import Item from '../item/Item'
 // import Layer from '../item/Layer'
@@ -10,15 +11,25 @@ export type ExportJsonOptions = {
     formatter?: Formatter
 }
 
+export type Dictionary = {
+    length: 0
+    definitions: {}
+    references: { [key: string]: Base } | string[]
+    add: (item: Base, create: () => string) => string
+}
+
 export default class Base extends Straps {
     protected _id: string
     protected _class = 'Object'
     protected _name: string
     protected _index?: number
-    protected _serialize?(_options?: ExportJsonOptions, _dictionary?: any): any
+    protected _serialize?(
+        _options?: ExportJsonOptions,
+        _dictionary?: Dictionary
+    ): any
 
     // Todo into item
-    protected _changed?(flag?: any): any
+    protected _changed?(flag?: ChangeFlag | Change, ...args: any[]): any
     protected _prioritize?: string[]
     protected _compactSerialize?: boolean
     protected _readIndex?: boolean
@@ -35,13 +46,12 @@ export default class Base extends Straps {
         return false
     }
 
-    clone(): Base {
+    clone(): this {
         return Base.clone(this)
     }
 
-    // Todo into item
-    changed(flag?: any) {
-        return this._changed(flag)
+    changed(flag?: ChangeFlag | Change, ...args: any[]) {
+        return this._changed(flag, ...args)
     }
 
     /**
@@ -105,7 +115,7 @@ export default class Base extends Straps {
      * @return {String} the exported JSON data
      */
 
-    exportJSON(options?: Object): string {
+    exportJSON(options?: ExportJsonOptions): string {
         return Base.exportJSON(this, options)
     }
 
@@ -130,7 +140,7 @@ export default class Base extends Straps {
     }
 
     // Statics
-    static exports: any = {}
+    static exports: { [key: string]: typeof Base } = {}
 
     static exportJSON(obj: Base, options?: ExportJsonOptions): string {
         const json = Base.serialize(obj, options)
@@ -138,15 +148,6 @@ export default class Base extends Straps {
             ? json
             : JSON.stringify(json)
     }
-    /*
-    static importJSON<T extends typeof Base>(
-        this: T,
-        json: string,
-        target?: T
-    ): InstanceType<T> {
-        // return Base.deserialize()
-    }
-    */
 
     static importJSON<T extends typeof Base>(
         this: T,
@@ -192,7 +193,7 @@ export default class Base extends Straps {
         obj: any,
         options?: ExportJsonOptions,
         compact?: boolean,
-        dictionary?: any
+        dictionary?: Dictionary
     ): string {
         options = options || {}
 
@@ -204,7 +205,7 @@ export default class Base extends Straps {
                 length: 0,
                 definitions: {},
                 references: {},
-                add: function (item: Base, create: () => {}) {
+                add: function (this: Dictionary, item: Base, create: () => {}) {
                     const id = '#' + item._id
                     let ref = this.references[id]
                     if (!ref) {
@@ -213,6 +214,7 @@ export default class Base extends Straps {
                         const name = item._class
                         if (name && res[0] !== name) res.unshift(name)
                         this.definitions[id] = res
+
                         ref = this.references[id] = [id]
                     }
                     return ref
@@ -333,7 +335,7 @@ export default class Base extends Straps {
         dest: Object,
         source: Object & { __unfiltered?: boolean },
         exclude: Object,
-        prioritize: string[]
+        prioritize?: string[]
     ) {
         let processed: {}
 
@@ -700,5 +702,12 @@ export default class Base extends Straps {
      */
     static hyphenate(str: string) {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+    }
+
+    static construct(classname: string, ...args: any[]): any {
+        console.log(Base.exports)
+        if (Base.exports[classname]) {
+            return new Base.exports[classname](...args)
+        }
     }
 }

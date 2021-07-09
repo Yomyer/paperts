@@ -1,5 +1,5 @@
 import Base from '../core/Base'
-import { Change } from '../item'
+import { Change } from '../item/ChangeFlag'
 import Group from '../item/Group'
 import Item from '../item/Item'
 import TextItem from '../text/TextItem'
@@ -8,11 +8,12 @@ import { Color as ColorType } from './Types'
 import { Point as PointType } from '../basic/Types'
 import CompoundPath from '../path/CompundPath'
 import Point from '../basic/Point'
+import Project from '../item/Project'
 
 export type StyleItem = {
-    fillColor?: Color
+    fillColor?: ColorType
     fillRule?: 'nonzero' | 'evenodd'
-    strokeColor?: Color
+    strokeColor?: ColorType
     strokeWidth?: number
     strokeCap?: 'round' | 'square' | 'butt'
     strokeJoin?: 'miter' | 'round' | 'bevel'
@@ -20,15 +21,15 @@ export type StyleItem = {
     miterLimit?: number
     dashOffset?: number
     dashArray?: number[]
-    shadowColor?: Color
+    shadowColor?: ColorType
     shadowBlur?: number
-    shadowOffset?: Point
-    selectedColor?: Color
+    shadowOffset?: PointType
+    selectedColor?: ColorType
 }
 
 export type StyleGroup = {
-    fontFamily: string
-    fontWeight:
+    fontFamily?: string
+    fontWeight?:
         | 'normal'
         | 'bold'
         | 'lighter'
@@ -37,14 +38,15 @@ export type StyleGroup = {
         | 'inherit'
         | 'uset'
         | number
-    fontSize: number
-    leading: string | number
-    justification: 'left' | 'right' | 'center'
+    fontSize?: string | number
+    leading?: string | number
+    justification?: 'left' | 'right' | 'center'
 } & StyleItem
 
 export type StyleText = {} & StyleGroup
 
-export type StyleProps = keyof StyleText
+export type StyleProps = StyleText
+export type StylePropsKeys = keyof StyleText
 
 const itemDefaults: StyleItem = {
     fillColor: null,
@@ -96,18 +98,21 @@ const flags = {
 
 export default class Style extends Base {
     protected _class = 'Style'
-    protected _owner: Item // Todo change to item
+    protected _owner: Item
 
-    private _values = {}
-    private _project: any = [] // Todo change to proyect
-    private _defaults: any
+    protected _values: any = {}
+    protected _project: Project
+    protected _defaults: any = {}
 
-    initialize(style: any, _owner: Item, _project: any) {
-        // We keep values in a separate object that we can iterate over.
+    constructor(style?: StyleProps, owner?: Item, project?: Project)
+    constructor(...args: any[]) {
+        super(...args)
+    }
+
+    initialize(style: StyleProps | Style, _owner: Item, _project: Project) {
         this._values = {}
         this._owner = _owner
         this._project = (_owner && _owner.project) || _project // || TODO: Default paper.project
-        // Use different defaults based on the owner
         this._defaults =
             !_owner || _owner instanceof Group
                 ? groupDefaults
@@ -117,13 +122,9 @@ export default class Style extends Base {
         if (style) this.set(style)
     }
 
-    constructor(...args: any[]) {
-        super(...args)
-    }
-
-    set(style: any): this {
+    set(style: StyleProps | Style): this {
         const isStyle = style instanceof Style
-        const values = isStyle ? style._values : style
+        const values = style instanceof Style ? style._values : style
         if (values) {
             for (const key in values) {
                 if (key in this._defaults) {
@@ -137,14 +138,99 @@ export default class Style extends Base {
         return this
     }
 
-    private getParam(key: StyleProps, _dontMerge?: boolean) {
+    equals(style: StyleProps): boolean
+    equals(style: Style): boolean {
+        style = Style.read([style]) as Style
+
+        function compare(style1: Style, style2: Style, secondary?: boolean) {
+            const values1 = style1._values
+            const values2 = style2._values
+            const defaults2 = style2._defaults
+            for (const key in values1) {
+                const value1 = values1[key]
+                const value2 = values2[key]
+                if (
+                    !(secondary && key in values2) &&
+                    !Base.equals(
+                        value1,
+                        value2 === undefined ? defaults2[key] : value2
+                    )
+                )
+                    return false
+            }
+            return true
+        }
+
+        return (
+            style === this ||
+            (style &&
+                this._class === style._class &&
+                compare(this, style) &&
+                compare(style, this, true)) ||
+            false
+        )
+    }
+
+    _dispose() {
+        let color: Color
+
+        color = this.getFillColor()
+        if (color) color.canvasStyle = null
+        color = this.getStrokeColor()
+        if (color) color.canvasStyle = null
+        color = this.getShadowColor()
+        if (color) color.canvasStyle = null
+    }
+
+    hasFill() {
+        const color = this.getFillColor()
+        return !!color && color.alpha > 0
+    }
+
+    hasStroke() {
+        const color = this.getStrokeColor()
+        return !!color && color.alpha > 0 && this.getStrokeWidth() > 0
+    }
+
+    hasShadow() {
+        const color = this.getShadowColor()
+        return (
+            !!color &&
+            color.alpha > 0 &&
+            (this.getShadowBlur() > 0 || !this.getShadowOffset().isZero())
+        )
+    }
+
+    /**
+     * The view that this style belongs to.
+     *
+     * @bean
+     * @type View
+     */
+    getView() {
+        return this._project.view
+    }
+
+    getFontStyle() {
+        const fontSize = this.getFontSize()
+
+        return (
+            this.getFontWeight() +
+            ' ' +
+            fontSize +
+            (/[a-z]/i.test(fontSize + '') ? ' ' : 'px ') +
+            this.getFontFamily()
+        )
+    }
+
+    private getParam(key: StylePropsKeys, _dontMerge?: boolean) {
         const isColor = /Color$/.test(key)
         const isPoint = key === 'shadowOffset'
         const part = Base.capitalize(key)
         const get = 'get' + part
         const set = 'set' + part
         const owner = this._owner
-        const children = owner && owner._children
+        const children = owner && owner.children
         const applyToChildren =
             children && children.length > 0 && !(owner instanceof CompoundPath)
 
@@ -152,7 +238,7 @@ export default class Style extends Base {
 
         if (applyToChildren && !_dontMerge) {
             for (let i = 0, l = children.length; i < l; i++) {
-                const childValue = children[i]._style[get]()
+                const childValue = children[i].style[get]()
                 if (!i) {
                     value = childValue
                 } else if (!Base.equals(value, childValue)) {
@@ -165,15 +251,12 @@ export default class Style extends Base {
             value = this._values[key]
             if (value === undefined) {
                 value = this._defaults[key]
-                // Clone defaults if available:
                 if (value && value.clone) {
                     value = value.clone()
                 }
             } else {
                 const ctor = isColor ? Color : isPoint ? Point : null
                 if (ctor && !(value && value.constructor === ctor)) {
-                    // Convert to a Color / Point, and stored result of the
-                    // conversion.
                     this._values[key] = value = ctor.read([value], 0, {
                         readNull: true,
                         clone: true
@@ -187,19 +270,19 @@ export default class Style extends Base {
         return value
     }
 
-    private setParam(key: StyleProps, value: any) {
+    private setParam(key: StylePropsKeys, value: any) {
         const isColor = /Color$/.test(key)
         const part = Base.capitalize(key)
         const set = 'set' + part
         const flag = flags[key]
         const owner = this._owner
-        const children = owner && owner._children
+        const children = owner && owner.children
         const applyToChildren =
             children && children.length > 0 && !(owner instanceof CompoundPath)
 
         if (applyToChildren) {
             for (let i = 0, l = children.length; i < l; i++)
-                children[i]._style[set](value)
+                children[i].style[set](value)
         }
 
         if (
@@ -210,7 +293,7 @@ export default class Style extends Base {
             if (old !== value) {
                 if (isColor) {
                     if (old) {
-                        Color._setOwner(old, null)
+                        Color._setOwner(old as Color, null)
                         old._canvasStyle = null
                     }
                     if (value && value.constructor === Color) {
@@ -222,9 +305,13 @@ export default class Style extends Base {
                     }
                 }
                 this._values[key] = value
-                if (owner) owner._changed(flag || Change.STYLE)
+                if (owner) owner.changed(flag || Change.STYLE)
             }
         }
+    }
+
+    get defaults() {
+        return this._defaults
     }
 
     /**
@@ -244,20 +331,20 @@ export default class Style extends Base {
      * // Set its stroke color to RGB red:
      * circle.strokeColor = new Color(1, 0, 0);
      */
-    get strokeColor(): Partial<Color & ColorType> {
-        return this.getParam('strokeColor') as Color
+    get strokeColor(): Color {
+        return this.getStrokeColor()
     }
 
     set strokeColor(color: Partial<Color & ColorType>) {
-        this.setParam('strokeColor', color)
+        this.setStrokeColor(color)
     }
 
-    getStrokeColor() {
-        return this.strokeColor
+    getStrokeColor(): Color {
+        return this.getParam('strokeColor') as Color
     }
 
     setStrokeColor(color: Partial<Color & ColorType>): this {
-        this.strokeColor = color
+        this.setParam('strokeColor', color)
         return this
     }
 
@@ -282,20 +369,20 @@ export default class Style extends Base {
      * // Set its stroke width to 10:
      * circle.strokeWidth = 10;
      */
-    get strokeWidth() {
-        return this.getParam('strokeWidth')
+    get strokeWidth(): number {
+        return this.getStrokeWidth()
     }
 
     set strokeWidth(width: number) {
-        this.setParam('strokeWidth', width)
+        this.setStrokeWidth(width)
     }
 
-    getStrokeWidth() {
-        return this.strokeWidth
+    getStrokeWidth(): number {
+        return this.getParam('strokeWidth')
     }
 
     setStrokeWidth(width: number): this {
-        this.strokeWidth = width
+        this.setParam('strokeWidth', width)
         return this
     }
 
@@ -333,19 +420,19 @@ export default class Style extends Base {
      * line2.strokeCap = 'butt';
      */
     get strokeCap() {
-        return this.getParam('strokeCap')
+        return this.getStrokeCap()
     }
 
     set strokeCap(cap: 'round' | 'square' | 'butt') {
-        this.setParam('strokeCap', cap)
+        this.setStrokeCap(cap)
     }
 
-    getStrokeCap() {
-        return this.strokeCap
+    getStrokeCap(): 'round' | 'square' | 'butt' {
+        return this.getParam('strokeCap')
     }
 
     setStrokeCap(cap: 'round' | 'square' | 'butt'): this {
-        this.strokeCap = cap
+        this.setParam('strokeCap', cap)
         return this
     }
 
@@ -380,19 +467,19 @@ export default class Style extends Base {
      * path3.strokeJoin = 'bevel';
      */
     get strokeJoin() {
-        return this.getParam('strokeJoin')
+        return this.getStrokeJoin()
     }
 
     set strokeJoin(cap: 'miter' | 'round' | 'bevel') {
-        this.setParam('strokeJoin', cap)
+        this.setStrokeJoin(cap)
     }
 
-    getStrokeJoin() {
-        return this.strokeJoin
+    getStrokeJoin(): 'miter' | 'round' | 'bevel' {
+        return this.getParam('strokeJoin')
     }
 
     setStrokeJoin(cap: 'miter' | 'round' | 'bevel'): this {
-        this.strokeJoin = cap
+        this.setParam('strokeJoin', cap)
         return this
     }
 
@@ -406,20 +493,20 @@ export default class Style extends Base {
      * @type Boolean
      * @default true
      */
-    get strokeScaling() {
-        return this.getParam('strokeScaling')
+    get strokeScaling(): boolean {
+        return this.getStrokeScaling()
     }
 
     set strokeScaling(scaling: boolean) {
-        this.setParam('strokeScaling', scaling)
+        this.setStrokeScaling(scaling)
     }
 
-    getStrokeScaling() {
-        return this.strokeScaling
+    getStrokeScaling(): boolean {
+        return this.getParam('strokeScaling')
     }
 
     setStrokeScaling(scaling: boolean): this {
-        this.strokeScaling = scaling
+        this.setParam('strokeScaling', scaling)
         return this
     }
 
@@ -431,20 +518,20 @@ export default class Style extends Base {
      * @type Number
      * @default 0
      */
-    get dashOffset() {
-        return this.getParam('dashOffset')
+    get dashOffset(): number {
+        return this.getDashOffset()
     }
 
     set dashOffset(offset: number) {
-        this.setParam('dashOffset', offset)
+        this.setDashOffset(offset)
     }
 
-    getDashOffset() {
-        return this.dashOffset
+    getDashOffset(): number {
+        return this.getParam('dashOffset')
     }
 
     setDashOffset(offset: number): this {
-        this.dashOffset = offset
+        this.setParam('dashOffset', offset)
         return this
     }
 
@@ -464,20 +551,20 @@ export default class Style extends Base {
      * @type Number[]
      * @default []
      */
-    get dashArray() {
-        return this.getParam('dashArray')
+    get dashArray(): number[] {
+        return this.getDashArray()
     }
 
     set dashArray(array: number[]) {
-        this.setParam('dashArray', array)
+        this.setDashArray(array)
     }
 
-    getDashArray() {
-        return this.dashArray
+    getDashArray(): number[] {
+        return this.getParam('dashArray')
     }
 
     setDashArray(array: number[]): this {
-        this.dashArray = array
+        this.setParam('dashArray', array)
         return this
     }
 
@@ -493,20 +580,20 @@ export default class Style extends Base {
      * @default 10
      * @type Number
      */
-    get miterLimit() {
-        return this.getParam('miterLimit')
+    get miterLimit(): number {
+        return this.getMiterLimit()
     }
 
     set miterLimit(limit: number) {
-        this.setParam('miterLimit', limit)
+        this.setMiterLimit(limit)
     }
 
-    getMiterLimit() {
-        return this.miterLimit
+    getMiterLimit(): number {
+        return this.getParam('miterLimit')
     }
 
     setMiterLimit(limit: number): this {
-        this.miterLimit = limit
+        this.setParam('miterLimit', limit)
         return this
     }
 
@@ -529,20 +616,21 @@ export default class Style extends Base {
      * // Set the fill color of the circle to RGB red:
      * circle.fillColor = new Color(1, 0, 0);
      */
-    get fillColor(): Partial<Color & ColorType> {
-        return this.getParam('fillColor')
+    get fillColor(): Color {
+        return this.getFillColor()
     }
 
     set fillColor(color: Partial<Color & ColorType>) {
-        this.setParam('fillColor', color)
+        this.setFillColor(color)
     }
 
-    getFillColor() {
-        return this.fillColor
+    getFillColor(): Color {
+        return this.getParam('fillColor')
     }
 
     setFillColor(color: Partial<Color & ColorType>): this {
-        this.fillColor = color
+        this.setParam('fillColor', color)
+
         return this
     }
 
@@ -557,19 +645,19 @@ export default class Style extends Base {
      * @default 'nonzero'
      */
     get fillRule() {
-        return this.getParam('fillRule')
+        return this.getFillRule()
     }
 
     set fillRule(rule: 'nonzero' | 'evenodd') {
-        this.setParam('fillRule', rule)
+        this.setFillRule(rule)
     }
 
-    getFillRule() {
-        return this.fillRule
+    getFillRule(): 'nonzero' | 'evenodd' {
+        return this.getParam('fillRule')
     }
 
     setFillRule(rule: 'nonzero' | 'evenodd'): this {
-        this.fillRule = rule
+        this.setParam('fillRule', rule)
         return this
     }
 
@@ -597,20 +685,20 @@ export default class Style extends Base {
      *     shadowOffset: new Point(5, 5)
      * });
      */
-    get shadowColor(): Partial<Color & ColorType> {
-        return this.getParam('shadowColor')
+    get shadowColor(): Color {
+        return this.getShadowColor()
     }
 
     set shadowColor(color: Partial<Color & ColorType>) {
-        this.setParam('shadowColor', color)
+        this.setShadowColor(color)
     }
 
-    getShadowColor() {
-        return this.shadowColor
+    getShadowColor(): Color {
+        return this.getParam('shadowColor')
     }
 
     setShadowColor(color: Partial<Color & ColorType>): this {
-        this.shadowColor = color
+        this.setParam('shadowColor', color)
         return this
     }
 
@@ -622,20 +710,20 @@ export default class Style extends Base {
      * @type Number
      * @default 0
      */
-    get shadowBlur() {
-        return this.getParam('shadowBlur')
+    get shadowBlur(): number {
+        return this.getShadowBlur()
     }
 
     set shadowBlur(blur: number) {
-        this.setParam('shadowBlur', blur)
+        this.setShadowBlur(blur)
     }
 
-    getShadowBlur() {
-        return this.shadowBlur
+    getShadowBlur(): number {
+        return this.getParam('shadowBlur')
     }
 
     setShadowBlur(blur: number): this {
-        this.shadowBlur = blur
+        this.setParam('shadowBlur', blur)
         return this
     }
 
@@ -647,20 +735,20 @@ export default class Style extends Base {
      * @type Point
      * @default 0
      */
-    get shadowOffset(): Partial<Point & PointType> {
-        return this.getParam('shadowOffset')
+    get shadowOffset(): Point {
+        return this.getShadowOffset()
     }
 
     set shadowOffset(offset: Partial<Point & PointType>) {
+        this.setShadowOffset(offset)
+    }
+
+    getShadowOffset(): Point {
+        return this.getParam('shadowOffset')
+    }
+
+    setShadowOffset(offset: Partial<Point & PointType>): this {
         this.setParam('shadowOffset', offset)
-    }
-
-    getShadowOffset() {
-        return this.shadowOffset
-    }
-
-    setShadowOffset(offset: PointType): this {
-        this.shadowOffset = offset
         return this
     }
 
@@ -675,20 +763,20 @@ export default class Style extends Base {
      * @type ?Color
      */
 
-    get selectedColor(): Partial<Color & ColorType> {
-        return this.getParam('selectedColor')
+    get selectedColor(): Color {
+        return this.getSelectedColor()
     }
 
     set selectedColor(color: Partial<Color & ColorType>) {
-        this.setParam('selectedColor', color)
+        this.setSelectedColor(color)
     }
 
-    getSelectedColor() {
-        return this.selectedColor
+    getSelectedColor(): Color {
+        return this.getParam('selectedColor')
     }
 
     setSelectedColor(color: Partial<Color & ColorType>): this {
-        this.selectedColor = color
+        this.setParam('selectedColor', color)
         return this
     }
 
@@ -702,19 +790,19 @@ export default class Style extends Base {
      * @default 'sans-serif'
      */
     get fontFamily() {
-        return this.getParam('fontFamily')
+        return this.getFontFamily()
     }
 
     set fontFamily(family: string) {
-        this.setParam('fontFamily', family)
+        this.setFontFamilty(family)
     }
 
-    getFontFamily() {
-        return this.fontFamily
+    getFontFamily(): string {
+        return this.getParam('fontFamily')
     }
 
     setFontFamilty(family: string): this {
-        this.fontFamily = family
+        this.setParam('fontFamily', family)
         return this
     }
 
@@ -727,7 +815,7 @@ export default class Style extends Base {
      * @default 'normal'
      */
     get fontWeight() {
-        return this.getParam('fontWeight')
+        return this.getFontWeight()
     }
 
     set fontWeight(
@@ -741,11 +829,19 @@ export default class Style extends Base {
             | 'uset'
             | number
     ) {
-        this.setParam('fontWeight', weight)
+        this.setFontWeight(weight)
     }
 
-    getFontWeight() {
-        return this.fontWeight
+    getFontWeight():
+        | 'normal'
+        | 'bold'
+        | 'lighter'
+        | 'bolder'
+        | 'unset'
+        | 'inherit'
+        | 'uset'
+        | number {
+        return this.getParam('fontWeight')
     }
 
     setFontWeight(
@@ -759,7 +855,7 @@ export default class Style extends Base {
             | 'uset'
             | number
     ): this {
-        this.fontWeight = weight
+        this.setParam('fontWeight', weight)
         return this
     }
 
@@ -772,19 +868,19 @@ export default class Style extends Base {
      * @default 10
      */
     get fontSize() {
+        return this.getFontSize()
+    }
+
+    set fontSize(size: number | string) {
+        this.setFontSize(size)
+    }
+
+    getFontSize(): number {
         return this.getParam('fontSize')
     }
 
-    set fontSize(size: number) {
+    setFontSize(size: number | string): this {
         this.setParam('fontSize', size)
-    }
-
-    getFontSize() {
-        return this.fontSize
-    }
-
-    setFontSize(size: number): this {
-        this.fontSize = size
         return this
     }
 
@@ -796,19 +892,23 @@ export default class Style extends Base {
      * @default fontSize * 1.2
      */
     get leading() {
-        return this.getParam('leading')
+        return this.getLeading()
     }
 
     set leading(leading: number) {
-        this.setParam('leading', leading)
+        this.setLeading(leading)
     }
 
     getLeading() {
-        return this.leading
+        const leading = this.getParam('leading')
+        let fontSize = this.getFontSize()
+        if (/pt|em|%|px/.test(fontSize.toString()))
+            fontSize = this.getView().getPixelSize(fontSize.toString())
+        return leading != null ? leading : fontSize * 1.2
     }
 
     setLeading(leading: number): this {
-        this.leading = leading
+        this.setParam('leading', leading)
         return this
     }
 
@@ -823,19 +923,19 @@ export default class Style extends Base {
      * @default 'left'
      */
     get justification() {
-        return this.getParam('justification')
+        return this.getJustification()
     }
 
     set justification(justification: 'left' | 'right' | 'center') {
-        this.setParam('justification', justification)
+        this.setJustification(justification)
     }
 
-    getJustification() {
-        return this.justification
+    getJustification(): 'left' | 'right' | 'center' {
+        return this.getParam('justification')
     }
 
     setJustification(justification: 'left' | 'right' | 'center'): this {
-        this.justification = justification
+        this.setParam('justification', justification)
         return this
     }
 }

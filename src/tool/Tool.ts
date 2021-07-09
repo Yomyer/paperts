@@ -2,9 +2,9 @@ import Point from '../basic/Point'
 import { EmitterType, EventList } from '../core/Emitter'
 import PaperScope from '../core/PaperScope'
 import PaperScopeItem from '../core/PaperScopeItem'
-import ToolEvent, { EventTypes } from './ToolEvent'
+import ToolEvent, { ToolEventTypes } from './ToolEvent'
 
-type TypeFunction = (_: ToolEvent) => void
+type ToolEventFunction = (_: ToolEvent) => void
 type ToolProps = {
     onMouseDown?: (event: ToolEvent) => void
 }
@@ -187,7 +187,7 @@ export default class Tool extends PaperScopeItem {
      *     });
      * }
      */
-    onMouseDown: TypeFunction
+    onMouseDown: ToolEventFunction
 
     /**
      * The function to be called when the mouse position changes while the mouse
@@ -211,7 +211,7 @@ export default class Tool extends PaperScopeItem {
      *     path.add(event.point);
      * }
      */
-    onMouseDrag: TypeFunction
+    onMouseDrag: ToolEventFunction
 
     /**
      * The function to be called the mouse moves within the project view. The
@@ -238,7 +238,7 @@ export default class Tool extends PaperScopeItem {
      *     path.position = event.point;
      * }
      */
-    onMouseMove: TypeFunction
+    onMouseMove: ToolEventFunction
 
     /**
      * The function to be called when the mouse button is released. The function
@@ -261,7 +261,7 @@ export default class Tool extends PaperScopeItem {
      *     });
      * }
      */
-    onMouseUp: TypeFunction
+    onMouseUp: ToolEventFunction
 
     /**
      * {@grouptitle Keyboard Event Handlers}
@@ -298,7 +298,7 @@ export default class Tool extends PaperScopeItem {
      *     }
      * }
      */
-    onKeyDown: TypeFunction
+    onKeyDown: ToolEventFunction
 
     /**
      * The function to be called when the user releases a key on the keyboard.
@@ -320,9 +320,9 @@ export default class Tool extends PaperScopeItem {
      *     }
      * }
      */
-    onKeyUp: TypeFunction
-    onActivate: TypeFunction
-    onDeactivate: TypeFunction
+    onKeyUp: ToolEventFunction
+    onActivate: ToolEventFunction
+    onDeactivate: ToolEventFunction
 
     /**
      * Private method to handle tool-events.
@@ -330,11 +330,11 @@ export default class Tool extends PaperScopeItem {
      * @return {@true if at least one event handler was called}.
      */
     _handleMouseEvent(
-        type: EventTypes,
+        type: ToolEventTypes,
         event: UIEvent,
         point: Point,
         mouse: any
-    ) {
+    ): boolean {
         PaperScope.paper = this._scope
 
         if (mouse.drag && !this.responds(type)) type = 'mousemove'
@@ -434,7 +434,7 @@ export default class Tool extends PaperScopeItem {
      * @param {Function} function the function to be detached
      * @return {Tool} this tool itself, so calls can be chained
      */
-    off(type: string, func: (event?: any, ...args: any) => void): this
+    off(type: string, func?: (event?: any, ...args: any) => void): this
 
     /**
      * Detach one or more event handlers from the tool.

@@ -3,7 +3,7 @@ import Event from '../event/Event'
 import Item from '../item/Item'
 import Tool from './Tool'
 
-export type EventTypes = 'mousedown' | 'mouseup' | 'mousemove' | 'mousedrag'
+export type ToolEventTypes = 'mousedown' | 'mouseup' | 'mousemove' | 'mousedrag'
 
 export default class ToolEvent extends Event {
     protected _class = 'ToolEvent'
@@ -14,10 +14,10 @@ export default class ToolEvent extends Event {
     protected _middlePoint: Point
     protected _delta: Point
 
-    type: EventTypes
+    type: ToolEventTypes
     tool: Tool
 
-    constructor(tool: Tool, type: EventTypes, event: UIEvent)
+    constructor(tool: Tool, type: ToolEventTypes, event: UIEvent)
 
     constructor(...args: any[]) {
         super(...args)

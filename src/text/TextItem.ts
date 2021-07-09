@@ -1,5 +1,3 @@
-import { Item } from '../item'
-
-export default class TextItem extends Item {
+export default class TextItem {
     _class: 'TextItem'
 }

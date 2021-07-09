@@ -50,6 +50,8 @@ test('equals()', () => {
     compare.set(100)
 
     expect(point.equals(compare)).toStrictEqual(true)
+
+    expect(point.equals(100, 100)).toStrictEqual(true)
 })
 
 test('clone()', () => {

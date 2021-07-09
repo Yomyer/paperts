@@ -1,16 +1,16 @@
 import Event from './Event'
 
-type EventTypes = 'keydown' | 'keyup'
+export type KeyEventTypes = 'keydown' | 'keyup'
 
 export default class KeyEvent extends Event {
     protected _class = 'KeyEvent'
 
-    type: EventTypes
+    type: KeyEventTypes
     key: string
     character: string
 
     constructor(
-        type: EventTypes,
+        type: KeyEventTypes,
         event?: UIEvent,
         key?: string,
         character?: string

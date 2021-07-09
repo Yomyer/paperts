@@ -1,4 +1,4 @@
-import Base, { ExportJsonOptions } from '../core/Base'
+import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
 import { Point as PointType } from '../basic/Types'
 import { Exportable, ReadIndex } from '../utils/Decorators'
 import { ColorOptions, ColorTypes, Color as ColorType } from './Types'
@@ -598,7 +598,7 @@ export default class Color extends Base {
         }
     }
 
-    protected _serialize(options?: ExportJsonOptions, dictionary?: any) {
+    protected _serialize(options?: ExportJsonOptions, dictionary?: Dictionary) {
         const components = this.getComponents()
         return Base.serialize(
             // We can omit the type for gray and rgb:
@@ -625,6 +625,14 @@ export default class Color extends Base {
                   this,
                   converters[this._type + '-rgb'].apply(this, this._components)
               )
+    }
+
+    get canvasStyle(): string | CanvasGradient {
+        return this._canvasStyle
+    }
+
+    set canvasStyle(style: string | CanvasGradient) {
+        this._canvasStyle = style
     }
 
     /**
@@ -659,6 +667,14 @@ export default class Color extends Base {
         this._type = type
     }
 
+    get type() {
+        return this.getType()
+    }
+
+    set type(type: ColorTypes) {
+        this.setType(type)
+    }
+
     /**
      * The color components that define the color, including the alpha value
      * if defined.
@@ -670,6 +686,10 @@ export default class Color extends Base {
         const components = this._components.slice()
         if (this._alpha != null) components.push(this._alpha)
         return components
+    }
+
+    get components(): number[] {
+        return this.getComponents()
     }
 
     /**
@@ -700,7 +720,7 @@ export default class Color extends Base {
 
     setAlpha(alpha: number) {
         this._alpha = alpha == null ? null : Math.min(Math.max(alpha, 0), 1)
-        this._changed()
+        this.changed()
     }
 
     /**
@@ -877,7 +897,7 @@ export default class Color extends Base {
                 const point = components[i]
                 matrix._transformPoint(point, point, true)
             }
-            this._changed()
+            this.changed()
         }
     }
 
@@ -985,7 +1005,7 @@ export default class Color extends Base {
             this._type = type
         }
         this._components[index] = this.parser(name, type)(value)
-        this._changed()
+        this.changed()
     }
 
     get alpha() {

@@ -54,7 +54,9 @@ export default class Straps {
         return [].slice.call(list, begin, end)
     }
 
-    static create = Object.create
+    static create(...args: any[]) {
+        return Object.create(args[0])
+    }
 
     /**
      * Injects the fields in this object from one ore passed multiply

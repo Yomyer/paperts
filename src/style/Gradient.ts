@@ -1,4 +1,4 @@
-import Base, { ExportJsonOptions } from '../core/Base'
+import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
 import { UID } from '../utils'
 import Color from './Color'
 import GradientStop from './GradientStop'
@@ -42,7 +42,10 @@ export default class Gradient extends Base {
         }
     }
 
-    protected _serialize(options?: ExportJsonOptions, dictionary?: any) {
+    protected _serialize(
+        options?: ExportJsonOptions,
+        dictionary?: Dictionary
+    ): string {
         return dictionary.add(this, () => {
             return Base.serialize(
                 [this._stops, this._radial],
@@ -120,7 +123,7 @@ export default class Gradient extends Base {
         _stops = this._stops = GradientStop.readList(stops, 0, { clone: true })
         // Now assign this gradient as the new gradients' owner.
         for (let i = 0, l = _stops.length; i < l; i++) _stops[i].owner = this
-        this._changed()
+        this.changed()
     }
 
     /**
@@ -135,7 +138,7 @@ export default class Gradient extends Base {
 
     set radial(radial: boolean) {
         this._radial = radial
-        this._changed()
+        this.changed()
     }
 
     /**

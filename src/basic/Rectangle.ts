@@ -286,10 +286,12 @@ export default class Rectangle extends Base {
         return new Ctor(this.x, this.y, this, 'setPoint')
     }
 
-    setPoint(...args: any[]) {
+    setPoint(...args: any[]): this {
         const point = Point.read(args)
         this.x = point.x
         this.y = point.y
+
+        return this
     }
 
     get size() {
@@ -305,7 +307,7 @@ export default class Rectangle extends Base {
         return new Ctor(this.width, this.height, this, 'setSize')
     }
 
-    setSize(...args: any[]) {
+    setSize(...args: any[]): this {
         const size = Size.read(args)
         const sx = this._sx
         const sy = this._sy
@@ -321,6 +323,8 @@ export default class Rectangle extends Base {
         this.width = w
         this.height = h
         this._fw = this._fh = 1
+
+        return this
     }
 
     get left() {
@@ -335,13 +339,15 @@ export default class Rectangle extends Base {
         return this.x
     }
 
-    setLeft(left?: number) {
+    setLeft(left?: number): this {
         if (!this._fw) {
             const amount = left - this.x
             this.width -= this._sx === 0.5 ? amount * 2 : amount
         }
         this.x = left
         this._sx = this._fw = 0
+
+        return this
     }
 
     get top() {
@@ -356,13 +362,15 @@ export default class Rectangle extends Base {
         return this.y
     }
 
-    setTop(top?: number) {
+    setTop(top?: number): this {
         if (!this._fh) {
             const amount = top - this.y
             this.height -= this._sy === 0.5 ? amount * 2 : amount
         }
         this.y = top
         this._sy = this._fh = 0
+
+        return this
     }
 
     get right() {
@@ -377,7 +385,7 @@ export default class Rectangle extends Base {
         return this.x + this.width
     }
 
-    setRight(right?: number) {
+    setRight(right?: number): this {
         if (!this._fw) {
             const amount = right - this.x
             this.width = this._sx === 0.5 ? amount * 2 : amount
@@ -385,6 +393,8 @@ export default class Rectangle extends Base {
         this.x = right - this.width
         this._sx = 1
         this._fw = 0
+
+        return this
     }
 
     get bottom() {
@@ -399,7 +409,7 @@ export default class Rectangle extends Base {
         return this.y + this.height
     }
 
-    setBottom(bottom?: number) {
+    setBottom(bottom?: number): this {
         if (!this._fh) {
             const amount = bottom - this.y
             this.height = this._sy === 0.5 ? amount * 2 : amount
@@ -407,6 +417,8 @@ export default class Rectangle extends Base {
         this.y = bottom - this.height
         this._sy = 1
         this._fh = 0
+
+        return this
     }
 
     get centerX() {
@@ -421,7 +433,7 @@ export default class Rectangle extends Base {
         return this.x + this.width / 2
     }
 
-    setCenterX(x?: number) {
+    setCenterX(x?: number): this {
         if (this._fw || this._sx === 0.5) {
             this.x = x - this.width / 2
         } else {
@@ -432,6 +444,8 @@ export default class Rectangle extends Base {
         }
         this._sx = 0.5
         this._fw = 0
+
+        return this
     }
 
     get centerY() {
@@ -446,7 +460,7 @@ export default class Rectangle extends Base {
         return this.y + this.height / 2
     }
 
-    setCenterY(y?: number) {
+    setCenterY(y?: number): this {
         if (this._fh || this._sy === 0.5) {
             this.y = y - this.height / 2
         } else {
@@ -457,6 +471,8 @@ export default class Rectangle extends Base {
         }
         this._sy = 0.5
         this._fh = 0
+
+        return this
     }
 
     get center() {
@@ -472,7 +488,10 @@ export default class Rectangle extends Base {
         return new Ctor(this.getCenterX(), this.getCenterY(), this, 'setCenter')
     }
 
-    setCenter(...args: any) {
+    setCenter(point: PointType): this
+    setCenter(x: number, y: number): this
+    setCenter(...args: any[]): this
+    setCenter(...args: any[]): this {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setCenterY(point.y)
@@ -493,10 +512,15 @@ export default class Rectangle extends Base {
         return new Ctor(this.getLeft(), this.getTop(), this, 'setTopLeft')
     }
 
+    setTopLeft(x?: number, y?: number): this
+    setTopLeft(point?: PointType): this
+    setTopLeft(...args: any[]): this
     setTopLeft(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setTop(point.y)
+
+        return this
     }
 
     get topRight() {
@@ -512,10 +536,15 @@ export default class Rectangle extends Base {
         return new Ctor(this.getRight(), this.getTop(), this, 'setTopRight')
     }
 
+    setTopRight(x?: number, y?: number): this
+    setTopRight(point?: PointType): this
+    setTopRight(...args: any[]): this
     setTopRight(...args: any) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setTop(point.y)
+
+        return this
     }
 
     get bottomLeft() {
@@ -531,10 +560,15 @@ export default class Rectangle extends Base {
         return new Ctor(this.getLeft(), this.getBottom(), this, 'setBottomLeft')
     }
 
+    setBottomLeft(x?: number, y?: number): this
+    setBottomLeft(point?: PointType): this
+    setBottomLeft(...args: any[]): this
     setBottomLeft(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setBottom(point.y)
+
+        return this
     }
 
     get bottomRight() {
@@ -555,10 +589,15 @@ export default class Rectangle extends Base {
         )
     }
 
+    setBottomRight(x?: number, y?: number): this
+    setBottomRight(point?: PointType): this
+    setBottomRight(...args: any[]): this
     setBottomRight(...args: any) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setBottom(point.y)
+
+        return this
     }
 
     get leftCenter() {
@@ -579,10 +618,15 @@ export default class Rectangle extends Base {
         )
     }
 
+    setLeftCenter(x?: number, y?: number): this
+    setLeftCenter(point?: PointType): this
+    setLeftCenter(...args: any[]): this
     setLeftCenter(...args: any) {
         const point = Point.read(args)
         this.setLeft(point.x)
         this.setCenterY(point.y)
+
+        return this
     }
 
     get topCenter() {
@@ -598,10 +642,15 @@ export default class Rectangle extends Base {
         return new Ctor(this.getCenterX(), this.getTop(), this, 'setTopCenter')
     }
 
+    setTopCenter(x?: number, y?: number): this
+    setTopCenter(point?: PointType): this
+    setTopCenter(...args: any[]): this
     setTopCenter(...args: any) {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setTop(point.y)
+
+        return this
     }
 
     get rightCenter() {
@@ -622,10 +671,15 @@ export default class Rectangle extends Base {
         )
     }
 
-    setRightCenter(...args: any) {
+    setRightCenter(x?: number, y?: number): this
+    setRightCenter(point?: PointType): this
+    setRightCenter(...args: any[]): this
+    setRightCenter(...args: any[]) {
         const point = Point.read(args)
         this.setRight(point.x)
         this.setCenterY(point.y)
+
+        return this
     }
 
     get bottomCenter() {
@@ -646,10 +700,15 @@ export default class Rectangle extends Base {
         )
     }
 
-    setBottomCenter(...args: any) {
+    setBottomCenter(x: number, y: number): this
+    setBottomCenter(point: PointType): this
+    setBottomCenter(...args: any[]): this
+    setBottomCenter(...args: any[]) {
         const point = Point.read(args)
         this.setCenterX(point.x)
         this.setBottom(point.y)
+
+        return this
     }
 
     get area() {
@@ -766,6 +825,10 @@ export default class Rectangle extends Base {
             x <= this.x + this.width &&
             y <= this.y + this.height
         )
+    }
+
+    containsPoint(point: Point): boolean {
+        return this._containsPoint(point)
     }
 
     protected _containsRectangle(rect: Rectangle): boolean {
@@ -1035,6 +1098,19 @@ export class LinkedRectangle extends Rectangle {
     protected _height: number
     protected _dontNotify: boolean
 
+    constructor(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        owner?: any,
+        setter?: string
+    )
+
+    constructor(...args: any[]) {
+        super(...args)
+    }
+
     initialize(
         x: number,
         y: number,
@@ -1105,21 +1181,25 @@ export class LinkedRectangle extends Rectangle {
         if (!this._dontNotify) this._owner[this._setter](this)
     }
 
-    setPoint(...args: any) {
+    setPoint(...args: any): this {
         this._dontNotify = true
         super.setPoint(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setSize(...args: any) {
+    setSize(...args: any): this {
         this._dontNotify = true
         super.setSize(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setCenter(...args: any) {
+    setCenter(...args: any): this {
         this._dontNotify = true
         super.setCenter(...args)
         this._dontNotify = false
@@ -1128,102 +1208,130 @@ export class LinkedRectangle extends Rectangle {
         return this
     }
 
-    setLeft(...args: any) {
+    setLeft(...args: any): this {
         this._dontNotify = true
         super.setLeft(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setTop(...args: any) {
+    setTop(...args: any): this {
         this._dontNotify = true
         super.setTop(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setRight(...args: any) {
+    setRight(...args: any): this {
         this._dontNotify = true
         super.setRight(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setBottom(...args: any) {
+    setBottom(...args: any): this {
         this._dontNotify = true
         super.setBottom(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setCenterX(...args: any) {
+    setCenterX(...args: any): this {
         this._dontNotify = true
         super.setCenterX(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setCenterY(...args: any) {
+    setCenterY(...args: any): this {
         this._dontNotify = true
         super.setCenterY(...args)
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setTopLeft(...args: any) {
+    setTopLeft(...args: any): this {
         this._dontNotify = true
-        super.setTopLeft(...args)
+        super.setTopLeft(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setTopRight(...args: any) {
+    setTopRight(...args: any): this {
         this._dontNotify = true
-        super.setTopRight(...args)
+        super.setTopRight(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setBottomLeft(...args: any) {
+    setBottomLeft(...args: any): this {
         this._dontNotify = true
-        super.setBottomLeft(...args)
+        super.setBottomLeft(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setBottomRight(...args: any) {
+    setBottomRight(...args: any): this {
         this._dontNotify = true
-        super.setBottomRight(...args)
+        super.setBottomRight(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setLeftCenter(...args: any) {
+    setLeftCenter(...args: any): this {
         this._dontNotify = true
-        super.setLeftCenter(...args)
+        super.setLeftCenter(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setTopCenter(...args: any) {
+    setTopCenter(...args: any): this {
         this._dontNotify = true
-        super.setTopCenter(...args)
+        super.setTopCenter(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setRightCenter(...args: any) {
+    setRightCenter(...args: any): this {
         this._dontNotify = true
-        super.setRightCenter(...args)
+        super.setRightCenter(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
-    setBottomCenter(...args: any) {
+    setBottomCenter(...args: any): this {
         this._dontNotify = true
-        super.setBottomCenter(...args)
+        super.setBottomCenter(args[0], args[1])
         this._dontNotify = false
         this._owner[this._setter](this)
+
+        return this
     }
 
     isSelected() {

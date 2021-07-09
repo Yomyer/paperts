@@ -1,6 +1,6 @@
 import Base from '../core/Base'
 import PaperScope from '../core/PaperScope'
-import { OnDefined } from '../utils/Decorators'
+import { Injection } from '../utils/Decorators'
 import View from '../view/View'
 import DomEvent from '../dom/DomEvent'
 
@@ -15,7 +15,7 @@ export type ModifiersType = {
     space?: boolean
 }
 
-@OnDefined(() => {
+@Injection(() => {
     Key.registerEvents()
 })
 export default class Key {

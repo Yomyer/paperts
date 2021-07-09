@@ -1,10 +1,18 @@
-import Base, { ExportJsonOptions } from '../core/Base'
+import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
 import { Change } from '../item/ChangeFlag'
 import { Exportable } from '../utils/Decorators'
 import Formatter from '../utils/Formatter'
 import Point from './Point'
 import Rectangle from './Rectangle'
+import Size from './Size'
 import { Point as PointType, Size as SizeType } from './Types'
+
+export type MatrixDecompose = {
+    translation: Point
+    rotation: number
+    scaling: Point
+    skewing: Point
+}
 
 @Exportable()
 export default class Matrix extends Base {
@@ -16,6 +24,8 @@ export default class Matrix extends Base {
     protected _tx: number
     protected _ty: number
     protected _owner: any // Todo change item
+
+    protected _backup: Matrix
 
     /**
      * Creates a 2D affine transformation matrix that describes the identity
@@ -108,8 +118,8 @@ export default class Matrix extends Base {
         ty: number
     ): this
 
-    set(values: number[]): this
-    set(matrix: Matrix): this
+    set(values?: number[]): this
+    set(matrix?: Matrix, option?: boolean): this
     set(...args: any[]): this {
         return this.initialize(...args)
     }
@@ -129,11 +139,11 @@ export default class Matrix extends Base {
         this._d = d
         this._tx = tx
         this._ty = ty
-        if (!_dontNotify) this._changed()
+        if (!_dontNotify) this.changed()
         return this
     }
 
-    protected _serialize(options: ExportJsonOptions, dictionary: any) {
+    protected _serialize(options: ExportJsonOptions, dictionary: Dictionary) {
         return Base.serialize(this.getValues(), options, true, dictionary)
     }
 
@@ -143,7 +153,7 @@ export default class Matrix extends Base {
             if (owner._applyMatrix) {
                 owner.transform(null, true)
             } else {
-                owner._changed(Change.MATRIX)
+                owner.changed(Change.MATRIX)
             }
         }
     }
@@ -151,7 +161,7 @@ export default class Matrix extends Base {
     /**
      * @return {Matrix} a copy of this transform
      */
-    clone(): Matrix {
+    clone(): this {
         return new Matrix(
             this._a,
             this._b,
@@ -159,7 +169,7 @@ export default class Matrix extends Base {
             this._d,
             this._tx,
             this._ty
-        )
+        ) as this
     }
 
     /**
@@ -209,7 +219,7 @@ export default class Matrix extends Base {
     reset(_dontNotify?: boolean) {
         this._a = this._d = 1
         this._b = this._c = this._tx = this._ty = 0
-        if (!_dontNotify) this._changed()
+        if (!_dontNotify) this.changed()
         return this
     }
 
@@ -251,13 +261,14 @@ export default class Matrix extends Base {
      * @return {Matrix} this affine transform
      */
     translate(dx: number, dy: number): Matrix
+    translate(...args: any[]): Matrix
     translate(...args: any[]): Matrix {
         const point = Point.read(args)
         const x = point.x
         const y = point.y
         this._tx += x * this._a + y * this._c
         this._ty += x * this._b + y * this._d
-        this._changed()
+        this.changed()
         return this
     }
 
@@ -284,6 +295,7 @@ export default class Matrix extends Base {
      */
     scale(hor: number, ver: number, center?: Point): Matrix
 
+    scale(size: SizeType): Matrix
     scale(...args: any[]): Matrix {
         const scale = Point.read(args)
         const center = Point.read(args, 0, { readNull: true })
@@ -293,7 +305,7 @@ export default class Matrix extends Base {
         this._c *= scale.y
         this._d *= scale.y
         if (center) this.translate(center.negate())
-        this._changed()
+        this.changed()
         return this
     }
 
@@ -345,7 +357,7 @@ export default class Matrix extends Base {
         this._d = -sin * b + cos * d
         this._tx += tx * a + ty * c
         this._ty += tx * b + ty * d
-        this._changed()
+        this.changed()
         return this
     }
 
@@ -381,7 +393,7 @@ export default class Matrix extends Base {
         this._c += shear.x * a
         this._d += shear.x * b
         if (center) this.translate(center.negate())
-        this._changed()
+        this.changed()
         return this
     }
 
@@ -442,7 +454,7 @@ export default class Matrix extends Base {
             this._d = b2 * b1 + d2 * d1
             this._tx += tx2 * a1 + ty2 * c1
             this._ty += tx2 * b1 + ty2 * d1
-            if (!_dontNotify) this._changed()
+            if (!_dontNotify) this.changed()
         }
         return this
     }
@@ -474,7 +486,7 @@ export default class Matrix extends Base {
             this._d = c2 * c1 + d2 * d1
             this._tx = a2 * tx1 + b2 * ty1 + tx2
             this._ty = c2 * tx1 + d2 * ty1 + ty2
-            if (!_dontNotify) this._changed()
+            if (!_dontNotify) this.changed()
         }
         return this
     }
@@ -551,6 +563,10 @@ export default class Matrix extends Base {
      */
     protected _shiftless(): Matrix {
         return new Matrix(this._a, this._b, this._c, this._d, 0, 0)
+    }
+
+    shiftless(): Matrix {
+        return this._shiftless()
     }
 
     _orNullIfIdentity() {
@@ -668,7 +684,7 @@ export default class Matrix extends Base {
      */
     protected _transformBounds(
         bounds: Rectangle,
-        dest: Rectangle,
+        dest?: Rectangle,
         _dontNotify?: boolean
     ) {
         const coords = this._transformCorners(bounds)
@@ -691,6 +707,14 @@ export default class Matrix extends Base {
             max[1] - min[1],
             _dontNotify
         )
+    }
+
+    transformBounds(
+        bounds: Rectangle,
+        dest?: Rectangle,
+        _dontNotify?: boolean
+    ) {
+        return this._transformBounds(bounds, dest, _dontNotify)
     }
 
     /**
@@ -737,7 +761,7 @@ export default class Matrix extends Base {
      *
      * @return {Object} the decomposed matrix
      */
-    decompose() {
+    decompose(): MatrixDecompose {
         const a = this._a
         const b = this._b
         const c = this._c
@@ -838,7 +862,7 @@ export default class Matrix extends Base {
 
     set a(value: number) {
         this._a = value
-        this._changed()
+        this.changed()
     }
 
     get b(): number {
@@ -847,7 +871,7 @@ export default class Matrix extends Base {
 
     set b(value: number) {
         this._b = value
-        this._changed()
+        this.changed()
     }
 
     get c(): number {
@@ -856,7 +880,7 @@ export default class Matrix extends Base {
 
     set c(value: number) {
         this._c = value
-        this._changed()
+        this.changed()
     }
 
     get d(): number {
@@ -865,7 +889,7 @@ export default class Matrix extends Base {
 
     set d(value: number) {
         this._d = value
-        this._changed()
+        this.changed()
     }
 
     get tx(): number {
@@ -874,7 +898,7 @@ export default class Matrix extends Base {
 
     set tx(value: number) {
         this._tx = value
-        this._changed()
+        this.changed()
     }
 
     get ty(): number {
@@ -883,7 +907,7 @@ export default class Matrix extends Base {
 
     set ty(value: number) {
         this._ty = value
-        this._changed()
+        this.changed()
     }
 
     get owner() {
@@ -892,5 +916,13 @@ export default class Matrix extends Base {
 
     set owner(owner: any) {
         this._owner = owner
+    }
+
+    get backup() {
+        return this._backup
+    }
+
+    set backup(backup: Matrix) {
+        this._backup = backup
     }
 }

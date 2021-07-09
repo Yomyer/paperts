@@ -17,7 +17,7 @@ export default abstract class Emitter extends Base {
         [key: string]: [(event?: any, ...args: any) => void]
     }
 
-    on(type: EmitterType, func: (event?: any, ...args: any) => void): this {
+    on(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
         if (typeof type !== 'string') {
             Base.each(
                 type,
@@ -42,7 +42,7 @@ export default abstract class Emitter extends Base {
         return this
     }
 
-    off(type: EmitterType, func: (event?: any, ...args: any) => void): this {
+    off(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
         if (typeof type !== 'string') {
             Base.each(
                 type,
@@ -75,7 +75,7 @@ export default abstract class Emitter extends Base {
         return this
     }
 
-    once(type: EmitterType, func: (event?: any, ...args: any) => void): this {
+    once(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
         return this.on(type, function handler(this: any, ...args: any[]) {
             func(...args)
             this.off(type, handler)
@@ -111,7 +111,7 @@ export default abstract class Emitter extends Base {
         return this.emit(type, event, ...args)
     }
 
-    protected _installEvents(install: 'install' | 'uninstall') {
+    protected _installEvents(install: boolean) {
         const types = this._eventTypes
         const handlers = this._callbacks
         const key = install ? 'install' : 'uninstall'

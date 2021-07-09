@@ -13,7 +13,7 @@ export const Exportable = () => {
     }
 }
 
-export const OnDefined = <T>(callback: (target: T) => void) => {
+export const Injection = <T>(callback: (target: T) => void) => {
     return (target: T) => {
         callback(target)
     }

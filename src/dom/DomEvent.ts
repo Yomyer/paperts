@@ -2,6 +2,8 @@ import { Point } from '../basic'
 import { EventList } from '../core/Emitter'
 import DomElement from './DomElement'
 
+type Element = HTMLElement | Document | Window
+
 export default class DomEvent {
     static nativeRequest = DomElement.getPrefixed(
         window,
@@ -9,10 +11,10 @@ export default class DomEvent {
     )
 
     static requested = false
-    static callbacks: Array<() => {}> = []
+    static callbacks: Array<() => void> = []
     static timer: NodeJS.Timeout
 
-    static add(el: HTMLElement | Document | Window, events: EventList) {
+    static add(el: Element, events: EventList) {
         if (el) {
             for (const type in events) {
                 const func = events[type]
@@ -31,7 +33,7 @@ export default class DomEvent {
         }
     }
 
-    static remove(el: HTMLElement | Document, events: EventList) {
+    static remove(el: Element, events: EventList) {
         if (el) {
             for (const type in events) {
                 const func = events[type]
@@ -42,9 +44,9 @@ export default class DomEvent {
         }
     }
 
-    static getPoint(event: TouchEvent) {
+    static getPoint(event: MouseEvent | TouchEvent) {
         const pos = (
-            event.targetTouches
+            event instanceof TouchEvent && event.targetTouches
                 ? event.targetTouches.length
                     ? event.targetTouches[0]
                     : event.changedTouches[0]
@@ -57,7 +59,7 @@ export default class DomEvent {
         )
     }
 
-    static getTarget(event: Event): HTMLElement {
+    static getTarget(event: MouseEvent | TouchEvent): HTMLElement {
         return (event.target || event.srcElement) as HTMLElement
     }
 
@@ -65,7 +67,7 @@ export default class DomEvent {
         return event.relatedTarget || (event as any).toElement
     }
 
-    static getOffset(event: TouchEvent, target: HTMLElement) {
+    static getOffset(event: MouseEvent | TouchEvent, target: HTMLElement) {
         return DomEvent.getPoint(event).subtract(
             DomElement.getOffset(target || DomEvent.getTarget(event))
         )
@@ -83,7 +85,7 @@ export default class DomEvent {
         }
     }
 
-    static requestAnimationFrame(callback: () => {}): void {
+    static requestAnimationFrame(callback: () => void): void {
         this.callbacks.push(callback)
         if (this.nativeRequest) {
             if (!this.requested) {
