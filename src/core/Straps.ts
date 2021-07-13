@@ -50,7 +50,7 @@ export default class Straps {
         )
     }
 
-    static slice(list: any, begin: any, end?: any) {
+    static slice(list: any, begin?: any, end?: any) {
         return [].slice.call(list, begin, end)
     }
 

@@ -4,11 +4,15 @@ import PaperScopeItem from '../core/PaperScopeItem'
 import { Style } from '../style'
 import View from '../view/View'
 import Item from './Item'
-import { ChangeFlag } from './ChangeFlag'
+import { Change, ChangeFlag } from './ChangeFlag'
 import Layer from './Layer'
 import HitResult, { HitResultOptions } from './HitResult'
 import { Point as PointType } from '../basic/Types'
 import { Matrix, Point } from '../basic'
+import SymbolDefinition from './SymbolDefinition'
+import SymbolItem from './SymbolItem'
+
+type ItemChange = { item: Item; flags: ChangeFlag | Change }
 
 export default class Project extends PaperScopeItem {
     protected _class = 'Project'
@@ -23,6 +27,8 @@ export default class Project extends PaperScopeItem {
     protected _selectionItems: any = {}
     protected _selectionCount = 0
     protected _updateVersion = 0
+    protected _changes: ItemChange[] = []
+    protected _changesById: { [key: string]: ItemChange }
 
     constructor(element?: HTMLCanvasElement)
     constructor(...args: any[]) {
@@ -73,6 +79,14 @@ export default class Project extends PaperScopeItem {
                 changes.push((changesById[id] = { item: item, flags: flags }))
             }
         }
+    }
+
+    get changes() {
+        return this._changes
+    }
+
+    get changesById() {
+        return this._changesById
     }
 
     /**
@@ -213,6 +227,14 @@ export default class Project extends PaperScopeItem {
         return this._activeLayer || new Layer({ project: this, insert: true })
     }
 
+    get activeLayer() {
+        return this._activeLayer
+    }
+
+    set activeLayer(layer: Layer) {
+        this._activeLayer = layer
+    }
+
     /**
      * The symbol definitions shared by all symbol items contained place ind
      * project.
@@ -221,12 +243,12 @@ export default class Project extends PaperScopeItem {
      * @type SymbolDefinition[]
      */
     getSymbolDefinitions() {
-        const definitions = []
+        const definitions: SymbolDefinition[] = []
         const ids = {}
         this.getItems({
             class: SymbolItem,
             match: function (item: Item) {
-                const definition = item._definition
+                const definition = item.definition
                 const id = definition._id
                 if (!ids[id]) {
                     ids[id] = true

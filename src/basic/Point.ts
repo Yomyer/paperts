@@ -253,8 +253,8 @@ export default class Point extends Base {
      *
      * @return {Point} the cloned point
      */
-    clone(): Point {
-        return new Point(this.x, this.y)
+    clone(): this {
+        return new Point(this.x, this.y) as this
     }
 
     /**

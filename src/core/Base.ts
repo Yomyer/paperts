@@ -651,9 +651,9 @@ export default class Base extends Straps {
         return list
     }
 
-    static splice(
-        list: Base[],
-        items: Base[],
+    static splice<T extends Base>(
+        list: T[],
+        items: T[],
         index?: number,
         remove?: number
     ) {

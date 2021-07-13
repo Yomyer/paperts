@@ -33,7 +33,7 @@ export default class SvgElement {
         )
     }
 
-    static get(node: Element, name: string) {
+    static get<T extends Element>(node: T, name: string) {
         const namespace = SvgElement.attributeNamespace[name]
         const value = namespace
             ? node.getAttributeNS(namespace, name)

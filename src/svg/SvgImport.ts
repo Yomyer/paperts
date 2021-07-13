@@ -9,13 +9,31 @@ import SymbolDefinition from '../item/SymbolDefinition'
 import { Color, Gradient, GradientStop } from '../style'
 import SvgElement from './SvgElement'
 import SvgStyles from './SvgStyles'
+import DomElement from '../dom/DomElement'
+import PaperScope from '../core/PaperScope'
+import Http from '../net/Http'
+
+export type SvgImportOptions = {
+    expandShapes?: boolean
+    onLoad?: (item: Item, svg: HTMLElement) => void
+    onError?: (message: DOMException | string, status: number) => void
+    insert?: boolean
+    applyMatrix?: boolean
+    svg?: SVGElement | String
+    options?: object
+    onImport: (
+        node: HTMLElement | SVGDefsElement,
+        item: Item,
+        options: SvgImportOptions
+    ) => Item
+}
 
 export default class SvgImport {
     static definitions = {}
     static rootSize: Size
 
-    static getValue(
-        node: HTMLElement,
+    static getValue<T extends HTMLElement>(
+        node: T,
         name: string,
         isString?: boolean,
         allowNull?: boolean,
@@ -46,8 +64,8 @@ export default class SvgImport {
             : res.toString()
     }
 
-    static getPoint(
-        node: HTMLElement,
+    static getPoint<T extends HTMLElement>(
+        node: T,
         x?: string,
         y?: string,
         allowNull?: boolean,
@@ -74,8 +92,8 @@ export default class SvgImport {
         return allowNull && (x == null || y == null) ? null : new Point(+x, +y)
     }
 
-    static getSize(
-        node: HTMLElement,
+    static getSize<T extends HTMLElement>(
+        node: T,
         w?: string,
         h?: string,
         allowNull?: boolean,
@@ -121,10 +139,10 @@ export default class SvgImport {
     static importGroup(
         node: HTMLElement,
         type: string,
-        options: any,
+        options: SvgImportOptions,
         isRoot: boolean
     ) {
-        const nodes = node.childNodes
+        const nodes = node.children
         const isClip = type === 'clippath'
         const isDefs = type === 'defs'
         let item = new Group()
@@ -136,8 +154,6 @@ export default class SvgImport {
             project.currentStyle = item.style.clone()
         }
         if (isRoot) {
-            // Import all defs first, since in SVG they can be in any location.
-            // e.g. Affinity Designer exports defs as last.
             const defs = node.querySelectorAll('defs')
             for (let i = 0, l = defs.length; i < l; i++) {
                 SvgImport.importNode(defs[i], options, false)
@@ -145,7 +161,7 @@ export default class SvgImport {
         }
 
         for (let i = 0, l = nodes.length; i < l; i++) {
-            const childNode = nodes[i]
+            const childNode = nodes[i] as HTMLElement
             let child
             if (
                 childNode.nodeType === 1 &&
@@ -200,13 +216,16 @@ export default class SvgImport {
                 gradient._radial = radial
             }
         } else {
-            const nodes = node.childNodes
+            const nodes = node.childNodes as unknown as HTMLElement[]
             const stops = []
             for (let i = 0, l = nodes.length; i < l; i++) {
                 const child = nodes[i]
                 if (child.nodeType === 1)
                     stops.push(
-                        SvgImport.applyAttributes(new GradientStop(), child)
+                        SvgImport.applyAttributes<GradientStop>(
+                            new GradientStop(),
+                            child
+                        )
                     )
             }
             gradient = new Gradient(stops, radial)
@@ -265,7 +284,7 @@ export default class SvgImport {
                 '0%'
             )
         }
-        const color = SvgImport.applyAttributes(
+        const color = SvgImport.applyAttributes<Color>(
             new Color(gradient, origin, destination, highlight),
             node
         )
@@ -276,12 +295,12 @@ export default class SvgImport {
         '#document': function (
             node: HTMLElement,
             _: string,
-            options: any,
+            options: SvgImportOptions,
             isRoot: boolean
         ) {
-            const nodes = node.childNodes
+            const nodes = node.children
             for (let i = 0, l = nodes.length; i < l; i++) {
-                const child = nodes[i]
+                const child = nodes[i] as HTMLElement
                 if (child.nodeType === 1)
                     return SvgImport.importNode(child, options, isRoot)
             }
@@ -308,7 +327,7 @@ export default class SvgImport {
         symbol: function (
             node: HTMLElement,
             type: string,
-            options: any,
+            options: SvgImportOptions,
             isRoot: boolean
         ) {
             return new SymbolDefinition(
@@ -511,7 +530,7 @@ export default class SvgImport {
             viewBox: function (
                 item: Item,
                 value: string,
-                name: string,
+                _: string,
                 node: HTMLElement,
                 styles: any
             ) {
@@ -547,7 +566,11 @@ export default class SvgImport {
         }
     )
 
-    static getAttribute(node: HTMLElement, name: string, styles: any) {
+    static getAttribute(
+        node: HTMLElement | SVGDefsElement,
+        name: string,
+        styles: any
+    ) {
         const attr = node.attributes[name]
         let value = attr && attr.value
         if (!value && node.style) {
@@ -557,5 +580,211 @@ export default class SvgImport {
                 value = styles.node[style]
         }
         return !value ? undefined : value === 'none' ? null : value
+    }
+
+    /**
+     * Converts various SVG styles and attributes into Paper.js styles and
+     * attributes and applies them to the passed item.
+     *
+     * @param {HTMLElement} node an SVG node to read style and attributes from
+     * @param {Item} item the item to apply the style and attributes to
+     */
+    static applyAttributes<T>(
+        item: T,
+        node: HTMLElement,
+        isRoot?: boolean
+    ): Item
+
+    static applyAttributes<T extends HTMLElement>(
+        item: Item,
+        node: T,
+        isRoot?: boolean
+    ): Item {
+        const parent = node.parentElement
+        const styles = {
+            node: DomElement.getStyles(node) || {},
+            parent:
+                (!isRoot &&
+                    !/^defs$/i.test(parent.tagName) &&
+                    DomElement.getStyles(parent as unknown as HTMLElement)) ||
+                {}
+        }
+        Base.each(SvgImport.attributes, function (apply, name) {
+            const value = SvgImport.getAttribute(node, name, styles)
+            item =
+                (value !== undefined &&
+                    apply(item, value, name, node, styles)) ||
+                item
+        })
+        return item
+    }
+
+    static getDefinition(value: string) {
+        const match = value && value.match(/\((?:["'#]*)([^"')]+)/)
+        const name = match && match[1]
+        let res =
+            name &&
+            SvgImport.definitions[
+                window
+                    ? name.replace(window.location.href.split('#')[0] + '#', '')
+                    : name
+            ]
+
+        if (res && res._scaleToBounds) {
+            res = res.clone()
+            res._scaleToBounds = true
+        }
+        return res
+    }
+
+    static importNode<T extends HTMLElement>(
+        node: T | SVGDefsElement,
+        options: SvgImportOptions,
+        isRoot?: boolean
+    ) {
+        const type = node.nodeName.toLowerCase()
+        const paper = PaperScope.paper
+        const isElement = type !== '#document'
+        const body = document.body
+        let container
+        let parent
+        let next
+        if (isRoot && isElement) {
+            SvgImport.rootSize = paper.getView().getSize()
+            SvgImport.rootSize =
+                SvgImport.getSize(node as HTMLElement, null, null, true) ||
+                SvgImport.rootSize
+            container = SvgElement.create('svg', {
+                style: 'stroke-width: 1px; stroke-miterlimit: 10'
+            })
+            parent = node.parentNode
+            next = node.nextSibling
+            container.appendChild(node)
+            body.appendChild(container)
+        }
+
+        const settings = paper.settings
+        const applyMatrix = settings.applyMatrix
+        const insertItems = settings.insertItems
+        settings.applyMatrix = false
+        settings.insertItems = false
+        const importer = SvgImport.importers[type]
+        let item = (importer && importer(node, type, options, isRoot)) || null
+        settings.insertItems = insertItems
+        settings.applyMatrix = applyMatrix
+        if (item) {
+            if (isElement && !(item instanceof Group))
+                item = SvgImport.applyAttributes(
+                    item,
+                    node as HTMLElement,
+                    isRoot
+                )
+
+            const onImport = options.onImport
+            const data = isElement && node.getAttribute('data-paper-data')
+            if (onImport) item = onImport(node, item, options) || item
+            if (options.expandShapes && item instanceof Shape) {
+                item.remove()
+                item = item.toPath()
+            }
+            if (data) item._data = JSON.parse(data)
+        }
+        if (container) {
+            body.removeChild(container)
+            if (parent) {
+                if (next) {
+                    parent.insertBefore(node, next)
+                } else {
+                    parent.appendChild(node)
+                }
+            }
+        }
+        if (isRoot) {
+            SvgImport.definitions = {}
+            if (item && Base.pick(options.applyMatrix, applyMatrix))
+                item.matrix.apply(true, true)
+        }
+        return item
+    }
+
+    static importSVG(
+        source: string | ArrayBuffer | File | HTMLElement,
+        options: SvgImportOptions | Function,
+        owner: Item
+    ): Item {
+        if (!source) return null
+
+        const opts: SvgImportOptions = (
+            typeof options === 'function' ? { onLoad: options } : options || {}
+        ) as SvgImportOptions
+
+        const scope = PaperScope.paper
+        let item = null
+
+        function onLoad<T extends string>(svg: T | HTMLElement) {
+            try {
+                let node =
+                    typeof svg === 'object'
+                        ? svg
+                        : (new self.DOMParser().parseFromString(
+                              svg.trim(),
+                              'image/svg+xml'
+                          ) as unknown as HTMLElement)
+                if (!node.nodeName) {
+                    node = null
+                    throw new Error('Unsupported SVG source: ' + source)
+                }
+                PaperScope.setGlobalPaper(scope)
+                item = SvgImport.importNode(node, opts, true)
+                if (!opts || opts.insert !== false) {
+                    // TODO: Implement support for multiple Layers on Project.
+                    owner.insertItem(undefined, item)
+                }
+                const onLoad = opts.onLoad
+                if (onLoad) onLoad(item, svg as HTMLElement)
+            } catch (e) {
+                onError(e)
+            }
+        }
+
+        function onError(message: DOMException | string, status?: number) {
+            const onError = opts.onError
+            if (onError) {
+                onError(message, status)
+            } else {
+                throw new Error(message as string)
+            }
+        }
+
+        if (typeof source === 'string' && !/^[\s\S]*</.test(source)) {
+            const node = document.getElementById(source)
+
+            if (node) {
+                onLoad(node)
+            } else {
+                Http.request({
+                    url: source,
+                    async: true,
+                    onLoad: onLoad as unknown as (
+                        xhr: XMLHttpRequest,
+                        message: string
+                    ) => void,
+                    onError: onError
+                })
+            }
+        } else if (typeof File !== 'undefined' && source instanceof File) {
+            const reader = new FileReader()
+            reader.onload = function () {
+                onLoad(reader.result as string)
+            }
+            reader.onerror = function () {
+                onError(reader.error)
+            }
+            return reader.readAsText(source)
+        } else {
+            onLoad(source as string)
+        }
+
+        return item
     }
 }

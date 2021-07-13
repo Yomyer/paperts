@@ -26,7 +26,7 @@ export default class DomElement {
         }
     }
 
-    static getStyles(el: HTMLElement) {
+    static getStyles(el: HTMLElement | SVGDefsElement) {
         const doc = (el && el.nodeType !== 9
             ? el.ownerDocument
             : el) as unknown as Document

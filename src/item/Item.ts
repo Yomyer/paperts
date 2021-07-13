@@ -1,7 +1,12 @@
 import Point, { LinkedPoint } from '../basic/Point'
 import Matrix, { MatrixDecompose } from '../basic/Matrix'
 import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import Style, { StyleProps } from '../style/Style'
+import Style, {
+    FillRules,
+    StrokeCaps,
+    StrokeJoins,
+    StyleProps
+} from '../style/Style'
 import Emitter from '../core/Emitter'
 import Project from './Project'
 import PaperScope from '../core/PaperScope'
@@ -21,6 +26,9 @@ import Layer from './Layer'
 import { Size } from '../basic'
 import HitResult, { HitResultOptions, HitResultTypes } from './HitResult'
 import SymbolDefinition from './SymbolDefinition'
+import SvgImport, { SvgImportOptions } from '../svg/SvgImport'
+import Color from '../style/Color'
+import { Color as ColorType } from '../style/Types'
 
 type SerializFields = {
     name: string
@@ -123,6 +131,7 @@ export default class Item extends Emitter {
     protected _data: {}
     protected _boundsOptions: BoundsOptions = {}
     protected _boundsCache: BoundsCacheProps
+    protected _namedChildren: { [key: string]: Item[] }
 
     protected _serializeFields: SerializFields = {
         name: null,
@@ -275,7 +284,7 @@ export default class Item extends Emitter {
      *
      * @param {ChangeFlag} flags describes what exactly has changed
      */
-    protected _changed(flags: ChangeFlag | Change) {
+    protected _changed(flags: ChangeFlag | Change, _?: Item) {
         const symbol = this._symbol
         const cacheParent = this._parent || symbol
         const project = this._project
@@ -292,7 +301,7 @@ export default class Item extends Emitter {
             Item._clearBoundsCache(this)
         }
         if (project) project.changed(flags, this)
-        if (symbol) symbol._changed(flags)
+        if (symbol) symbol.changed(flags)
     }
 
     /**
@@ -387,7 +396,6 @@ export default class Item extends Emitter {
             const children = owner._children
             const namedChildren = owner._namedChildren
             ;(namedChildren[name] = namedChildren[name] || []).push(this)
-            // Only set this item if there isn't one under the same name already
             if (!(name in children)) children[name] = this
         }
         this._name = name || undefined
@@ -1763,14 +1771,6 @@ export default class Item extends Emitter {
         return this.getIndex()
     }
 
-    isDescendant(item: Item) {
-        let parent: Item = this
-        while ((parent = parent._parent)) {
-            if (parent === item) return true
-        }
-        return false
-    }
-
     equals(item: Item) {
         // NOTE: We do not compare name and selected state.
         // TODO: Consider not comparing locked and visible also?
@@ -2573,7 +2573,1098 @@ export default class Item extends Emitter {
         return res !== this ? this.addChild(res) : res
     }
 
-    // exportSVG
+    /**
+     * Exports the item with its content and child items as an SVG DOM.
+     *
+     * @name Item#exportSVG
+     * @function
+     *
+     * @option [options.bounds='view'] {String|Rectangle} the bounds of the area
+     *     to export, either as a string ({@values 'view', content'}), or a
+     *     {@link Rectangle} object: `'view'` uses the view bounds,
+     *     `'content'` uses the stroke bounds of all content
+     * @option [options.matrix=paper.view.matrix] {Matrix} the matrix with which
+     *     to transform the exported content: If `options.bounds` is set to
+     *     `'view'`, `paper.view.matrix` is used, for all other settings of
+     *     `options.bounds` the identity matrix is used.
+     * @option [options.asString=false] {Boolean} whether a SVG node or a
+     *     `String` is to be returned
+     * @option [options.precision=5] {Number} the amount of fractional digits in
+     *     numbers used in SVG data
+     * @option [options.matchShapes=false] {Boolean} whether path items should
+     *     tried to be converted to SVG shape items (rect, circle, ellipse,
+     *     line, polyline, polygon), if their geometries match
+     * @option [options.embedImages=true] {Boolean} whether raster images should
+     *     be embedded as base64 data inlined in the xlink:href attribute, or
+     *     kept as a link to their external URL.
+     *
+     * @param {Object} [options] the export options
+     * @return {SVGElement|String} the item converted to an SVG node or a
+     * `String` depending on `option.asString` value
+     */
+    exportSVG(_: any): void {}
+
+    /**
+     * Converts the provided SVG content into Paper.js items and adds them to
+     * the this item's children list. Note that the item is not cleared first.
+     * You can call {@link Item#removeChildren()} to do so.
+     *
+     * @name Item#importSVG
+     * @function
+     *
+     * @option [options.expandShapes=false] {Boolean} whether imported shape
+     *     items should be expanded to path items
+     * @option options.onLoad {Function} the callback function to call once the
+     *     SVG content is loaded from the given URL receiving two arguments: the
+     *     converted `item` and the original `svg` data as a string. Only
+     *     required when loading from external resources.
+     * @option options.onError {Function} the callback function to call if an
+     *     error occurs during loading. Only required when loading from external
+     *     resources.
+     * @option [options.insert=true] {Boolean} whether the imported items should
+     *     be added to the item that `importSVG()` is called on
+     * @option [options.applyMatrix={@link PaperScope#settings}.applyMatrix]
+     *     {Boolean} whether the imported items should have their transformation
+     *     matrices applied to their contents or not
+     *
+     * @param {SVGElement|String} svg the SVG content to import, either as a SVG
+     *     DOM node, a string containing SVG content, or a string describing the
+     *     URL of the SVG file to fetch.
+     * @param {Object} [options] the import options
+     * @return {Item} the newly created Paper.js item containing the converted
+     *     SVG content
+     */
+    /**
+     * Imports the provided external SVG file, converts it into Paper.js items
+     * and adds them to the this item's children list. Note that the item is not
+     * cleared first. You can call {@link Item#removeChildren()} to do so.
+     *
+     * @name Item#importSVG
+     * @function
+     *
+     * @param {SVGElement|String} svg the URL of the SVG file to fetch.
+     * @param {Function} onLoad the callback function to call once the SVG
+     *     content is loaded from the given URL receiving two arguments: the
+     *     converted `item` and the original `svg` data as a string. Only
+     *     required when loading from external files.
+     * @return {Item} the newly created Paper.js item containing the converted
+     *     SVG content
+     */
+    importSVG(node: SVGElement | string, options?: SvgImportOptions): Item
+    importSVG(node: SVGElement | string, options?: Function): Item
+    importSVG(
+        node: SVGElement | string,
+        options?: Function | SvgImportOptions
+    ): Item {
+        return SvgImport.importSVG(
+            node as unknown as HTMLElement,
+            options,
+            this
+        )
+    }
+
+    /**
+     * {@grouptitle Hierarchy Operations}
+     *
+     * Adds the specified item as a child of this item at the end of the its
+     * {@link #children}  list. You can use this function for groups, compound
+     * paths and layers.
+     *
+     * @param {Item} item the item to be added as a child
+     * @return {Item} the added item, or `null` if adding was not possible
+     */
+    addChild(item: Item): Item {
+        return this.insertChild(undefined, item)
+    }
+
+    /**
+     * Inserts the specified item as a child of this item at the specified index
+     * in its {@link #children} list. You can use this function for groups,
+     * compound paths and layers.
+     *
+     * @param {Number} index the index at which to insert the item
+     * @param {Item} item the item to be inserted as a child
+     * @return {Item} the inserted item, or `null` if inserting was not possible
+     */
+    insertChild(index: number, item: Item): Item {
+        const res = item ? this.insertChildren(index, [item]) : null
+        return res && res[0]
+    }
+
+    /**
+     * Adds the specified items as children of this item at the end of the its
+     * children list. You can use this function for groups, compound paths and
+     * layers.
+     *
+     * @param {Item[]} items the items to be added as children
+     * @return {Item[]} the added items, or `null` if adding was not possible
+     */
+    addChildren(items: Item[]): Item[] {
+        return this.insertChildren(this._children.length, items)
+    }
+
+    /**
+     * Inserts the specified items as children of this item at the specified
+     * index in its {@link #children} list. You can use this function for
+     * groups, compound paths and layers.
+     *
+     * @param {Number} index
+     * @param {Item[]} items the items to be appended as children
+     * @return {Item[]} the inserted items, or `null` if inserted was not
+     *     possible
+     */
+    insertChildren(index: number, items: Item[]): Item[] {
+        const children = this._children
+        if (children && items && items.length > 0) {
+            items = Base.slice(items)
+
+            const inserted = {}
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i]
+                const id = item && item._id
+
+                if (!item || inserted[id]) {
+                    items.splice(i, 1)
+                } else {
+                    item._remove(false, true)
+                    inserted[id] = true
+                }
+            }
+            Base.splice(children, items, index, 0)
+            const project = this._project
+            const notifySelf = project.changes
+
+            for (let i = 0, l = items.length; i < l; i++) {
+                const item = items[i]
+                const name = item._name
+                item._parent = this
+                item._setProject(project, true)
+
+                if (name) item.setName(name)
+                if (notifySelf) item._changed(Change.INSERTION)
+            }
+            this._changed(Change.CHILDREN)
+        } else {
+            items = null
+        }
+        return items
+    }
+
+    protected _insertItem(index: number, item: Item): Item {
+        return this.insertChild(index, item)
+    }
+
+    /**
+     * Private helper method used by {@link #insertAbove(item)} and
+     * {@link #insertBelow(item)}, to insert this item in relation to a
+     * specified other item.
+     *
+     * @param {Item} item the item in relation to which which it should be
+     *     inserted
+     * @param {Number} offset the offset at which the item should be inserted
+     * @return {Item} the inserted item, or `null` if inserting was not possible
+     */
+    protected _insertAt(item: Item, offset: number): Item {
+        const owner = item && item._getOwner()
+        const res = item !== this && owner ? this : null
+        if (res) {
+            res._remove(false, true)
+            owner._insertItem(item._index + offset, res)
+        }
+        return res
+    }
+
+    /**
+     * Inserts this item above the specified item.
+     *
+     * @param {Item} item the item above which it should be inserted
+     * @return {Item} the inserted item, or `null` if inserting was not possible
+     */
+    insertAbove(item: Item): Item {
+        return this._insertAt(item, 1)
+    }
+
+    /**
+     * Inserts this item below the specified item.
+     *
+     * @param {Item} item the item below which it should be inserted
+     * @return {Item} the inserted item, or `null` if inserting was not possible
+     */
+    insertBelow(item: Item): Item {
+        return this._insertAt(item, 0)
+    }
+
+    /**
+     * Sends this item to the back of all other items within the same parent.
+     */
+    sendToBack(): Item {
+        const owner = this._getOwner()
+        return owner ? owner._insertItem(0, this) : null
+    }
+
+    /**
+     * Brings this item to the front of all other items within the same parent.
+     */
+    bringToFront(): Item {
+        const owner = this._getOwner()
+        return owner ? owner._insertItem(undefined, this) : null
+    }
+
+    /**
+     * Adds it to the specified owner, which can be either a {@link Item} or a
+     * {@link Project}.
+     *
+     * @param {Project|Layer|Group|CompoundPath} owner the item or project to
+     * add the item to
+     * @return {Item} the item itself, if it was successfully added
+     * @chainable
+     */
+    addTo(owner: Item): Item {
+        return owner._insertItem(undefined, this)
+    }
+
+    /**
+     * Clones the item and adds it to the specified owner, which can be either
+     * a {@link Item} or a {@link Project}.
+     *
+     * @param {Project|Layer|Group|CompoundPath} owner the item or project to
+     * copy the item to
+     * @return {Item} the new copy of the item, if it was successfully added
+     * @chainable
+     */
+    copyTo(owner: Item): Item {
+        return this.clone(false).addTo(owner)
+    }
+
+    /**
+     * If this is a group, layer or compound-path with only one child-item,
+     * the child-item is moved outside and the parent is erased. Otherwise, the
+     * item itself is returned unmodified.
+     *
+     * @return {Item} the reduced item
+     */
+    reduce(options?: any): Item {
+        const children = this._children
+        if (children && children.length === 1) {
+            const child = children[0].reduce(options)
+
+            if (this._parent) {
+                child.insertAbove(this)
+                this.remove()
+            } else {
+                child.remove()
+            }
+            return child
+        }
+        return this
+    }
+
+    /**
+     * Removes the item from its parent's named children list.
+     */
+    protected _removeNamed() {
+        const owner = this._getOwner()
+        if (owner) {
+            const children = owner._children
+            const namedChildren = owner._namedChildren
+            const name = this._name
+            const namedArray = namedChildren[name]
+            const index = namedArray ? namedArray.indexOf(this) : -1
+            if (index !== -1) {
+                if (children[name] === this) delete children[name]
+
+                namedArray.splice(index, 1)
+                if (namedArray.length) {
+                    children[name] = namedArray[0]
+                } else {
+                    delete namedChildren[name]
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes the item from its parent's children list.
+     */
+    protected _remove(notifySelf?: boolean, notifyParent?: boolean): boolean {
+        const owner = this._getOwner()
+        const project = this._project
+        const index = this._index
+        if (this._style) this._style._dispose()
+        if (owner) {
+            if (this._name) this._removeNamed()
+            if (index != null) {
+                if (project.activeLayer === this)
+                    project.activeLayer =
+                        this.getNextSibling() || this.getPreviousSibling()
+                Base.splice(owner._children, null, index, 1)
+            }
+            this._installEvents(false)
+            if (notifySelf && project.changes) this._changed(Change.INSERTION)
+            if (notifyParent) owner._changed(Change.CHILDREN, this)
+            this._parent = null
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Removes the item and all its children from the project. The item is not
+     * destroyed and can be inserted again after removal.
+     *
+     * @return {Boolean} {@true if the item was removed}
+     */
+    remove(): boolean {
+        return this._remove(true, true)
+    }
+
+    /**
+     * Replaces this item with the provided new item which will takes its place
+     * in the project hierarchy instead.
+     *
+     * @param {Item} item the item that will replace this item
+     * @return {Boolean} {@true if the item was replaced}
+     */
+    replaceWith(item: Item): boolean {
+        const ok = !!(item && item.insertBelow(this))
+        if (ok) this.remove()
+        return ok
+    }
+
+    /**
+     * Removes all of the item's {@link #children} (if any).
+     *
+     * @name Item#removeChildren
+     * @alias Item#clear
+     * @function
+     * @return {Item[]} an array containing the removed items
+     */
+    /**
+     * Removes the children from the specified `start` index to and excluding
+     * the `end` index from the parent's {@link #children} array.
+     *
+     * @name Item#removeChildren
+     * @function
+     * @param {Number} start the beginning index, inclusive
+     * @param {Number} [end=children.length] the ending index, exclusive
+     * @return {Item[]} an array containing the removed items
+     */
+    removeChildren(start?: number, end?: number): Item[] {
+        if (!this._children) return null
+        start = start || 0
+        end = Base.pick(end, this._children.length)
+
+        const removed = Base.splice(this._children, null, start, end - start)
+        for (let i = removed.length - 1; i >= 0; i--) {
+            removed[i]._remove(true, false)
+        }
+        if (removed.length > 0) this._changed(Change.CHILDREN)
+        return removed
+    }
+
+    clear(): Item[] {
+        return this.removeChildren()
+    }
+
+    /**
+     * Reverses the order of the item's children
+     */
+    reverseChildren() {
+        if (this._children) {
+            this._children.reverse()
+            for (let i = 0, l = this._children.length; i < l; i++)
+                this._children[i]._index = i
+            this._changed(Change.CHILDREN)
+        }
+    }
+
+    /**
+     * {@grouptitle Tests}
+     * Specifies whether the item has any content or not. The meaning of what
+     * content is differs from type to type. For example, a {@link Group} with
+     * no children, a {@link TextItem} with no text content and a {@link Path}
+     * with no segments all are considered empty.
+     *
+     * @param {Boolean} [recursively=false] whether an item with children should be
+     * considered empty if all its descendants are empty
+     * @return {Boolean}
+     */
+    isEmpty(recursively?: boolean): boolean {
+        const children = this._children
+        const numChildren = children ? children.length : 0
+        if (recursively) {
+            for (let i = 0; i < numChildren; i++) {
+                if (!children[i].isEmpty(recursively)) {
+                    return false
+                }
+            }
+            return true
+        }
+        return !numChildren
+    }
+
+    /**
+     * Checks whether the item is editable.
+     *
+     * @return {Boolean} {@true when neither the item, nor its parents are
+     * locked or hidden}
+     * @ignore
+     */
+    // TODO: Item#isEditable is currently ignored in the documentation, as
+    // locking an item currently has no effect
+    isEditable(): boolean {
+        let item: Item = this
+        while (item) {
+            if (!item._visible || item._locked) return false
+            item = item._parent
+        }
+        return true
+    }
+
+    /**
+     * {@grouptitle Style Tests}
+     *
+     * Checks whether the item has a fill.
+     *
+     * @return {Boolean} {@true if the item has a fill}
+     */
+    hasFill(): boolean {
+        return this.getStyle().hasFill()
+    }
+
+    /**
+     * Checks whether the item has a stroke.
+     *
+     * @return {Boolean} {@true if the item has a stroke}
+     */
+    hasStroke(): boolean {
+        return this.getStyle().hasStroke()
+    }
+
+    /**
+     * Checks whether the item has a shadow.
+     *
+     * @return {Boolean} {@true if the item has a shadow}
+     */
+    hasShadow(): boolean {
+        return this.getStyle().hasShadow()
+    }
+
+    /**
+     * Returns -1 if 'this' is above 'item', 1 if below, 0 if their order is not
+     * defined in such a way, e.g. if one is a descendant of the other.
+     */
+    protected _getOrder(item: Item) {
+        function getList(item: Item) {
+            const list = []
+            do {
+                list.unshift(item)
+            } while ((item = item._parent))
+            return list
+        }
+        const list1 = getList(this)
+        const list2 = getList(item)
+        for (let i = 0, l = Math.min(list1.length, list2.length); i < l; i++) {
+            if (list1[i] !== list2[i]) {
+                return list1[i]._index < list2[i]._index ? 1 : -1
+            }
+        }
+        return 0
+    }
+
+    /**
+     * {@grouptitle Hierarchy Tests}
+     *
+     * Checks if the item contains any children items.
+     *
+     * @return {Boolean} {@true it has one or more children}
+     */
+    hasChildren(): boolean {
+        return this._children && this._children.length > 0
+    }
+
+    /**
+     * Checks whether the item and all its parents are inserted into scene graph
+     * or not.
+     *
+     * @return {Boolean} {@true if the item is inserted into the scene graph}
+     */
+    isInserted(): boolean {
+        return this._parent ? this._parent.isInserted() : false
+    }
+
+    /**
+     * Checks if this item is above the specified item in the stacking order
+     * of the project.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if it is above the specified item}
+     */
+    isAbove(item: Item): boolean {
+        return this._getOrder(item) === -1
+    }
+
+    /**
+     * Checks if the item is below the specified item in the stacking order of
+     * the project.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if it is below the specified item}
+     */
+    isBelow(item: Item): boolean {
+        return this._getOrder(item) === 1
+    }
+
+    /**
+     * Checks whether the specified item is the parent of the item.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if it is the parent of the item}
+     */
+    isParent(item: Item): boolean {
+        return this._parent === item
+    }
+
+    /**
+     * Checks whether the specified item is a child of the item.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true it is a child of the item}
+     */
+    isChild(item: Item): boolean {
+        return item && item._parent === this
+    }
+
+    /**
+     * Checks if the item is contained within the specified item.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if it is inside the specified item}
+     */
+    isDescendant(item: Item): boolean {
+        let parent: Item = this
+        while ((parent = parent._parent)) {
+            if (parent === item) return true
+        }
+        return false
+    }
+
+    /**
+     * Checks if the item is an ancestor of the specified item.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if the item is an ancestor of the specified
+     * item}
+     */
+    isAncestor(item: Item): boolean {
+        return item ? item.isDescendant(this) : false
+    }
+
+    /**
+     * Checks if the item is an a sibling of the specified item.
+     *
+     * @param {Item} item the item to check against
+     * @return {Boolean} {@true if the item is aa sibling of the specified item}
+     */
+    isSibling(item: Item): boolean {
+        return this._parent === item._parent
+    }
+
+    /**
+     * Checks whether the item is grouped with the specified item.
+     *
+     * @param {Item} item
+     * @return {Boolean} {@true if the items are grouped together}
+     */
+    isGroupedWith(item: Item): boolean {
+        let parent = this._parent
+        while (parent) {
+            if (
+                parent._parent &&
+                /^(Group|Layer|CompoundPath)$/.test(parent._class) &&
+                item.isDescendant(parent)
+            )
+                return true
+            parent = parent._parent
+        }
+        return false
+    }
+
+    /**
+     * {@grouptitle Stroke Style}
+     *
+     * The color of the stroke.
+     *
+     * @name Item#strokeColor
+     * @property
+     * @type ?Color
+     *
+     * @example {@paperscript}
+     * // Setting the stroke color of a path:
+     *
+     * // Create a circle shaped path at { x: 80, y: 50 }
+     * // with a radius of 35:
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 35
+     * });
+     *
+     * // Set its stroke color to RGB red:
+     * circle.strokeColor = new Color(1, 0, 0);
+     */
+    getStrokeColor(_dontMerge?: boolean): Color {
+        return this._style.getStrokeColor(_dontMerge)
+    }
+
+    setStrokeColor(color: Partial<Color & ColorType>): this {
+        this._style.setStrokeColor(color)
+        return this
+    }
+
+    get strokeColor(): Color {
+        return this.getStrokeColor()
+    }
+
+    set strokeColor(color: Partial<Color & ColorType>) {
+        this.setStrokeColor(color)
+    }
+
+    /**
+     * The width of the stroke.
+     *
+     * @name Item#strokeWidth
+     * @property
+     * @type Number
+     *
+     * @example {@paperscript}
+     * // Setting an item's stroke width:
+     *
+     * // Create a circle shaped path at { x: 80, y: 50 }
+     * // with a radius of 35:
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 35,
+     *     strokeColor: 'red'
+     * });
+     *
+     * // Set its stroke width to 10:
+     * circle.strokeWidth = 10;
+     */
+    getStrokeWidth(_dontMerge?: boolean): number {
+        return this._style.getStrokeWidth(_dontMerge)
+    }
+
+    setStrokeWidth(width: number): this {
+        this._style.setStrokeWidth(width)
+        return this
+    }
+
+    get strokeWidth(): number {
+        return this.getStrokeWidth()
+    }
+
+    set strokeWidth(width: number) {
+        this.setStrokeWidth(width)
+    }
+
+    /**
+     * The shape to be used at the beginning and end of open {@link Path} items,
+     * when they have a stroke.
+     *
+     * @name Item#strokeCap
+     * @property
+     * @type String
+     * @values 'round', 'square', 'butt'
+     * @default 'butt'
+     *
+     * @example {@paperscript height=200}
+     * // A look at the different stroke caps:
+     *
+     * var line = new Path({
+     *     segments: [[80, 50], [420, 50]],
+     *     strokeColor: 'black',
+     *     strokeWidth: 20,
+     *     selected: true
+     * });
+     *
+     * // Set the stroke cap of the line to be round:
+     * line.strokeCap = 'round';
+     *
+     * // Copy the path and set its stroke cap to be square:
+     * var line2 = line.clone();
+     * line2.position.y += 50;
+     * line2.strokeCap = 'square';
+     *
+     * // Make another copy and set its stroke cap to be butt:
+     * var line2 = line.clone();
+     * line2.position.y += 100;
+     * line2.strokeCap = 'butt';
+     */
+    getStrokeCap(_dontMerge?: boolean): StrokeCaps {
+        return this._style.getStrokeCap(_dontMerge)
+    }
+
+    setStrokeCap(cap: StrokeCaps): this {
+        this._style.setStrokeCap(cap)
+        return this
+    }
+
+    get strokeCap() {
+        return this.getStrokeCap()
+    }
+
+    set strokeCap(cap: StrokeCaps) {
+        this.setStrokeCap(cap)
+    }
+
+    /**
+     * The shape to be used at the segments and corners of {@link Path} items
+     * when they have a stroke.
+     *
+     * @name Item#strokeJoin
+     * @property
+     * @type String
+     * @values 'miter', 'round', 'bevel'
+     * @default 'miter'
+     *
+     * @example {@paperscript height=120}
+     * // A look at the different stroke joins:
+     * var path = new Path({
+     *     segments: [[80, 100], [120, 40], [160, 100]],
+     *     strokeColor: 'black',
+     *     strokeWidth: 20,
+     *     // Select the path, in order to see where the stroke is formed:
+     *     selected: true
+     * });
+     *
+     * var path2 = path.clone();
+     * path2.position.x += path2.bounds.width * 1.5;
+     * path2.strokeJoin = 'round';
+     *
+     * var path3 = path2.clone();
+     * path3.position.x += path3.bounds.width * 1.5;
+     * path3.strokeJoin = 'bevel';
+     */
+    getStrokeJoin(_dontMerge?: boolean): StrokeJoins {
+        return this._style.getStrokeJoin(_dontMerge)
+    }
+
+    setStrokeJoin(join: StrokeJoins): this {
+        this._style.setStrokeJoin(join)
+        return this
+    }
+
+    get strokeJoin() {
+        return this.getStrokeJoin()
+    }
+
+    set strokeJoin(join: StrokeJoins) {
+        this.setStrokeJoin(join)
+    }
+
+    /**
+     * Specifies whether the stroke is to be drawn taking the current affine
+     * transformation into account (the default behavior), or whether it should
+     * appear as a non-scaling stroke.
+     *
+     * @name Item#strokeScaling
+     * @property
+     * @type Boolean
+     * @default true
+     */
+    getStrokeScaling(_dontMerge?: boolean): boolean {
+        return this._style.getStrokeScaling(_dontMerge)
+    }
+
+    setStrokeScaling(scaling: boolean): this {
+        this._style.getStrokeScaling(scaling)
+        return this
+    }
+
+    get strokeScaling(): boolean {
+        return this.getStrokeScaling()
+    }
+
+    set strokeScaling(scaling: boolean) {
+        this.setStrokeScaling(scaling)
+    }
+
+    /**
+     * The dash offset of the stroke.
+     *
+     * @name Item#dashOffset
+     * @property
+     * @type Number
+     * @default 0
+     */
+    getDashOffset(_dontMerge?: boolean): number {
+        return this._style.getDashOffset(_dontMerge)
+    }
+
+    setDashOffset(offset: number): this {
+        this._style.setDashOffset(offset)
+        return this
+    }
+
+    get dashOffset(): number {
+        return this.getDashOffset()
+    }
+
+    set dashOffset(offset: number) {
+        this.setDashOffset(offset)
+    }
+
+    /**
+     * Specifies an array containing the dash and gap lengths of the stroke.
+     *
+     * @example {@paperscript}
+     * var path = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 40,
+     *     strokeWidth: 2,
+     *     strokeColor: 'black'
+     * });
+     *
+     * // Set the dashed stroke to [10pt dash, 4pt gap]:
+     * path.dashArray = [10, 4];
+     *
+     * @name Item#dashArray
+     * @property
+     * @type Number[]
+     * @default []
+     */
+    getDashArray(_dontMerge?: boolean): number[] {
+        return this._style.getDashArray(_dontMerge)
+    }
+
+    setDashArray(array: number[]): this {
+        this._style.setDashArray(array)
+        return this
+    }
+
+    get dashArray(): number[] {
+        return this.getDashArray()
+    }
+
+    set dashArray(array: number[]) {
+        this.setDashArray(array)
+    }
+
+    /**
+     * The miter limit of the stroke.
+     * When two line segments meet at a sharp angle and miter joins have been
+     * specified for {@link Item#strokeJoin}, it is possible for the miter to
+     * extend far beyond the {@link Item#strokeWidth} of the path. The
+     * miterLimit imposes a limit on the ratio of the miter length to the
+     * {@link Item#strokeWidth}.
+     *
+     * @name Item#miterLimit
+     * @property
+     * @type Number
+     * @default 10
+     */
+    getMiterLimit(_dontMerge?: boolean): number {
+        return this._style.getMiterLimit(_dontMerge)
+    }
+
+    setMiterLimit(limit: number): this {
+        this._style.setMiterLimit(limit)
+        return this
+    }
+
+    get miterLimit(): number {
+        return this.getMiterLimit()
+    }
+
+    set miterLimit(limit: number) {
+        this.setMiterLimit(limit)
+    }
+
+    /**
+     * {@grouptitle Fill Style}
+     *
+     * The fill color of the item.
+     *
+     * @name Item#fillColor
+     * @property
+     * @type ?Color
+     *
+     * @example {@paperscript}
+     * // Setting the fill color of a path to red:
+     *
+     * // Create a circle shaped path at { x: 80, y: 50 }
+     * // with a radius of 35:
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 35
+     * });
+     *
+     * // Set the fill color of the circle to RGB red:
+     * circle.fillColor = new Color(1, 0, 0);
+     */
+    getFillColor(_dontMerge?: boolean): Color {
+        return this._style.getFillColor(_dontMerge)
+    }
+
+    setFillColor(color: Partial<Color & ColorType>): this {
+        this._style.setFillColor(color)
+        return this
+    }
+
+    get fillColor(): Color {
+        return this.getFillColor()
+    }
+
+    set fillColor(color: Partial<Color & ColorType>) {
+        this.setFillColor(color)
+    }
+
+    /**
+     * The fill-rule with which the shape gets filled. Please note that only
+     * modern browsers support fill-rules other than `'nonzero'`.
+     *
+     * @name Item#fillRule
+     * @property
+     * @type String
+     * @values 'nonzero', 'evenodd'
+     * @default 'nonzero'
+     */
+    getFillRule(_dontMerge?: boolean): FillRules {
+        return this._style.getFillRule(_dontMerge)
+    }
+
+    setFillRule(rule: FillRules): this {
+        this._style.setFillRule(rule)
+        return this
+    }
+
+    get fillRule() {
+        return this.getFillRule()
+    }
+
+    set fillRule(rule: FillRules) {
+        this.setFillRule(rule)
+    }
+
+    /**
+     * {@grouptitle Shadow Style}
+     *
+     * The shadow color.
+     *
+     * @property
+     * @name Item#shadowColor
+     * @type ?Color
+     *
+     * @example {@paperscript}
+     * // Creating a circle with a black shadow:
+     *
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 35,
+     *     fillColor: 'white',
+     *     // Set the shadow color of the circle to RGB black:
+     *     shadowColor: new Color(0, 0, 0),
+     *     // Set the shadow blur radius to 12:
+     *     shadowBlur: 12,
+     *     // Offset the shadow by { x: 5, y: 5 }
+     *     shadowOffset: new Point(5, 5)
+     * });
+     */
+    getShadowColor(_dontMerge?: boolean): Color {
+        return this._style.getShadowColor(_dontMerge)
+    }
+
+    setShadowColor(color: Partial<Color & ColorType>): this {
+        this._style.setShadowColor(color)
+        return this
+    }
+
+    get shadowColor(): Color {
+        return this.getShadowColor()
+    }
+
+    set shadowColor(color: Partial<Color & ColorType>) {
+        this.setShadowColor(color)
+    }
+
+    /**
+     * The shadow's blur radius.
+     *
+     * @property
+     * @name Item#shadowBlur
+     * @type Number
+     * @default 0
+     */
+    getShadowBlur(_dontMerge?: boolean): number {
+        return this._style.getShadowBlur(_dontMerge)
+    }
+
+    setShadowBlur(blur: number): this {
+        this._style.setShadowBlur(blur)
+        return this
+    }
+
+    get shadowBlur(): number {
+        return this.getShadowBlur()
+    }
+
+    set shadowBlur(blur: number) {
+        this.setShadowBlur(blur)
+    }
+
+    /**
+     * The shadow's offset.
+     *
+     * @property
+     * @name Item#shadowOffset
+     * @type Point
+     * @default 0
+     */
+    getShadowOffset(_dontMerge?: boolean): Point {
+        return this._style.getShadowOffset(_dontMerge)
+    }
+
+    setShadowOffset(offset: Partial<Point & PointType>): this {
+        this._style.setShadowOffset(offset)
+        return this
+    }
+
+    get shadowOffset(): Point {
+        return this.getShadowOffset()
+    }
+
+    set shadowOffset(offset: Partial<Point & PointType>) {
+        this.setShadowOffset(offset)
+    }
+
+    // TODO: Find a better name than selectedColor. It should also be used for
+    // guides, etc.
+    /**
+     * {@grouptitle Selection Style}
+     *
+     * The color the item is highlighted with when selected. If the item does
+     * not specify its own color, the color defined by its layer is used instead.
+     *
+     * @name Item#selectedColor
+     * @property
+     * @type ?Color
+     */
+    getSelectedColor(_dontMerge?: boolean): Color {
+        return this._style.getSelectedColor(_dontMerge)
+    }
+
+    setSelectedColor(color: Partial<Color & ColorType>): this {
+        this._style.setSelectedColor(color)
+        return this
+    }
+
+    get selectedColor(): Color {
+        return this.getSelectedColor()
+    }
+
+    set selectedColor(color: Partial<Color & ColorType>) {
+        this.setSelectedColor(color)
+    }
 
     removeOn(obj: Object) {
         for (const name in obj) {
@@ -2587,6 +3678,4 @@ export default class Item extends Emitter {
         }
         return this
     }
-
-    remove() {}
 }

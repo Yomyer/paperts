@@ -10,6 +10,20 @@ import CompoundPath from '../path/CompundPath'
 import Point from '../basic/Point'
 import Project from '../item/Project'
 
+export type StrokeCaps = 'round' | 'square' | 'butt'
+export type StrokeJoins = 'miter' | 'round' | 'bevel'
+export type FillRules = 'nonzero' | 'evenodd'
+export type Justifications = 'left' | 'right' | 'center'
+export type FontWeights =
+    | 'normal'
+    | 'bold'
+    | 'lighter'
+    | 'bolder'
+    | 'unset'
+    | 'inherit'
+    | 'uset'
+    | number
+
 export type StyleItem = {
     fillColor?: ColorType
     fillRule?: 'nonzero' | 'evenodd'
@@ -331,21 +345,21 @@ export default class Style extends Base {
      * // Set its stroke color to RGB red:
      * circle.strokeColor = new Color(1, 0, 0);
      */
+    getStrokeColor(_dontMerge?: boolean): Color {
+        return this.getParam('strokeColor', _dontMerge) as Color
+    }
+
+    setStrokeColor(color: Partial<Color & ColorType>): this {
+        this.setParam('strokeColor', color)
+        return this
+    }
+
     get strokeColor(): Color {
         return this.getStrokeColor()
     }
 
     set strokeColor(color: Partial<Color & ColorType>) {
         this.setStrokeColor(color)
-    }
-
-    getStrokeColor(): Color {
-        return this.getParam('strokeColor') as Color
-    }
-
-    setStrokeColor(color: Partial<Color & ColorType>): this {
-        this.setParam('strokeColor', color)
-        return this
     }
 
     /**
@@ -369,21 +383,21 @@ export default class Style extends Base {
      * // Set its stroke width to 10:
      * circle.strokeWidth = 10;
      */
+    getStrokeWidth(_dontMerge?: boolean): number {
+        return this.getParam('strokeWidth', _dontMerge)
+    }
+
+    setStrokeWidth(width: number): this {
+        this.setParam('strokeWidth', width)
+        return this
+    }
+
     get strokeWidth(): number {
         return this.getStrokeWidth()
     }
 
     set strokeWidth(width: number) {
         this.setStrokeWidth(width)
-    }
-
-    getStrokeWidth(): number {
-        return this.getParam('strokeWidth')
-    }
-
-    setStrokeWidth(width: number): this {
-        this.setParam('strokeWidth', width)
-        return this
     }
 
     /**
@@ -419,21 +433,21 @@ export default class Style extends Base {
      * line2.position.y += 100;
      * line2.strokeCap = 'butt';
      */
+    getStrokeCap(_dontMerge?: boolean): StrokeCaps {
+        return this.getParam('strokeCap', _dontMerge)
+    }
+
+    setStrokeCap(cap: StrokeCaps): this {
+        this.setParam('strokeCap', cap)
+        return this
+    }
+
     get strokeCap() {
         return this.getStrokeCap()
     }
 
-    set strokeCap(cap: 'round' | 'square' | 'butt') {
+    set strokeCap(cap: StrokeCaps) {
         this.setStrokeCap(cap)
-    }
-
-    getStrokeCap(): 'round' | 'square' | 'butt' {
-        return this.getParam('strokeCap')
-    }
-
-    setStrokeCap(cap: 'round' | 'square' | 'butt'): this {
-        this.setParam('strokeCap', cap)
-        return this
     }
 
     /**
@@ -466,21 +480,21 @@ export default class Style extends Base {
      * path3.position.x += path3.bounds.width * 1.5;
      * path3.strokeJoin = 'bevel';
      */
+    getStrokeJoin(_dontMerge?: boolean): StrokeJoins {
+        return this.getParam('strokeJoin', _dontMerge)
+    }
+
+    setStrokeJoin(join: StrokeJoins): this {
+        this.setParam('strokeJoin', join)
+        return this
+    }
+
     get strokeJoin() {
         return this.getStrokeJoin()
     }
 
-    set strokeJoin(cap: 'miter' | 'round' | 'bevel') {
-        this.setStrokeJoin(cap)
-    }
-
-    getStrokeJoin(): 'miter' | 'round' | 'bevel' {
-        return this.getParam('strokeJoin')
-    }
-
-    setStrokeJoin(cap: 'miter' | 'round' | 'bevel'): this {
-        this.setParam('strokeJoin', cap)
-        return this
+    set strokeJoin(join: StrokeJoins) {
+        this.setStrokeJoin(join)
     }
 
     /**
@@ -493,21 +507,21 @@ export default class Style extends Base {
      * @type Boolean
      * @default true
      */
+    getStrokeScaling(_dontMerge?: boolean): boolean {
+        return this.getParam('strokeScaling', _dontMerge)
+    }
+
+    setStrokeScaling(scaling: boolean): this {
+        this.setParam('strokeScaling', scaling)
+        return this
+    }
+
     get strokeScaling(): boolean {
         return this.getStrokeScaling()
     }
 
     set strokeScaling(scaling: boolean) {
         this.setStrokeScaling(scaling)
-    }
-
-    getStrokeScaling(): boolean {
-        return this.getParam('strokeScaling')
-    }
-
-    setStrokeScaling(scaling: boolean): this {
-        this.setParam('strokeScaling', scaling)
-        return this
     }
 
     /**
@@ -518,21 +532,21 @@ export default class Style extends Base {
      * @type Number
      * @default 0
      */
+    getDashOffset(_dontMerge?: boolean): number {
+        return this.getParam('dashOffset', _dontMerge)
+    }
+
+    setDashOffset(offset: number): this {
+        this.setParam('dashOffset', offset)
+        return this
+    }
+
     get dashOffset(): number {
         return this.getDashOffset()
     }
 
     set dashOffset(offset: number) {
         this.setDashOffset(offset)
-    }
-
-    getDashOffset(): number {
-        return this.getParam('dashOffset')
-    }
-
-    setDashOffset(offset: number): this {
-        this.setParam('dashOffset', offset)
-        return this
     }
 
     /**
@@ -551,21 +565,21 @@ export default class Style extends Base {
      * @type Number[]
      * @default []
      */
+    getDashArray(_dontMerge?: boolean): number[] {
+        return this.getParam('dashArray', _dontMerge)
+    }
+
+    setDashArray(array: number[]): this {
+        this.setParam('dashArray', array)
+        return this
+    }
+
     get dashArray(): number[] {
         return this.getDashArray()
     }
 
     set dashArray(array: number[]) {
         this.setDashArray(array)
-    }
-
-    getDashArray(): number[] {
-        return this.getParam('dashArray')
-    }
-
-    setDashArray(array: number[]): this {
-        this.setParam('dashArray', array)
-        return this
     }
 
     /**
@@ -580,21 +594,21 @@ export default class Style extends Base {
      * @default 10
      * @type Number
      */
+    getMiterLimit(_dontMerge?: boolean): number {
+        return this.getParam('miterLimit', _dontMerge)
+    }
+
+    setMiterLimit(limit: number): this {
+        this.setParam('miterLimit', limit)
+        return this
+    }
+
     get miterLimit(): number {
         return this.getMiterLimit()
     }
 
     set miterLimit(limit: number) {
         this.setMiterLimit(limit)
-    }
-
-    getMiterLimit(): number {
-        return this.getParam('miterLimit')
-    }
-
-    setMiterLimit(limit: number): this {
-        this.setParam('miterLimit', limit)
-        return this
     }
 
     /**
@@ -616,22 +630,21 @@ export default class Style extends Base {
      * // Set the fill color of the circle to RGB red:
      * circle.fillColor = new Color(1, 0, 0);
      */
+    getFillColor(_dontMerge?: boolean): Color {
+        return this.getParam('fillColor', _dontMerge)
+    }
+
+    setFillColor(color: Partial<Color & ColorType>): this {
+        this.setParam('fillColor', color)
+        return this
+    }
+
     get fillColor(): Color {
         return this.getFillColor()
     }
 
     set fillColor(color: Partial<Color & ColorType>) {
         this.setFillColor(color)
-    }
-
-    getFillColor(): Color {
-        return this.getParam('fillColor')
-    }
-
-    setFillColor(color: Partial<Color & ColorType>): this {
-        this.setParam('fillColor', color)
-
-        return this
     }
 
     /**
@@ -644,21 +657,21 @@ export default class Style extends Base {
      * @values 'nonzero', 'evenodd'
      * @default 'nonzero'
      */
+    getFillRule(_dontMerge?: boolean): FillRules {
+        return this.getParam('fillRule', _dontMerge)
+    }
+
+    setFillRule(rule: FillRules): this {
+        this.setParam('fillRule', rule)
+        return this
+    }
+
     get fillRule() {
         return this.getFillRule()
     }
 
-    set fillRule(rule: 'nonzero' | 'evenodd') {
+    set fillRule(rule: FillRules) {
         this.setFillRule(rule)
-    }
-
-    getFillRule(): 'nonzero' | 'evenodd' {
-        return this.getParam('fillRule')
-    }
-
-    setFillRule(rule: 'nonzero' | 'evenodd'): this {
-        this.setParam('fillRule', rule)
-        return this
     }
 
     /**
@@ -685,21 +698,21 @@ export default class Style extends Base {
      *     shadowOffset: new Point(5, 5)
      * });
      */
+    getShadowColor(_dontMerge?: boolean): Color {
+        return this.getParam('shadowColor', _dontMerge)
+    }
+
+    setShadowColor(color: Partial<Color & ColorType>): this {
+        this.setParam('shadowColor', color)
+        return this
+    }
+
     get shadowColor(): Color {
         return this.getShadowColor()
     }
 
     set shadowColor(color: Partial<Color & ColorType>) {
         this.setShadowColor(color)
-    }
-
-    getShadowColor(): Color {
-        return this.getParam('shadowColor')
-    }
-
-    setShadowColor(color: Partial<Color & ColorType>): this {
-        this.setParam('shadowColor', color)
-        return this
     }
 
     /**
@@ -710,21 +723,21 @@ export default class Style extends Base {
      * @type Number
      * @default 0
      */
+    getShadowBlur(_dontMerge?: boolean): number {
+        return this.getParam('shadowBlur', _dontMerge)
+    }
+
+    setShadowBlur(blur: number): this {
+        this.setParam('shadowBlur', blur)
+        return this
+    }
+
     get shadowBlur(): number {
         return this.getShadowBlur()
     }
 
     set shadowBlur(blur: number) {
         this.setShadowBlur(blur)
-    }
-
-    getShadowBlur(): number {
-        return this.getParam('shadowBlur')
-    }
-
-    setShadowBlur(blur: number): this {
-        this.setParam('shadowBlur', blur)
-        return this
     }
 
     /**
@@ -735,21 +748,21 @@ export default class Style extends Base {
      * @type Point
      * @default 0
      */
+    getShadowOffset(_dontMerge?: boolean): Point {
+        return this.getParam('shadowOffset', _dontMerge)
+    }
+
+    setShadowOffset(offset: Partial<Point & PointType>): this {
+        this.setParam('shadowOffset', offset)
+        return this
+    }
+
     get shadowOffset(): Point {
         return this.getShadowOffset()
     }
 
     set shadowOffset(offset: Partial<Point & PointType>) {
         this.setShadowOffset(offset)
-    }
-
-    getShadowOffset(): Point {
-        return this.getParam('shadowOffset')
-    }
-
-    setShadowOffset(offset: Partial<Point & PointType>): this {
-        this.setParam('shadowOffset', offset)
-        return this
     }
 
     /**
@@ -762,6 +775,14 @@ export default class Style extends Base {
      * @property
      * @type ?Color
      */
+    getSelectedColor(_dontMerge?: boolean): Color {
+        return this.getParam('selectedColor', _dontMerge)
+    }
+
+    setSelectedColor(color: Partial<Color & ColorType>): this {
+        this.setParam('selectedColor', color)
+        return this
+    }
 
     get selectedColor(): Color {
         return this.getSelectedColor()
@@ -769,15 +790,6 @@ export default class Style extends Base {
 
     set selectedColor(color: Partial<Color & ColorType>) {
         this.setSelectedColor(color)
-    }
-
-    getSelectedColor(): Color {
-        return this.getParam('selectedColor')
-    }
-
-    setSelectedColor(color: Partial<Color & ColorType>): this {
-        this.setParam('selectedColor', color)
-        return this
     }
 
     /**
@@ -789,21 +801,21 @@ export default class Style extends Base {
      * @type String
      * @default 'sans-serif'
      */
+    getFontFamily(_dontMerge?: boolean): string {
+        return this.getParam('fontFamily', _dontMerge)
+    }
+
+    setFontFamilty(family: string): this {
+        this.setParam('fontFamily', family)
+        return this
+    }
+
     get fontFamily() {
         return this.getFontFamily()
     }
 
     set fontFamily(family: string) {
         this.setFontFamilty(family)
-    }
-
-    getFontFamily(): string {
-        return this.getParam('fontFamily')
-    }
-
-    setFontFamilty(family: string): this {
-        this.setParam('fontFamily', family)
-        return this
     }
 
     /**
@@ -814,49 +826,21 @@ export default class Style extends Base {
      * @type String|Number
      * @default 'normal'
      */
+    getFontWeight(_dontMerge?: boolean): FontWeights {
+        return this.getParam('fontWeight', _dontMerge)
+    }
+
+    setFontWeight(weight: FontWeights): this {
+        this.setParam('fontWeight', weight)
+        return this
+    }
+
     get fontWeight() {
         return this.getFontWeight()
     }
 
-    set fontWeight(
-        weight:
-            | 'normal'
-            | 'bold'
-            | 'lighter'
-            | 'bolder'
-            | 'unset'
-            | 'inherit'
-            | 'uset'
-            | number
-    ) {
+    set fontWeight(weight: FontWeights) {
         this.setFontWeight(weight)
-    }
-
-    getFontWeight():
-        | 'normal'
-        | 'bold'
-        | 'lighter'
-        | 'bolder'
-        | 'unset'
-        | 'inherit'
-        | 'uset'
-        | number {
-        return this.getParam('fontWeight')
-    }
-
-    setFontWeight(
-        weight:
-            | 'normal'
-            | 'bold'
-            | 'lighter'
-            | 'bolder'
-            | 'unset'
-            | 'inherit'
-            | 'uset'
-            | number
-    ): this {
-        this.setParam('fontWeight', weight)
-        return this
     }
 
     /**
@@ -867,21 +851,21 @@ export default class Style extends Base {
      * @type Number|String
      * @default 10
      */
+    getFontSize(_dontMerge?: boolean): number {
+        return this.getParam('fontSize', _dontMerge)
+    }
+
+    setFontSize(size: number | string): this {
+        this.setParam('fontSize', size)
+        return this
+    }
+
     get fontSize() {
         return this.getFontSize()
     }
 
     set fontSize(size: number | string) {
         this.setFontSize(size)
-    }
-
-    getFontSize(): number {
-        return this.getParam('fontSize')
-    }
-
-    setFontSize(size: number | string): this {
-        this.setParam('fontSize', size)
-        return this
     }
 
     /**
@@ -891,16 +875,8 @@ export default class Style extends Base {
      * @type Number|String
      * @default fontSize * 1.2
      */
-    get leading() {
-        return this.getLeading()
-    }
-
-    set leading(leading: number) {
-        this.setLeading(leading)
-    }
-
-    getLeading() {
-        const leading = this.getParam('leading')
+    getLeading(_dontMerge?: boolean) {
+        const leading = this.getParam('leading', _dontMerge)
         let fontSize = this.getFontSize()
         if (/pt|em|%|px/.test(fontSize.toString()))
             fontSize = this.getView().getPixelSize(fontSize.toString())
@@ -910,6 +886,14 @@ export default class Style extends Base {
     setLeading(leading: number): this {
         this.setParam('leading', leading)
         return this
+    }
+
+    get leading() {
+        return this.getLeading()
+    }
+
+    set leading(leading: number) {
+        this.setLeading(leading)
     }
 
     /**
@@ -922,20 +906,20 @@ export default class Style extends Base {
      * @values 'left', 'right', 'center'
      * @default 'left'
      */
+    getJustification(_dontMerge?: boolean): Justifications {
+        return this.getParam('justification', _dontMerge)
+    }
+
+    setJustification(justification: Justifications): this {
+        this.setParam('justification', justification)
+        return this
+    }
+
     get justification() {
         return this.getJustification()
     }
 
-    set justification(justification: 'left' | 'right' | 'center') {
+    set justification(justification: Justifications) {
         this.setJustification(justification)
-    }
-
-    getJustification(): 'left' | 'right' | 'center' {
-        return this.getParam('justification')
-    }
-
-    setJustification(justification: 'left' | 'right' | 'center'): this {
-        this.setParam('justification', justification)
-        return this
     }
 }
