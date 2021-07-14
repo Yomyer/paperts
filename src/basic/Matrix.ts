@@ -4,7 +4,6 @@ import { Exportable } from '../utils/Decorators'
 import Formatter from '../utils/Formatter'
 import Point from './Point'
 import Rectangle from './Rectangle'
-import Size from './Size'
 import { Point as PointType, Size as SizeType } from './Types'
 
 export type MatrixDecompose = {
@@ -25,7 +24,7 @@ export default class Matrix extends Base {
     protected _ty: number
     protected _owner: any // Todo change item
 
-    protected _backup: Matrix
+    protected _backup: Matrix | number[]
 
     /**
      * Creates a 2D affine transformation matrix that describes the identity
@@ -118,7 +117,7 @@ export default class Matrix extends Base {
         ty: number
     ): this
 
-    set(values?: number[]): this
+    set(values?: number[] | Matrix): this
     set(matrix?: Matrix, option?: boolean): this
     set(...args: any[]): this {
         return this.initialize(...args)
@@ -178,7 +177,7 @@ export default class Matrix extends Base {
      * @param {Matrix} matrix the matrix to compare this matrix to
      * @return {Boolean} {@true if the matrices are equal}
      */
-    equals(mx: Matrix) {
+    equals(mx: Matrix): boolean {
         return (
             mx === this ||
             (mx &&
@@ -643,7 +642,11 @@ export default class Matrix extends Base {
      * A faster version of transform that only takes one point and does not
      * attempt to convert it.
      */
-    _transformPoint(point: Point, dest?: Point, _dontNotify?: boolean) {
+    protected _transformPoint(
+        point: Point,
+        dest?: Point,
+        _dontNotify?: boolean
+    ) {
         const x = point.x
         const y = point.y
         if (!dest) dest = new Point()
@@ -652,6 +655,10 @@ export default class Matrix extends Base {
             x * this._b + y * this._d + this._ty,
             _dontNotify
         )
+    }
+
+    transformPoint(point: Point, dest?: Point, _dontNotify?: boolean) {
+        return this._transformPoint(point, dest, _dontNotify)
     }
 
     protected _transformCoordinates(
@@ -675,6 +682,10 @@ export default class Matrix extends Base {
         const y2 = y1 + rect.height
         const coords = [x1, y1, x2, y1, x2, y2, x1, y2]
         return this._transformCoordinates(coords, coords, 4)
+    }
+
+    transformCorners(rect: Rectangle) {
+        return this._transformCorners(rect)
     }
 
     /**
@@ -922,7 +933,7 @@ export default class Matrix extends Base {
         return this._backup
     }
 
-    set backup(backup: Matrix) {
+    set backup(backup: Matrix | number[]) {
         this._backup = backup
     }
 }

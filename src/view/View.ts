@@ -2,7 +2,12 @@ import Size, { LinkedSize } from '../basic/Size'
 import { Size as SizeType, Point as PointType } from '../basic/Types'
 import Base from '../core/Base'
 import Matrix, { MatrixDecompose } from '../basic/Matrix'
-import Emitter, { EmitterType, EventList } from '../core/Emitter'
+import Emitter, {
+    EmitterType,
+    EventList,
+    FrameEvent,
+    ResizeEvent
+} from '../core/Emitter'
 import DomElement from '../dom/DomElement'
 import Project from '../item/Project'
 import PaperScope from '../core/PaperScope'
@@ -15,17 +20,6 @@ import { Exportable, Injection } from '../utils/Decorators'
 import PaperMouseEvent, { MouseEventTypes } from '../event/MouseEvent'
 import PaperKeyEvent, { KeyEventTypes } from '../event/KeyEvent'
 import { ToolEventTypes } from '../tool/ToolEvent'
-
-export type FrameEvent = {
-    delta: number
-    time: number
-    count: number
-}
-
-export type ResizeEvent = {
-    size: Size
-    delta: Size
-}
 
 type ViewFrameEventFunction = (_: FrameEvent) => void
 type ViewMouseEventFunction = (_: PaperMouseEvent) => void
@@ -372,6 +366,10 @@ export default class View extends Emitter {
                 this.off('frame', this._handleFrameItems)
             }
         }
+    }
+
+    animateItem(item: Item, animate: boolean) {
+        this._animateItem(item, animate)
     }
 
     protected _handleFrameItems(event: FrameEvent) {
@@ -880,7 +878,7 @@ export default class View extends Emitter {
     projectToView(point: PointType): Point
     projectToView(x: number, y?: number): Point
     projectToView(...args: any[]): Point {
-        return this._matrix._transformPoint(Point.read(args))
+        return this._matrix.transformPoint(Point.read(args))
     }
 
     /**
@@ -1135,7 +1133,6 @@ export default class View extends Emitter {
      *     frame: frameHandler
      * });
      */
-
     on(type: EventList): this
     on(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
         return super.on(type, func)
@@ -1573,7 +1570,7 @@ export default class View extends Emitter {
                     if (!prevented && hitItem) {
                         let item = hitItem
                         while (item && !item.responds('mousedrag'))
-                            item = item._parent
+                            item = item.parent
                         if (item) dragItem = hitItem
                     }
                     downPoint = point

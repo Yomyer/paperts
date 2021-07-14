@@ -12,6 +12,7 @@ import SvgStyles from './SvgStyles'
 import DomElement from '../dom/DomElement'
 import PaperScope from '../core/PaperScope'
 import Http from '../net/Http'
+import Project from '../item/Project'
 
 export type SvgImportOptions = {
     expandShapes?: boolean
@@ -710,7 +711,7 @@ export default class SvgImport {
     static importSVG(
         source: string | ArrayBuffer | File | HTMLElement,
         options: SvgImportOptions | Function,
-        owner: Item
+        owner: Item | Project
     ): Item {
         if (!source) return null
 
@@ -737,7 +738,6 @@ export default class SvgImport {
                 PaperScope.setGlobalPaper(scope)
                 item = SvgImport.importNode(node, opts, true)
                 if (!opts || opts.insert !== false) {
-                    // TODO: Implement support for multiple Layers on Project.
                     owner.insertItem(undefined, item)
                 }
                 const onLoad = opts.onLoad

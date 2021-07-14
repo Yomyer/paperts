@@ -51,8 +51,8 @@ export default class GradientStop extends Base {
     /**
      * @return {GradientStop} a copy of the gradient-stop
      */
-    clone(): GradientStop {
-        return new GradientStop(this._color.clone(), this._offset)
+    clone(): this {
+        return new GradientStop(this._color.clone(), this._offset) as this
     }
 
     protected _serialize(options?: ExportJsonOptions, dictionary?: Dictionary) {

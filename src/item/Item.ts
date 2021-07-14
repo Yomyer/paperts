@@ -7,14 +7,14 @@ import Style, {
     StrokeJoins,
     StyleProps
 } from '../style/Style'
-import Emitter from '../core/Emitter'
+import Emitter, { EmitterType, EventList, FrameEvent } from '../core/Emitter'
 import Project from './Project'
 import PaperScope from '../core/PaperScope'
 import UID from '../utils/UID'
 import Group from './Group'
 import Rectangle, { LinkedRectangle } from '../basic/Rectangle'
 import ItemSelection from './ItemSelection'
-import { BlendModesKeys } from '../canvas/BlendMode'
+import BlendMode, { BlendModesKeys } from '../canvas/BlendMode'
 import { Change, ChangeFlag } from './ChangeFlag'
 import { Numerical } from '../utils'
 import {
@@ -29,20 +29,28 @@ import SymbolDefinition from './SymbolDefinition'
 import SvgImport, { SvgImportOptions } from '../svg/SvgImport'
 import Color from '../style/Color'
 import { Color as ColorType } from '../style/Types'
+import PaperMouseEvent from '../event/MouseEvent'
+import CanvasProvider from '../canvas/CanvasProvider'
+import CompoundPath from '../path/CompundPath'
+import Tween, { TweenOptions } from '../anim/Tween'
+import Raster from './Raster'
 
-type SerializFields = {
-    name: string
-    applyMatrix: boolean
-    matrix: Matrix
-    pivot: Point
-    visible: boolean
-    blendMode: string
-    opacity: number
-    locked: boolean
-    guide: boolean
-    clipMask: boolean
-    selected: boolean
-    data: {}
+export type SerializFields = {
+    name?: string
+    applyMatrix?: boolean
+    matrix?: Matrix
+    pivot?: Point
+    visible?: boolean
+    blendMode?: string
+    opacity?: number
+    locked?: boolean
+    guide?: boolean
+    clipMask?: boolean
+    selected?: boolean
+    data?: {}
+    children?: Item[]
+    crossOrigin?: string
+    source?: string
 }
 
 type ItemEventTypes =
@@ -85,13 +93,15 @@ type RasterOptions = {
     insert?: boolean
 }
 
-type MatchOptions = {
-    recursive?: boolean
-    match?: (hit: Item) => boolean
-    class?: typeof Base
-    inside?: Rectangle
-    overlapping?: Rectangle
-}
+export type MatchOptions =
+    | {
+          recursive?: boolean
+          match?: (hit: Item) => boolean
+          class?: typeof Base
+          inside?: Rectangle
+          overlapping?: Rectangle
+      }
+    | Function
 
 type MatchParamOptions = {
     items: Item[]
@@ -100,6 +110,28 @@ type MatchParamOptions = {
     overlapping: boolean
     rect: Rectangle
     path: Path
+}
+
+type ItemFrameEventFunction = (_: FrameEvent) => void
+type ItemMouseEventFunction = (_: PaperMouseEvent) => void
+
+export type DrawOptions = {
+    pixelRatio?: number
+    updateMatrix?: boolean
+    dontStart?: boolean
+    clip?: boolean
+    offset?: Point
+    clipItem?: Item
+    matrices?: Matrix[]
+    viewMatrix?: Matrix
+    dontFinish?: boolean
+}
+
+type RemoveOnOptions = {
+    move?: boolean
+    drag?: boolean
+    down?: boolean
+    up?: boolean
 }
 
 export default class Item extends Emitter {
@@ -132,6 +164,7 @@ export default class Item extends Emitter {
     protected _boundsOptions: BoundsOptions = {}
     protected _boundsCache: BoundsCacheProps
     protected _namedChildren: { [key: string]: Item[] }
+    protected _updateVersion: number
 
     protected _serializeFields: SerializFields = {
         name: null,
@@ -182,11 +215,11 @@ export default class Item extends Emitter {
         {
             onFrame: {
                 install: () => {
-                    this.getView()._animateItem(this, true)
+                    this.getView().animateItem(this, true)
                 },
 
                 uninstall: () => {
-                    this.getView()._animateItem(this, false)
+                    this.getView().animateItem(this, false)
                 }
             },
 
@@ -202,7 +235,23 @@ export default class Item extends Emitter {
         super(...args)
     }
 
-    initialize(props?: ItemProps, point?: Point): this {
+    initialize(..._args: any[]): this {
+        // Do nothing, but declare it for named constructors.
+
+        return this
+    }
+
+    /**
+     * Private helper for #initialize() that tries setting properties from the
+     * passed props object, and apply the point translation to the internal
+     * matrix.
+     *
+     * @param {Object} props the properties to be applied to the item
+     * @param {Point} point the point by which to transform the internal matrix
+     * @return {Boolean} {@true if the properties were successfully be applied,
+     * or if none were provided}
+     */
+    protected _initialize(props?: ItemProps, point?: Point): boolean {
         const paper = PaperScope.paper
         const hasProps = props && Base.isPlainObject(props)
         const internal = hasProps && props.internal === true
@@ -227,7 +276,7 @@ export default class Item extends Emitter {
         ) {
             this._setProject(project)
         } else {
-            ;((hasProps && props.parent) || project)._insertItem(
+            ;((hasProps && props.parent) || project).insertItem(
                 undefined,
                 this,
                 true
@@ -243,7 +292,7 @@ export default class Item extends Emitter {
             })
         }
 
-        return this
+        return hasProps
     }
 
     protected _serialize(options: ExportJsonOptions, dictionary: Dictionary) {
@@ -333,28 +382,6 @@ export default class Item extends Emitter {
         return this.initialize(...args)
     }
 
-    /**
-     * The unique id of the item.
-     *
-     * @bean
-     * @type Number
-     */
-    getId() {
-        return this._id
-    }
-
-    setId(id: string) {
-        this._id = id
-    }
-
-    get id() {
-        return this.getId()
-    }
-
-    set id(id: string) {
-        this.setId(id)
-    }
-
     get className() {
         return this._class
     }
@@ -393,13 +420,25 @@ export default class Item extends Emitter {
             )
         const owner = this._getOwner()
         if (name && owner) {
-            const children = owner._children
-            const namedChildren = owner._namedChildren
+            const children = owner.children
+            const namedChildren = owner.namedChildren
             ;(namedChildren[name] = namedChildren[name] || []).push(this)
             if (!(name in children)) children[name] = this
         }
         this._name = name || undefined
         this._changed(ChangeFlag.ATTRIBUTE)
+    }
+
+    get name() {
+        return this._name
+    }
+
+    set name(name: string) {
+        this.setName(name)
+    }
+
+    get namedChildren() {
+        return this._namedChildren
     }
 
     /**
@@ -709,10 +748,18 @@ export default class Item extends Emitter {
             this._selection = selection
             const project = this._project
             if (project) {
-                project._updateSelection(this)
+                project.updateSelection(this)
                 this._changed(Change.ATTRIBUTE)
             }
         }
+    }
+
+    get selection() {
+        return this.getSelection()
+    }
+
+    set selection(selection: boolean) {
+        this.setSelection(selection)
     }
 
     protected _changeSelection(flag: ChangeFlag | Change, selected: boolean) {
@@ -797,6 +844,10 @@ export default class Item extends Emitter {
         return this._clipMask
     }
 
+    getClipMask() {
+        return this._clipMask
+    }
+
     setClipMask(clipMask: boolean) {
         if (this._clipMask !== (clipMask = !!clipMask)) {
             this._clipMask = clipMask
@@ -807,6 +858,14 @@ export default class Item extends Emitter {
             this._changed(Change.ATTRIBUTE)
             if (this._parent) this._parent._changed(ChangeFlag.CLIPPING)
         }
+    }
+
+    get clipMask() {
+        return this.getClipMask()
+    }
+
+    set clipMask(clipMask: boolean) {
+        this.setClipMask(clipMask)
     }
 
     /**
@@ -933,7 +992,7 @@ export default class Item extends Emitter {
         // If an pivot point is provided, use it to determine position
         // based on the matrix. Otherwise use the center of the bounds.
         return this._pivot
-            ? this._matrix._transformPoint(this._pivot)
+            ? this._matrix.transformPoint(this._pivot)
             : (bounds || this.getBounds()).getCenter(true)
     }
 
@@ -1460,7 +1519,7 @@ export default class Item extends Emitter {
      * @type Matrix
      */
     getViewMatrix() {
-        return this.getGlobalMatrix().prepend(this.getView()._matrix)
+        return this.getGlobalMatrix().prepend(this.getView().matrix)
     }
 
     get viewMatrix() {
@@ -1496,14 +1555,6 @@ export default class Item extends Emitter {
         this.setApplyMatrix(apply)
     }
 
-    getProject() {
-        return this._project
-    }
-
-    get project() {
-        return this.getProject()
-    }
-
     protected _setProject(project: Project, installEvents?: boolean) {
         if (this._project !== project) {
             if (this._project) this._installEvents(false)
@@ -1515,6 +1566,22 @@ export default class Item extends Emitter {
             installEvents = true
         }
         if (installEvents) this._installEvents(true)
+    }
+
+    getProject() {
+        return this._project
+    }
+
+    setProject(project: Project, installEvents?: boolean) {
+        this._setProject(project, installEvents)
+    }
+
+    get project() {
+        return this.getProject()
+    }
+
+    set project(project: Project) {
+        this.setProject(project)
     }
 
     /**
@@ -1547,7 +1614,7 @@ export default class Item extends Emitter {
      * @type Layer
      * @bean
      */
-    getLayer() {
+    getLayer(): Layer {
         let parent: Item = this
         while ((parent = parent._parent)) {
             if (parent instanceof Layer) return parent
@@ -1617,7 +1684,7 @@ export default class Item extends Emitter {
         this._parent = parent
     }
 
-    _getOwner() {
+    protected _getOwner(): Item | Project {
         return this.getParent()
     }
 
@@ -1735,7 +1802,7 @@ export default class Item extends Emitter {
      */
     getNextSibling(): Item {
         const owner = this._getOwner()
-        return (owner && owner._children[this._index + 1]) || null
+        return (owner && owner.children[this._index + 1]) || null
     }
 
     get nextSibling() {
@@ -1750,7 +1817,7 @@ export default class Item extends Emitter {
      */
     getPreviousSibling(): Item {
         const owner = this._getOwner()
-        return (owner && owner._children[this._index - 1]) || null
+        return (owner && owner.children[this._index - 1]) || null
     }
 
     get previousSibling() {
@@ -1831,7 +1898,7 @@ export default class Item extends Emitter {
      *     copy.position.x += i * copy.bounds.width;
      * }
      */
-    clone(options?: CloneOptions | boolean): Item {
+    clone(options?: CloneOptions | boolean): this {
         const copy = new Base.exports[this._class](
             Item.NO_INSERT
         ) as unknown as Item
@@ -1861,7 +1928,7 @@ export default class Item extends Emitter {
             while (children[name]) name = orig + ' ' + i++
             if (name !== orig) copy.setName(name)
         }
-        return copy
+        return copy as this
     }
 
     /**
@@ -1872,7 +1939,7 @@ export default class Item extends Emitter {
     copyContent(source: Item) {
         const children = source._children
         for (let i = 0, l = children && children.length; i < l; i++) {
-            this.addChild(children[i].clone(false), true)
+            this.addChild(children[i].clone(false))
         }
     }
 
@@ -1987,7 +2054,7 @@ export default class Item extends Emitter {
             const matrix = new Matrix().scale(scale).translate(topLeft.negate())
             ctx.save()
             matrix.applyToContext(ctx)
-            this.draw(ctx, new Base({ matrices: [matrix] }))
+            this.draw(ctx, { matrices: [matrix] })
             ctx.restore()
         }
         raster._matrix.set(
@@ -2120,7 +2187,7 @@ export default class Item extends Emitter {
     }
 
     protected _hitTestChildren(
-        point: PointType,
+        point: Point,
         options?: HitResultOptions,
         viewMatrix?: Matrix,
         _exclude?: Item
@@ -2484,19 +2551,19 @@ export default class Item extends Emitter {
      * @return {Item} the first descendant item matching the given criteria
      * @see #getItems(options)
      */
-    getItem(options: MatchOptions) {
+    getItem(options: MatchOptions): Item {
         return (
             Item._getItems(this, options, this._matrix, null, true)[0] || null
         )
     }
 
     static _getItems(
-        item: Item,
-        options: MatchOptions,
+        item: Item | Project,
+        options?: MatchOptions,
         matrix?: Matrix,
         param?: MatchParamOptions,
         firstOnly?: boolean
-    ) {
+    ): Item[] {
         if (!param) {
             const obj = typeof options === 'object' && options
             const overlapping = obj && obj.overlapping
@@ -2525,7 +2592,7 @@ export default class Item extends Emitter {
                 })
             }
         }
-        const children = item._children
+        const children = item.children
         const items = param.items
         const rect = param.rect
         matrix = rect && (matrix || new Matrix())
@@ -2559,6 +2626,27 @@ export default class Item extends Emitter {
     }
 
     /**
+     * {@grouptitle Importing / Exporting JSON and SVG}
+     *
+     * Exports (serializes) the item with its content and child items to a JSON
+     * data string.
+     *
+     * @name Item#exportJSON
+     * @function
+     *
+     * @option [options.asString=true] {Boolean} whether the JSON is returned as
+     *     a `Object` or a `String`
+     * @option [options.precision=5] {Number} the amount of fractional digits in
+     *     numbers used in JSON data
+     *
+     * @param {Object} [options] the serialization options
+     * @return {String} the exported JSON data
+     */
+    exportJSON(options?: ExportJsonOptions): string {
+        return super.exportJSON(options)
+    }
+
+    /**
      * Imports (deserializes) the stored JSON data into this item. If the data
      * describes an item of the same class or a parent class of the item, the
      * data is imported into the item itself. If not, the imported item is added
@@ -2569,8 +2657,8 @@ export default class Item extends Emitter {
      * @return {Item}
      */
     importJSON(json: string): this {
-        const res = Base.importJSON(json, this)
-        return res !== this ? this.addChild(res) : res
+        const res = Base.importJSON(json, this) as Item
+        return (res !== this ? this.addChild(res) : res) as this
     }
 
     /**
@@ -2634,6 +2722,8 @@ export default class Item extends Emitter {
      * @return {Item} the newly created Paper.js item containing the converted
      *     SVG content
      */
+    importSVG(node: SVGElement | string, options?: SvgImportOptions): Item
+
     /**
      * Imports the provided external SVG file, converts it into Paper.js items
      * and adds them to the this item's children list. Note that the item is not
@@ -2650,8 +2740,7 @@ export default class Item extends Emitter {
      * @return {Item} the newly created Paper.js item containing the converted
      *     SVG content
      */
-    importSVG(node: SVGElement | string, options?: SvgImportOptions): Item
-    importSVG(node: SVGElement | string, options?: Function): Item
+    importSVG(node: SVGElement | string, onLoad?: Function): Item
     importSVG(
         node: SVGElement | string,
         options?: Function | SvgImportOptions
@@ -2754,6 +2843,10 @@ export default class Item extends Emitter {
         return this.insertChild(index, item)
     }
 
+    insertItem(index: number, item: Item, _?: boolean): Item {
+        return this.insertItem(index, item)
+    }
+
     /**
      * Private helper method used by {@link #insertAbove(item)} and
      * {@link #insertBelow(item)}, to insert this item in relation to a
@@ -2769,7 +2862,7 @@ export default class Item extends Emitter {
         const res = item !== this && owner ? this : null
         if (res) {
             res._remove(false, true)
-            owner._insertItem(item._index + offset, res)
+            owner.insertItem(item._index + offset, res)
         }
         return res
     }
@@ -2799,7 +2892,7 @@ export default class Item extends Emitter {
      */
     sendToBack(): Item {
         const owner = this._getOwner()
-        return owner ? owner._insertItem(0, this) : null
+        return owner ? owner.insertItem(0, this) : null
     }
 
     /**
@@ -2807,7 +2900,7 @@ export default class Item extends Emitter {
      */
     bringToFront(): Item {
         const owner = this._getOwner()
-        return owner ? owner._insertItem(undefined, this) : null
+        return owner ? owner.insertItem(undefined, this) : null
     }
 
     /**
@@ -2865,8 +2958,8 @@ export default class Item extends Emitter {
     protected _removeNamed() {
         const owner = this._getOwner()
         if (owner) {
-            const children = owner._children
-            const namedChildren = owner._namedChildren
+            const children = owner.children
+            const namedChildren = owner.namedChildren
             const name = this._name
             const namedArray = namedChildren[name]
             const index = namedArray ? namedArray.indexOf(this) : -1
@@ -2894,14 +2987,14 @@ export default class Item extends Emitter {
         if (owner) {
             if (this._name) this._removeNamed()
             if (index != null) {
-                if (project.activeLayer === this)
-                    project.activeLayer =
-                        this.getNextSibling() || this.getPreviousSibling()
-                Base.splice(owner._children, null, index, 1)
+                if (this instanceof Layer && project.activeLayer === this)
+                    project.activeLayer = (this.getNextSibling() ||
+                        this.getPreviousSibling()) as Layer
+                Base.splice(owner.children, null, index, 1)
             }
             this._installEvents(false)
             if (notifySelf && project.changes) this._changed(Change.INSERTION)
-            if (notifyParent) owner._changed(Change.CHILDREN, this)
+            if (notifyParent) owner.changed(Change.CHILDREN, this)
             this._parent = null
             return true
         }
@@ -2914,8 +3007,8 @@ export default class Item extends Emitter {
      *
      * @return {Boolean} {@true if the item was removed}
      */
-    remove(): boolean {
-        return this._remove(true, true)
+    remove(notifySelf = true, notifyParent = true): boolean {
+        return this._remove(notifySelf, notifyParent)
     }
 
     /**
@@ -3666,16 +3759,1619 @@ export default class Item extends Emitter {
         this.setSelectedColor(color)
     }
 
-    removeOn(obj: Object) {
+    private setTransform(key: string, ...args: any[]): this {
+        const rotate = key === 'rotate'
+        const value = (rotate ? Base : Point).read(args)
+        const center = Point.read(args, 0, { readNull: true })
+
+        return this.transform(
+            new Matrix()[key](value, center || this.getPosition(true))
+        )
+    }
+
+    /**
+     * {@grouptitle Transform Functions}
+     *
+     * Translates (moves) the item by the given offset views.
+     *
+     * @param {Point} delta the offset to translate the item by
+     */
+    translate(point: PointType): this
+    translate(x: number, y?: number): this
+    translate(...args: any[]): this {
+        const mx = new Matrix()
+        return this.transform(mx.translate(...args))
+    }
+
+    /**
+     * Rotates the item by a given angle around the given center point.
+     *
+     * Angles are oriented clockwise and measured in degrees.
+     *
+     * @name Item#rotate
+     * @function
+     * @param {Number} angle the rotation angle
+     * @param {Point} [center={@link Item#position}]
+     * @see Matrix#rotate(angle[, center])
+     *
+     * @example {@paperscript}
+     * // Rotating an item:
+     *
+     * // Create a rectangle shaped path with its top left
+     * // point at {x: 80, y: 25} and a size of {width: 50, height: 50}:
+     * var path = new Path.Rectangle(new Point(80, 25), new Size(50, 50));
+     * path.fillColor = 'black';
+     *
+     * // Rotate the path by 30 degrees:
+     * path.rotate(30);
+     *
+     * @example {@paperscript height=200}
+     * // Rotating an item around a specific point:
+     *
+     * // Create a rectangle shaped path with its top left
+     * // point at {x: 175, y: 50} and a size of {width: 100, height: 100}:
+     * var topLeft = new Point(175, 50);
+     * var size = new Size(100, 100);
+     * var path = new Path.Rectangle(topLeft, size);
+     * path.fillColor = 'black';
+     *
+     * // Draw a circle shaped path in the center of the view,
+     * // to show the rotation point:
+     * var circle = new Path.Circle({
+     *     center: view.center,
+     *     radius: 5,
+     *     fillColor: 'white'
+     * });
+     *
+     * // Each frame rotate the path 3 degrees around the center point
+     * // of the view:
+     * function onFrame(event) {
+     *     path.rotate(3, view.center);
+     * }
+     */
+    rotate(angle: number, number?: number): this
+    rotate(angle: number, array?: number[]): this
+    rotate(angle: number, point?: PointType): this
+    rotate(angle: number, size?: SizeType): this
+    rotate(angle: number, center?: Point): this
+    rotate(angle: number, x?: number, y?: number): this
+    rotate(...args: any[]): this {
+        return this.setTransform('rotate', ...args)
+    }
+
+    /**
+     * Scales the item by the given value from its center point, or optionally
+     * from a supplied point.
+     *
+     * @name Item#scale
+     * @function
+     * @param {Number} scale the scale factor
+     * @param {Point} [center={@link Item#position}]
+     *
+     * @example {@paperscript}
+     * // Scaling an item from its center point:
+     *
+     * // Create a circle shaped path at { x: 80, y: 50 }
+     * // with a radius of 20:
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 20,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Scale the path by 150% from its center point
+     * circle.scale(1.5);
+     *
+     * @example {@paperscript}
+     * // Scaling an item from a specific point:
+     *
+     * // Create a circle shaped path at { x: 80, y: 50 }
+     * // with a radius of 20:
+     * var circle = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 20,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Scale the path 150% from its bottom left corner
+     * circle.scale(1.5, circle.bounds.bottomLeft);
+     */
+    scale(scale: number, center?: Point): this
+    /**
+     * Scales the item by the given values from its center point, or optionally
+     * from a supplied point.
+     *
+     * @name Item#scale
+     * @function
+     * @param {Number} hor the horizontal scale factor
+     * @param {Number} ver the vertical scale factor
+     * @param {Point} [center={@link Item#position}]
+     *
+     * @example {@paperscript}
+     * // Scaling an item horizontally by 300%:
+     *
+     * // Create a circle shaped path at { x: 100, y: 50 }
+     * // with a radius of 20:
+     * var circle = new Path.Circle({
+     *     center: [100, 50],
+     *     radius: 20,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Scale the path horizontally by 300%
+     * circle.scale(3, 1);
+     */
+    scale(hor: number, ver: number, center?: Point): this
+
+    scale(...args: any[]): this {
+        return this.setTransform('scale', ...args)
+    }
+
+    // TODO: Add test for item shearing, as it might be behaving oddly.
+    /**
+     * Shears the item by the given value from its center point, or optionally
+     * by a supplied point.
+     *
+     * @name Item#shear
+     * @function
+     * @param {Point} shear the horizontal and vertical shear factors as a point
+     * @param {Point} [center={@link Item#position}]
+     * @see Matrix#shear(shear[, center])
+     */
+    shear(shear: Point, center?: Point): this
+
+    /**
+     * Shears the item by the given values from its center point, or optionally
+     * by a supplied point.
+     *
+     * @name Item#shear
+     * @function
+     * @param {Number} hor the horizontal shear factor
+     * @param {Number} ver the vertical shear factor
+     * @param {Point} [center={@link Item#position}]
+     * @see Matrix#shear(hor, ver[, center])
+     */
+    shear(hor: number, ver: number, center?: Point): this
+    shear(...args: any[]): this {
+        return this.setTransform('shear', ...args)
+    }
+
+    /**
+     * Skews the item by the given angles from its center point, or optionally
+     * by a supplied point.
+     *
+     * @name Item#skew
+     * @function
+     * @param {Point} skew the horizontal and vertical skew angles in degrees
+     * @param {Point} [center={@link Item#position}]
+     * @see Matrix#shear(skew[, center])
+     */
+    skew(skew: Point, center?: Point): this
+
+    /**
+     * Skews the item by the given angles from its center point, or optionally
+     * by a supplied point.
+     *
+     * @name Item#skew
+     * @function
+     * @param {Number} hor the horizontal skew angle in degrees
+     * @param {Number} ver the vertical sskew angle in degrees
+     * @param {Point} [center={@link Item#position}]
+     * @see Matrix#shear(hor, ver[, center])
+     */
+    skew(hor: number, ver: number, center?: Point): this
+    skew(...args: any[]): this {
+        return this.setTransform('skew', ...args)
+    }
+
+    /**
+     * Transform the item.
+     *
+     * @param {Matrix} matrix the matrix by which the item shall be transformed
+     */
+    // TODO: Implement flags:
+    // @param {String[]} flags array of any of the following: 'objects',
+    //        'children', 'fill-gradients', 'fill-patterns', 'stroke-patterns',
+    //        'lines'. Default: ['objects', 'children']
+    transform(
+        matrix: Matrix,
+        _applyRecursively?: boolean,
+        _setApplyMatrix?: boolean
+    ) {
+        const _matrix = this._matrix
+        const transformMatrix = matrix && !matrix.isIdentity()
+        let applyMatrix =
+            (_setApplyMatrix && this._canApplyMatrix) ||
+            (this._applyMatrix &&
+                (transformMatrix ||
+                    !_matrix.isIdentity() ||
+                    (_applyRecursively && this._children)))
+
+        if (!transformMatrix && !applyMatrix) return this
+
+        if (transformMatrix) {
+            if (!matrix.isInvertible() && _matrix.isInvertible())
+                _matrix.backup = _matrix.getValues()
+
+            _matrix.prepend(matrix, true)
+
+            const style = this._style
+            const fillColor = style.getFillColor(true)
+            const strokeColor = style.getStrokeColor(true)
+
+            if (fillColor) fillColor.transform(matrix)
+            if (strokeColor) strokeColor.transform(matrix)
+        }
+
+        if (
+            applyMatrix &&
+            (applyMatrix = this._transformContent(
+                _matrix,
+                _applyRecursively,
+                _setApplyMatrix
+            ))
+        ) {
+            const pivot = this._pivot
+            if (pivot) _matrix.transformPoint(pivot, pivot, true)
+
+            _matrix.reset(true)
+
+            if (_setApplyMatrix && this._canApplyMatrix)
+                this._applyMatrix = true
+        }
+
+        const bounds = this._bounds
+        const position = this._position
+        if (transformMatrix || applyMatrix) {
+            this._changed(Change.MATRIX)
+        }
+
+        const decomp = transformMatrix && bounds && matrix.decompose()
+        if (decomp && decomp.skewing.isZero() && decomp.rotation % 90 === 0) {
+            // Transform the old bound by looping through all the cached
+            // bounds in _bounds and transform each.
+            for (const key in bounds) {
+                const cache = bounds[key]
+
+                if (cache.nonscaling) {
+                    delete bounds[key]
+                } else if (applyMatrix || !cache.internal) {
+                    const rect = cache.rect
+                    matrix.transformBounds(rect, rect)
+                }
+            }
+            this._bounds = bounds
+
+            const cached =
+                bounds[this._getBoundsCacheKey(this._boundsOptions || {})]
+            if (cached) {
+                this._position = this._getPositionFromBounds(cached.rect)
+            }
+        } else if (transformMatrix && position && this._pivot) {
+            this._position = matrix.transformPoint(position, position)
+        }
+
+        return this
+    }
+
+    protected _transformContent(
+        matrix: Matrix,
+        applyRecursively?: boolean,
+        setApplyMatrix?: boolean
+    ) {
+        const children = this._children
+        if (children) {
+            for (let i = 0, l = children.length; i < l; i++) {
+                children[i].transform(matrix, applyRecursively, setApplyMatrix)
+            }
+            return true
+        }
+
+        return false
+    }
+
+    /**
+     * Converts the specified point from global project coordinate space to the
+     * item's own local coordinate space.
+     *
+     * @param {Point} point the point to be transformed
+     * @return {Point} the transformed point as a new instance
+     */
+    globalToLocal(x: number, y: number): Point
+    globalToLocal(point: PointType): Point
+    globalToLocal(...args: any[]): Point {
+        return this.getGlobalMatrix(true).inverseTransform(Point.read(args))
+    }
+
+    /**
+     * Converts the specified point from the item's own local coordinate space
+     * to the global project coordinate space.
+     *
+     * @param {Point} point the point to be transformed
+     * @return {Point} the transformed point as a new instance
+     */
+    localToGlobal(x: number, y: number): Point
+    localToGlobal(point: PointType): Point
+    localToGlobal(...args: any[]): Point {
+        return this.getGlobalMatrix(true).transformPoint(Point.read(args))
+    }
+
+    /**
+     * Converts the specified point from the parent's coordinate space to
+     * item's own local coordinate space.
+     *
+     * @param {Point} point the point to be transformed
+     * @return {Point} the transformed point as a new instance
+     */
+    parentToLocal(point: PointType): Point
+    parentToLocal(x: number, y?: number): Point
+    parentToLocal(...args: any[]): Point {
+        return this._matrix.inverseTransform(Point.read(args))
+    }
+
+    /**
+     * Converts the specified point from the item's own local coordinate space
+     * to the parent's coordinate space.
+     *
+     * @param {Point} point the point to be transformed
+     * @return {Point} the transformed point as a new instance
+     */
+    localToParent(point: PointType): Point
+    localToParent(x: number, y?: number): Point
+    localToParent(...args: any[]): Point {
+        return this._matrix.transformPoint(Point.read(args))
+    }
+
+    /**
+     * Transform the item so that its {@link #bounds} fit within the specified
+     * rectangle, without changing its aspect ratio.
+     *
+     * @param {Rectangle} rectangle
+     * @param {Boolean} [fill=false]
+     *
+     * @example {@paperscript height=100}
+     * // Fitting an item to the bounding rectangle of another item's bounding
+     * // rectangle:
+     *
+     * // Create a rectangle shaped path with its top left corner
+     * // at {x: 80, y: 25} and a size of {width: 75, height: 50}:
+     * var path = new Path.Rectangle({
+     *     point: [80, 25],
+     *     size: [75, 50],
+     *     fillColor: 'black'
+     * });
+     *
+     * // Create a circle shaped path with its center at {x: 80, y: 50}
+     * // and a radius of 30.
+     * var circlePath = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 30,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Fit the circlePath to the bounding rectangle of
+     * // the rectangular path:
+     * circlePath.fitBounds(path.bounds);
+     *
+     * @example {@paperscript height=100}
+     * // Fitting an item to the bounding rectangle of another item's bounding
+     * // rectangle with the fill parameter set to true:
+     *
+     * // Create a rectangle shaped path with its top left corner
+     * // at {x: 80, y: 25} and a size of {width: 75, height: 50}:
+     * var path = new Path.Rectangle({
+     *     point: [80, 25],
+     *     size: [75, 50],
+     *     fillColor: 'black'
+     * });
+     *
+     * // Create a circle shaped path with its center at {x: 80, y: 50}
+     * // and a radius of 30.
+     * var circlePath = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 30,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Fit the circlePath to the bounding rectangle of
+     * // the rectangular path:
+     * circlePath.fitBounds(path.bounds, true);
+     *
+     * @example {@paperscript height=200}
+     * // Fitting an item to the bounding rectangle of the view
+     * var path = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 30,
+     *     fillColor: 'red'
+     * });
+     *
+     * // Fit the path to the bounding rectangle of the view:
+     * path.fitBounds(view.bounds);
+     */
+    fitBounds(point: PointType, size: SizeType, fill: Boolean): void
+    fitBounds(rectangle: RectangleType, fill: Boolean): void
+    fitBounds(
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        fill: Boolean
+    ): void
+
+    fitBounds(from: PointType, to: PointType, fill: Boolean): void
+    fitBounds(...args: any[]) {
+        const rectangle = Rectangle.read(args)
+        const fill = Base.read(args)
+        const bounds = this.getBounds()
+        const itemRatio = bounds.height / bounds.width
+        const rectRatio = rectangle.height / rectangle.width
+        const scale = (fill ? itemRatio > rectRatio : itemRatio < rectRatio)
+            ? rectangle.width / bounds.width
+            : rectangle.height / bounds.height
+        const newBounds = new Rectangle(
+            new Point(),
+            new Size(bounds.width * scale, bounds.height * scale)
+        )
+        newBounds.setCenter(rectangle.getCenter())
+        this.setBounds(newBounds)
+    }
+
+    /**
+     * {@grouptitle Event Handlers}
+     *
+     * Item level handler function to be called on each frame of an animation.
+     * The function receives an event object which contains information about
+     * the frame event:
+     *
+     * @option event.count {Number} the number of times the frame event was
+     *     fired
+     * @option event.time {Number} the total amount of time passed since the
+     *     first frame event in seconds
+     * @option event.delta {Number} the time passed in seconds since the last
+     *     frame event
+     *
+     * @name Item#onFrame
+     * @property
+     * @type ?Function
+     * @see View#onFrame
+     *
+     * @example {@paperscript}
+     * // Creating an animation:
+     *
+     * // Create a rectangle shaped path with its top left point at:
+     * // {x: 50, y: 25} and a size of {width: 50, height: 50}
+     * var path = new Path.Rectangle(new Point(50, 25), new Size(50, 50));
+     * path.fillColor = 'black';
+     *
+     * path.onFrame = function(event) {
+     *     // Every frame, rotate the path by 3 degrees:
+     *     this.rotate(3);
+     * }
+     */
+    onFrame: ItemFrameEventFunction
+
+    /**
+     * The function to be called when the mouse button is pushed down on the
+     * item. The function receives a {@link MouseEvent} object which contains
+     * information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseDown
+     * @property
+     * @type ?Function
+     * @see View#onMouseDown
+     *
+     * @example {@paperscript}
+     * // Press the mouse button down on the circle shaped path, to make it red:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse is pressed on the item,
+     * // set its fill color to red:
+     * path.onMouseDown = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     *
+     * @example {@paperscript}
+     * // Press the mouse on the circle shaped paths to remove them:
+     *
+     * // Loop 30 times:
+     * for (var i = 0; i < 30; i++) {
+     *     // Create a circle shaped path at a random position
+     *     // in the view:
+     *     var path = new Path.Circle({
+     *         center: Point.random() * view.size,
+     *         radius: 25,
+     *         fillColor: 'black',
+     *         strokeColor: 'white'
+     *     });
+     *
+     *     // When the mouse is pressed on the item, remove it:
+     *     path.onMouseDown = function(event) {
+     *         this.remove();
+     *     }
+     * }
+     */
+    onMouseDown: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse position changes while the mouse
+     * is being dragged over the item. The function receives a {@link
+     * MouseEvent} object which contains information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseDrag
+     * @property
+     * @type ?Function
+     * @see View#onMouseDrag
+     *
+     * @example {@paperscript height=240}
+     * // Press and drag the mouse on the blue circle to move it:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 50,
+     *     fillColor: 'blue'
+     * });
+     *
+     * // Install a drag event handler that moves the path along.
+     * path.onMouseDrag = function(event) {
+     *     path.position += event.delta;
+     * }
+     */
+    onMouseDrag: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse button is released over the item.
+     * The function receives a {@link MouseEvent} object which contains
+     * information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseUp
+     * @property
+     * @type ?Function
+     * @see View#onMouseUp
+     *
+     * @example {@paperscript}
+     * // Release the mouse button over the circle shaped path, to make it red:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse is released over the item,
+     * // set its fill color to red:
+     * path.onMouseUp = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     */
+    onMouseUp: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse clicks on the item. The function
+     * receives a {@link MouseEvent} object which contains information about the
+     * mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onClick
+     * @property
+     * @type ?Function
+     * @see View#onClick
+     *
+     * @example {@paperscript}
+     * // Click on the circle shaped path, to make it red:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse is clicked on the item,
+     * // set its fill color to red:
+     * path.onClick = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     *
+     * @example {@paperscript}
+     * // Click on the circle shaped paths to remove them:
+     *
+     * // Loop 30 times:
+     * for (var i = 0; i < 30; i++) {
+     *     // Create a circle shaped path at a random position
+     *     // in the view:
+     *     var path = new Path.Circle({
+     *         center: Point.random() * view.size,
+     *         radius: 25,
+     *         fillColor: 'black',
+     *         strokeColor: 'white'
+     *     });
+     *
+     *     // When the mouse clicks on the item, remove it:
+     *     path.onClick = function(event) {
+     *         this.remove();
+     *     }
+     * }
+     */
+    onClick: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse double clicks on the item. The
+     * function receives a {@link MouseEvent} object which contains information
+     * about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onDoubleClick
+     * @property
+     * @type ?Function
+     * @see View#onDoubleClick
+     *
+     * @example {@paperscript}
+     * // Double click on the circle shaped path, to make it red:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse is double clicked on the item,
+     * // set its fill color to red:
+     * path.onDoubleClick = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     *
+     * @example {@paperscript}
+     * // Double click on the circle shaped paths to remove them:
+     *
+     * // Loop 30 times:
+     * for (var i = 0; i < 30; i++) {
+     *     // Create a circle shaped path at a random position
+     *     // in the view:
+     *     var path = new Path.Circle({
+     *         center: Point.random() * view.size,
+     *         radius: 25,
+     *         fillColor: 'black',
+     *         strokeColor: 'white'
+     *     });
+     *
+     *     // When the mouse is double clicked on the item, remove it:
+     *     path.onDoubleClick = function(event) {
+     *         this.remove();
+     *     }
+     * }
+     */
+    onDoubleClick: ItemMouseEventFunction
+
+    /**
+     * The function to be called repeatedly while the mouse moves over the item.
+     * The function receives a {@link MouseEvent} object which contains
+     * information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseMove
+     * @property
+     * @type ?Function
+     * @see View#onMouseMove
+     *
+     * @example {@paperscript}
+     * // Move over the circle shaped path, to change its opacity:
+     *
+     * // Create a circle shaped path at the center of the view:
+     *     var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     *     });
+     *
+     * // When the mouse moves on top of the item, set its opacity
+     * // to a random value between 0 and 1:
+     * path.onMouseMove = function(event) {
+     *     this.opacity = Math.random();
+     * }
+     */
+    onMouseMove: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse moves over the item. This
+     * function will only be called again, once the mouse moved outside of the
+     * item first. The function receives a {@link MouseEvent} object which
+     * contains information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseEnter
+     * @property
+     * @type ?Function
+     * @see View#onMouseEnter
+     *
+     * @example {@paperscript}
+     * // When you move the mouse over the item, its fill color is set to red.
+     * // When you move the mouse outside again, its fill color is set back
+     * // to black.
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse enters the item, set its fill color to red:
+     * path.onMouseEnter = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     *
+     * // When the mouse leaves the item, set its fill color to black:
+     * path.onMouseLeave = function(event) {
+     *     this.fillColor = 'black';
+     * }
+     * @example {@paperscript}
+     * // When you click the mouse, you create new circle shaped items. When you
+     * // move the mouse over the item, its fill color is set to red. When you
+     * // move the mouse outside again, its fill color is set back
+     * // to black.
+     *
+     * function enter(event) {
+     *     this.fillColor = 'red';
+     * }
+     *
+     * function leave(event) {
+     *     this.fillColor = 'black';
+     * }
+     *
+     * // When the mouse is pressed:
+     * function onMouseDown(event) {
+     *     // Create a circle shaped path at the position of the mouse:
+     *     var path = new Path.Circle(event.point, 25);
+     *     path.fillColor = 'black';
+     *
+     *     // When the mouse enters the item, set its fill color to red:
+     *     path.onMouseEnter = enter;
+     *
+     *     // When the mouse leaves the item, set its fill color to black:
+     *     path.onMouseLeave = leave;
+     * }
+     */
+    onMouseEnter: ItemMouseEventFunction
+
+    /**
+     * The function to be called when the mouse moves out of the item.
+     * The function receives a {@link MouseEvent} object which contains
+     * information about the mouse event.
+     * Note that such mouse events bubble up the scene graph hierarchy and will
+     * reach the view, unless they are stopped with {@link
+     * Event#stopPropagation()} or by returning `false` from the handler.
+     *
+     * @name Item#onMouseLeave
+     * @property
+     * @type ?Function
+     * @see View#onMouseLeave
+     *
+     * @example {@paperscript}
+     * // Move the mouse over the circle shaped path and then move it out
+     * // of it again to set its fill color to red:
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse leaves the item, set its fill color to red:
+     * path.onMouseLeave = function(event) {
+     *     this.fillColor = 'red';
+     * }
+     */
+    onMouseLeave: ItemMouseEventFunction
+
+    /**
+     * {@grouptitle Event Handling}
+     *
+     * Attaches an event handler to the item.
+     *
+     * @name Item#on
+     * @function
+     * @param {String} type the type of event: {@values 'frame', mousedown',
+     *     'mouseup', 'mousedrag', 'click', 'doubleclick', 'mousemove',
+     *     'mouseenter', 'mouseleave'}
+     * @param {Function} function the function to be called when the event
+     *     occurs, receiving a {@link MouseEvent} or {@link Event} object as its
+     *     sole argument
+     * @return {Item} this item itself, so calls can be chained
+     * @chainable
+     *
+     * @example {@paperscript}
+     * // Change the fill color of the path to red when the mouse enters its
+     * // shape and back to black again, when it leaves its shape.
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25,
+     *     fillColor: 'black'
+     * });
+     *
+     * // When the mouse enters the item, set its fill color to red:
+     * path.on('mouseenter', function() {
+     *     this.fillColor = 'red';
+     * });
+     *
+     * // When the mouse leaves the item, set its fill color to black:
+     * path.on('mouseleave', function() {
+     *     this.fillColor = 'black';
+     * });
+     */
+    on(type: string, func: (event?: any, ...args: any) => void): this
+
+    /**
+     * Attaches one or more event handlers to the item.
+     *
+     * @name Item#on
+     * @function
+     * @param {Object} object an object containing one or more of the following
+     *     properties: {@values frame, mousedown, mouseup, mousedrag, click,
+     *     doubleclick, mousemove, mouseenter, mouseleave}
+     * @return {Item} this item itself, so calls can be chained
+     * @chainable
+     *
+     * @example {@paperscript}
+     * // Change the fill color of the path to red when the mouse enters its
+     * // shape and back to black again, when it leaves its shape.
+     *
+     * // Create a circle shaped path at the center of the view:
+     * var path = new Path.Circle({
+     *     center: view.center,
+     *     radius: 25
+     * });
+     * path.fillColor = 'black';
+     *
+     * // When the mouse enters the item, set its fill color to red:
+     * path.on({
+     *     mouseenter: function(event) {
+     *         this.fillColor = 'red';
+     *     },
+     *     mouseleave: function(event) {
+     *         this.fillColor = 'black';
+     *     }
+     * });
+     * @example {@paperscript}
+     * // When you click the mouse, you create new circle shaped items. When you
+     * // move the mouse over the item, its fill color is set to red. When you
+     * // move the mouse outside again, its fill color is set black.
+     *
+     * var pathHandlers = {
+     *     mouseenter: function(event) {
+     *         this.fillColor = 'red';
+     *     },
+     *     mouseleave: function(event) {
+     *         this.fillColor = 'black';
+     *     }
+     * }
+     *
+     * // When the mouse is pressed:
+     * function onMouseDown(event) {
+     *     // Create a circle shaped path at the position of the mouse:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 25,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // Attach the handers inside the object literal to the path:
+     *     path.on(pathHandlers);
+     * }
+     */
+    on(type: EventList): this
+    on(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
+        return super.on(type, func)
+    }
+
+    /**
+     * Detach an event handler from the item.
+     *
+     * @name Item#off
+     * @function
+     * @param {String} type the type of event: {@values 'frame', mousedown',
+     *     'mouseup', 'mousedrag', 'click', 'doubleclick', 'mousemove',
+     *     'mouseenter', 'mouseleave'}
+     * @param {Function} function the function to be detached
+     * @return {Item} this item itself, so calls can be chained
+     * @chainable
+     */
+    off(type: string, func?: (event?: any, ...args: any) => void): this
+
+    /**
+     * Detach one or more event handlers to the item.
+     *
+     * @name Item#off
+     * @function
+     * @param {Object} object an object containing one or more of the following
+     *     properties: {@values frame, mousedown, mouseup, mousedrag, click,
+     *     doubleclick, mousemove, mouseenter, mouseleave}
+     * @return {Item} this item itself, so calls can be chained
+     * @chainable
+     */
+    off(type: EventList): this
+    off(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
+        return super.off(type, func)
+    }
+
+    /**
+     * Emit an event on the item.
+     *
+     * @name Item#emit
+     * @function
+     * @param {String} type the type of event: {@values 'frame', mousedown',
+     *     'mouseup', 'mousedrag', 'click', 'doubleclick', 'mousemove',
+     *     'mouseenter', 'mouseleave'}
+     * @param {Object} event an object literal containing properties describing
+     * the event
+     * @return {Boolean} {@true if the event had listeners}
+     */
+    emit(type: string, event?: any, ...args: any[]): boolean {
+        return super.emit(type, event, args)
+    }
+
+    /**
+     * Check if the item has one or more event handlers of the specified type.
+     *
+     * @name Item#responds
+     * @function
+     * @param {String} type the type of event: {@values 'frame', mousedown',
+     *     'mouseup', 'mousedrag', 'click', 'doubleclick', 'mousemove',
+     *     'mouseenter', 'mouseleave'}
+     * @return {Boolean} {@true if the item has one or more event handlers of
+     * the specified type}
+     */
+    responds(type: string): boolean {
+        return super.responds(type)
+    }
+
+    /**
+     * Private method that sets Path related styles on the canvas context.
+     * Not defined in Path as it is required by other classes too,
+     * e.g. PointText.
+     */
+    _setStyles(
+        ctx: CanvasRenderingContext2D,
+        param?: DrawOptions,
+        viewMatrix?: Matrix
+    ) {
+        const paper = PaperScope.paper
+        const style = this._style
+        const matrix = this._matrix
+        if (style.hasFill()) {
+            ctx.fillStyle = style.getFillColor().toCanvasStyle(ctx, matrix)
+        }
+        if (style.hasStroke()) {
+            ctx.strokeStyle = style.getStrokeColor().toCanvasStyle(ctx, matrix)
+            ctx.lineWidth = style.getStrokeWidth()
+            const strokeJoin = style.getStrokeJoin()
+            const strokeCap = style.getStrokeCap()
+
+            const miterLimit = style.getMiterLimit()
+            if (strokeJoin) ctx.lineJoin = strokeJoin
+            if (strokeCap) ctx.lineCap = strokeCap
+            if (miterLimit) ctx.miterLimit = miterLimit
+            if (paper.support.nativeDash) {
+                const dashArray = style.getDashArray()
+                const dashOffset = style.getDashOffset()
+                if (dashArray && dashArray.length) {
+                    if ('setLineDash' in ctx) {
+                        ctx.setLineDash(dashArray)
+                        ctx.lineDashOffset = dashOffset
+                    }
+                    /* TODO: Removed?
+                    else {
+                        ctx.mozDash = dashArray
+                        ctx.mozDashOffset = dashOffset
+                    }
+                    */
+                }
+            }
+        }
+        if (style.hasShadow()) {
+            const pixelRatio = param.pixelRatio || 1
+            const mx = viewMatrix
+                .shiftless()
+                .prepend(new Matrix().scale(pixelRatio, pixelRatio))
+            const blur = mx.transform(new Point(style.getShadowBlur(), 0))
+            const offset = mx.transform(this.getShadowOffset())
+            ctx.shadowColor = style.getShadowColor().toCanvasStyle(ctx)
+            ctx.shadowBlur = blur.getLength()
+            ctx.shadowOffsetX = offset.x
+            ctx.shadowOffsetY = offset.y
+        }
+    }
+
+    draw(
+        ctx: CanvasRenderingContext2D,
+        param?: DrawOptions,
+        parentStrokeMatrix?: Matrix
+    ) {
+        this._updateVersion = this._project.updateVersion
+
+        if (!this._visible || this._opacity === 0) return
+
+        const matrices = param.matrices
+        let viewMatrix = param.viewMatrix
+        const matrix = this._matrix
+        const globalMatrix = matrices[matrices.length - 1].appended(matrix)
+
+        if (!globalMatrix.isInvertible()) return
+
+        viewMatrix = viewMatrix
+            ? viewMatrix.appended(globalMatrix)
+            : globalMatrix
+
+        matrices.push(globalMatrix)
+        if (param.updateMatrix) {
+            this._globalMatrix = globalMatrix
+        }
+
+        const blendMode = this._blendMode
+        const opacity = Numerical.clamp(this._opacity, 0, 1)
+        const normalBlend = blendMode === 'normal'
+        const nativeBlend = BlendMode.nativeModes[blendMode]
+
+        const direct =
+            (normalBlend && opacity === 1) ||
+            param.dontStart || // e.g. CompoundPath
+            param.clip ||
+            ((nativeBlend || (normalBlend && opacity < 1)) &&
+                this._canComposite())
+        const pixelRatio = param.pixelRatio || 1
+        let mainCtx
+        let itemOffset
+        let prevOffset
+
+        if (!direct) {
+            const bounds = this.getStrokeBounds(viewMatrix)
+            if (!bounds.width || !bounds.height) {
+                matrices.pop()
+                return
+            }
+            prevOffset = param.offset
+            itemOffset = param.offset = bounds.getTopLeft().floor()
+
+            mainCtx = ctx
+            ctx = CanvasProvider.getContext(
+                bounds.getSize().ceil().add(1).multiply(pixelRatio)
+            )
+            if (pixelRatio !== 1) ctx.scale(pixelRatio, pixelRatio)
+        }
+        ctx.save()
+
+        const strokeMatrix = parentStrokeMatrix
+            ? parentStrokeMatrix.appended(matrix)
+            : this._canScaleStroke && !this.getStrokeScaling(true) && viewMatrix
+
+        const clip = !direct && param.clipItem
+        const transform = !strokeMatrix || clip
+
+        if (direct) {
+            ctx.globalAlpha = opacity
+            if (nativeBlend) ctx.globalCompositeOperation = blendMode
+        } else if (transform) {
+            ctx.translate(-itemOffset.x, -itemOffset.y)
+        }
+
+        if (transform) {
+            ;(direct ? matrix : viewMatrix).applyToContext(ctx)
+        }
+
+        if (clip) {
+            param.clipItem.draw(ctx, { ...param, clip: true })
+        }
+
+        if (strokeMatrix) {
+            ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
+
+            const offset = param.offset
+            if (offset) ctx.translate(-offset.x, -offset.y)
+        }
+        this._draw(ctx, param, viewMatrix, strokeMatrix)
+        ctx.restore()
+        matrices.pop()
+        if (param.clip && !param.dontFinish) {
+            ctx.clip(this.getFillRule())
+        }
+        if (!direct) {
+            BlendMode.process(
+                blendMode,
+                ctx,
+                mainCtx,
+                opacity,
+                itemOffset.subtract(prevOffset).multiply(pixelRatio)
+            )
+            CanvasProvider.release(ctx)
+            param.offset = prevOffset
+        }
+    }
+
+    /**
+     * Checks the _updateVersion of the item to see if it got drawn in the draw
+     * loop. If the version is out of sync, the item is either not in the scene
+     * graph anymore or is invisible.
+     */
+    protected _isUpdated(updateVersion: number): boolean {
+        const parent = this._parent
+
+        if (parent instanceof CompoundPath)
+            return parent._isUpdated(updateVersion)
+
+        let updated = this._updateVersion === updateVersion
+        if (
+            !updated &&
+            parent &&
+            parent._visible &&
+            parent._isUpdated(updateVersion)
+        ) {
+            this._updateVersion = updateVersion
+            updated = true
+        }
+        return updated
+    }
+
+    _drawSelection(
+        ctx: CanvasRenderingContext2D,
+        matrix: Matrix,
+        size: number,
+        selectionItems: Item[],
+        updateVersion: number
+    ) {
+        const selection = this._selection
+        let itemSelected = !!(+selection & ItemSelection.ITEM)
+        const boundsSelected = !!(
+            +selection & ItemSelection.BOUNDS ||
+            (itemSelected && this._selectBounds)
+        )
+        const positionSelected = !!(+selection & ItemSelection.POSITION)
+
+        if (!this._drawSelected) itemSelected = false
+        if (
+            (itemSelected || boundsSelected || positionSelected) &&
+            this._isUpdated(updateVersion)
+        ) {
+            let layer
+            const color =
+                this.getSelectedColor(true) ||
+                ((layer = this.getLayer()) && layer.getSelectedColor(true))
+            const mx = matrix.appended(this.getGlobalMatrix(true))
+            const half = size / 2
+            ctx.strokeStyle = ctx.fillStyle = color
+                ? color.toCanvasStyle(ctx)
+                : '#009dec'
+            if (itemSelected) this._drawSelected(ctx, mx, selectionItems)
+            if (positionSelected) {
+                const pos = this.getPosition(true)
+                const parent = this._parent
+                const point = parent ? parent.localToGlobal(pos) : pos
+                const x = point.x
+                const y = point.y
+
+                ctx.beginPath()
+                ctx.arc(x, y, half, 0, Math.PI * 2, true)
+                ctx.stroke()
+                const deltas = [
+                    [0, -1],
+                    [1, 0],
+                    [0, 1],
+                    [-1, 0]
+                ]
+                const start = half
+                const end = size + 1
+                for (let i = 0; i < 4; i++) {
+                    const delta = deltas[i]
+                    const dx = delta[0]
+                    const dy = delta[1]
+                    ctx.moveTo(x + dx * start, y + dy * start)
+                    ctx.lineTo(x + dx * end, y + dy * end)
+                    ctx.stroke()
+                }
+            }
+            if (boundsSelected) {
+                const coords = mx.transformCorners(this.getInternalBounds())
+
+                ctx.beginPath()
+                for (let i = 0; i < 8; i++) {
+                    ctx[!i ? 'moveTo' : 'lineTo'](coords[i], coords[++i])
+                }
+                ctx.closePath()
+                ctx.stroke()
+                for (let i = 0; i < 8; i++) {
+                    ctx.fillRect(
+                        coords[i] - half,
+                        coords[++i] - half,
+                        size,
+                        size
+                    )
+                }
+            }
+        }
+    }
+
+    protected _canComposite(): boolean {
+        return false
+    }
+
+    protected _draw(
+        _ctx: CanvasRenderingContext2D,
+        _param?: DrawOptions,
+        _viewMatrix?: Matrix,
+        _strokeMatrix?: Matrix
+    ) {}
+
+    protected _drawSelected(
+        _ctx: CanvasRenderingContext2D,
+        _matrix?: Matrix,
+        _selectionItems?: Item[]
+    ) {}
+
+    /**
+     * Removes the item when the next {@link Tool#onMouseMove} event is fired.
+     *
+     * @name Item#removeOnMove
+     * @function
+     *
+     * @example {@paperscript height=200}
+     * // Move your mouse below:
+     * function onMouseMove(event) {
+     *     // Create a circle shaped path at the mouse position,
+     *     // with a radius of 10:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 10,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // On the next move event, automatically remove the path:
+     *     path.removeOnMove();
+     * }
+     */
+    removeOnMove() {
+        return this.removeOn({ move: true })
+    }
+
+    /**
+     * Removes the item when the next {@link Tool#onMouseDown} event is fired.
+     *
+     * @name Item#removeOnDown
+     * @function
+     *
+     * @example {@paperscript height=200}
+     * // Click a few times below:
+     * function onMouseDown(event) {
+     *     // Create a circle shaped path at the mouse position,
+     *     // with a radius of 10:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 10,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // Remove the path, next time the mouse is pressed:
+     *     path.removeOnDown();
+     * }
+     */
+    removeOnDown() {
+        return this.removeOn({ down: true })
+    }
+
+    /**
+     * Removes the item when the next {@link Tool#onMouseDrag} event is fired.
+     *
+     * @name Item#removeOnDrag
+     * @function
+     *
+     * @example {@paperscript height=200}
+     * // Click and drag below:
+     * function onMouseDrag(event) {
+     *     // Create a circle shaped path at the mouse position,
+     *     // with a radius of 10:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 10,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // On the next drag event, automatically remove the path:
+     *     path.removeOnDrag();
+     * }
+     */
+    removeOnDrag() {
+        return this.removeOn({ drag: true })
+    }
+
+    /**
+     * Removes the item when the next {@link Tool#onMouseUp} event is fired.
+     *
+     * @name Item#removeOnUp
+     * @function
+     *
+     * @example {@paperscript height=200}
+     * // Click a few times below:
+     * function onMouseDown(event) {
+     *     // Create a circle shaped path at the mouse position,
+     *     // with a radius of 10:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 10,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // Remove the path, when the mouse is released:
+     *     path.removeOnUp();
+     * }
+     */
+    removeOnUp() {
+        return this.removeOn({ up: true })
+    }
+
+    /**
+     * {@grouptitle Remove On Event}
+     *
+     * Removes the item when the events specified in the passed options object
+     * occur.
+     *
+     * @option options.move {Boolean) remove the item when the next {@link
+     *     Tool#onMouseMove} event is fired.
+     *
+     * @option options.drag {Boolena) remove the item when the next {@link
+     *     Tool#onMouseDrag} event is fired.
+     *
+     * @option options.down {Boolean) remove the item when the next {@link
+     *     Tool#onMouseDown} event is fired.
+     *
+     * @option options.up {Boolean) remove the item when the next {@link
+     *     Tool#onMouseUp} event is fired.
+     *
+     * @name Item#removeOn
+     * @function
+     * @param {Object} options
+     *
+     * @example {@paperscript height=200}
+     * // Click and drag below:
+     * function onMouseDrag(event) {
+     *     // Create a circle shaped path at the mouse position,
+     *     // with a radius of 10:
+     *     var path = new Path.Circle({
+     *         center: event.point,
+     *         radius: 10,
+     *         fillColor: 'black'
+     *     });
+     *
+     *     // Remove the path on the next onMouseDrag or onMouseDown event:
+     *     path.removeOn({
+     *         drag: true,
+     *         down: true
+     *     });
+     * }
+     */
+    removeOn(obj?: RemoveOnOptions) {
         for (const name in obj) {
             if (obj[name]) {
-                // const key = 'mouse' + name
-                // const project = this._project
-                // const sets = (project._removeSets = project._removeSets || {})
-                // sets[key] = sets[key] || {}
-                // sets[key][this._id] = this
+                const key = 'mouse' + name
+                const project = this._project
+                const sets = (project.removeSets = project.removeSets || {})
+
+                sets[key] = sets[key] || {}
+                sets[key][this._id] = this
             }
         }
         return this
+    }
+
+    /**
+     * {@grouptitle Tweening Functions}
+     *
+     * Tween item between two states.
+     *
+     * @name Item#tween
+     *
+     * @option options.duration {Number} the duration of the tweening
+     * @option [options.easing='linear'] {Function|String} an easing function or the type
+     * of the easing: {@values 'linear' 'easeInQuad' 'easeOutQuad'
+     * 'easeInOutQuad' 'easeInCubic' 'easeOutCubic' 'easeInOutCubic'
+     * 'easeInQuart' 'easeOutQuart' 'easeInOutQuart' 'easeInQuint'
+     * 'easeOutQuint' 'easeInOutQuint'}
+     * @option [options.start=true] {Boolean} whether to start tweening automatically
+     *
+     * @function
+     * @param {Object} from the state at the start of the tweening
+     * @param {Object} to the state at the end of the tweening
+     * @param {Object|Number} options the options or the duration
+     * @return {Tween}
+     *
+     * @example {@paperscript height=100}
+     * // Tween fillColor:
+     * var path = new Path.Circle({
+     *     radius: view.bounds.height * 0.4,
+     *     center: view.center
+     * });
+     * path.tween(
+     *     { fillColor: 'blue' },
+     *     { fillColor: 'red' },
+     *     3000
+     * );
+     * @example {@paperscript height=100}
+     * // Tween rotation:
+     * var path = new Shape.Rectangle({
+     *     fillColor: 'red',
+     *     center: [50, view.center.y],
+     *     size: [60, 60]
+     * });
+     * path.tween({
+     *     rotation: 180,
+     *     'position.x': view.bounds.width - 50,
+     *     'fillColor.hue': '+= 90'
+     * }, {
+     *     easing: 'easeInOutCubic',
+     *     duration: 2000
+     * });
+     */
+    tween(from: object, to: object, options: TweenOptions | number): Tween
+
+    /**
+     * Tween item to a state.
+     *
+     * @name Item#tween
+     *
+     * @function
+     * @param  {Object} to the state at the end of the tweening
+     * @param {Object|Number} options the options or the duration
+     * @return {Tween}
+     *
+     * @example {@paperscript height=200}
+     * // Tween a nested property with relative values
+     * var path = new Path.Rectangle({
+     *     size: [100, 100],
+     *     position: view.center,
+     *     fillColor: 'red',
+     * });
+     *
+     * var delta = { x: path.bounds.width / 2, y: 0 };
+     *
+     * path.tween({
+     *     'segments[1].point': ['+=', delta],
+     *     'segments[2].point.x': '-= 50'
+     * }, 3000);
+     *
+     * @see Item#tween(from, to, options)
+     */
+    tween(to: object, options: TweenOptions | number): Tween
+
+    /**
+     * Tween item.
+     *
+     * @name Item#tween
+     *
+     * @function
+     * @param  {Object|Number} options the options or the duration
+     * @return {Tween}
+     *
+     * @see Item#tween(from, to, options)
+     *
+     * @example {@paperscript height=100}
+     * // Start an empty tween and just use the update callback:
+     * var path = new Path.Circle({
+     *     fillColor: 'blue',
+     *     radius: view.bounds.height * 0.4,
+     *     center: view.center,
+     * });
+     * var pathFrom = path.clone({ insert: false })
+     * var pathTo = new Path.Rectangle({
+     *     position: view.center,
+     *     rectangle: path.bounds,
+     *     insert: false
+     * });
+     * path.tween(2000).onUpdate = function(event) {
+     *     path.interpolate(pathFrom, pathTo, event.factor)
+     * };
+     */
+    tween(options: TweenOptions | number): Tween
+    tween(
+        from: object | TweenOptions | number,
+        to?: object | TweenOptions | number,
+        options?: TweenOptions
+    ): Tween {
+        if (!options) {
+            options = to as TweenOptions
+            to = from
+            from = null
+            if (!options) {
+                options = to as TweenOptions
+                to = null
+            }
+        }
+        const easing = options && options.easing
+        const start = options && options.start
+        const duration =
+            options != null &&
+            (typeof options === 'number' ? options : options.duration)
+        const tween = new Tween(
+            this,
+            from as object,
+            to as object,
+            duration,
+            easing,
+            start
+        )
+
+        function onFrame(this: Item, event: FrameEvent) {
+            tween.handleFrame(event.time * 1000)
+            if (!tween.running) {
+                this.off('frame', onFrame)
+            }
+        }
+        if (duration) {
+            this.on('frame', onFrame)
+        }
+        return tween
+    }
+
+    /**
+     *
+     * Tween item to a state.
+     *
+     * @function
+     * @param {Object} to the state at the end of the tweening
+     * @param {Object|Number} options the options or the duration
+     * @return {Tween}
+     *
+     * @see Item#tween(to, options)
+     */
+    tweenTo(to: object, options: TweenOptions): Tween {
+        return this.tween(null, to, options)
+    }
+
+    /**
+     *
+     * Tween item from a state to its state before the tweening.
+     *
+     * @function
+     * @param {Object} from the state at the start of the tweening
+     * @param {Object|Number} options the options or the duration
+     * @return {Tween}
+     *
+     * @see Item#tween(from, to, options)
+     *
+     * @example {@paperscript height=100}
+     * // Tween fillColor from red to the path's initial fillColor:
+     * var path = new Path.Circle({
+     *     fillColor: 'blue',
+     *     radius: view.bounds.height * 0.4,
+     *     center: view.center
+     * });
+     * path.tweenFrom({ fillColor: 'red' }, { duration: 1000 });
+     */
+    tweenFrom(from: object, options: TweenOptions): Tween {
+        return this.tween(from, null, options)
     }
 }

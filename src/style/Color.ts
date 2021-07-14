@@ -207,7 +207,7 @@ const converters = {
 export default class Color extends Base {
     protected _class = 'Color'
     private _type: ColorTypes
-    private _canvasStyle: CanvasGradient | string
+    private _canvasStyle: string
     private _alpha: number
     private _components: any[]
     private _properties: string[]
@@ -627,11 +627,11 @@ export default class Color extends Base {
               )
     }
 
-    get canvasStyle(): string | CanvasGradient {
+    get canvasStyle(): string {
         return this._canvasStyle
     }
 
-    set canvasStyle(style: string | CanvasGradient) {
+    set canvasStyle(style: string) {
         this._canvasStyle = style
     }
 
@@ -765,7 +765,7 @@ export default class Color extends Base {
         )
     }
 
-    clone(): Color {
+    clone(): this {
         return Base.clone(this)
     }
 
@@ -827,14 +827,10 @@ export default class Color extends Base {
                   ')'
     }
 
-    toCanvasStyle(
-        ctx: CanvasRenderingContext2D,
-        matrix: Matrix
-    ): CanvasGradient | string {
+    toCanvasStyle(ctx: CanvasRenderingContext2D, matrix?: Matrix): string {
         if (this._canvasStyle) return this._canvasStyle
-        // Normal colors are simply represented by their CSS string.
+
         if (this._type !== 'gradient') return (this._canvasStyle = this.toCSS())
-        // Gradient code form here onwards
         const components = this._components
         const gradient = components[0]
         const stops = gradient._stops
@@ -845,9 +841,9 @@ export default class Color extends Base {
         let canvasGradient
 
         if (inverse) {
-            origin = inverse._transformPoint(origin)
-            destination = inverse._transformPoint(destination)
-            if (highlight) highlight = inverse._transformPoint(highlight)
+            origin = inverse.transformPoint(origin)
+            destination = inverse.transformPoint(destination)
+            if (highlight) highlight = inverse.transformPoint(highlight)
         }
         if (gradient._radial) {
             const radius = destination.getDistance(origin)
@@ -882,7 +878,7 @@ export default class Color extends Base {
                 stop._color.toCanvasStyle()
             )
         }
-        return (this._canvasStyle = canvasGradient)
+        return (this._canvasStyle = canvasGradient as unknown as string)
     }
 
     /**
@@ -895,7 +891,7 @@ export default class Color extends Base {
             const components = this._components
             for (let i = 1, l = components.length; i < l; i++) {
                 const point = components[i]
-                matrix._transformPoint(point, point, true)
+                matrix.transformPoint(point, point, true)
             }
             this.changed()
         }

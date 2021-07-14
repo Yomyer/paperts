@@ -4,7 +4,6 @@ import Point from '../basic/Point'
 import PaperScope from '../core/PaperScope'
 import Size from '../basic/Size'
 import Item from './Item'
-import SymbolDefinition from './SymbolDefinition'
 
 export type HitResultTypes =
     | 'segment'
@@ -44,7 +43,7 @@ export type HitResultOptions = {
     bounds?: boolean
     guides?: boolean
     selected?: boolean
-    all?: HitResult[] | boolean
+    all?: HitResult[]
     _tolerancePadding?: Size
 }
 

@@ -90,12 +90,12 @@ export default class Gradient extends Base {
     /**
      * @return {Gradient} a copy of the gradient
      */
-    clone(): Gradient {
+    clone(): this {
         const stops = []
         for (let i = 0, l = this._stops.length; i < l; i++) {
             stops[i] = this._stops[i].clone()
         }
-        return new Gradient(stops, this._radial)
+        return new Gradient(stops, this._radial) as this
     }
 
     /**

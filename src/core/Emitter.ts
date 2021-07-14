@@ -1,9 +1,21 @@
+import Size from '../basic/Size'
 import Base from './Base'
 
 export type EventList = {
     [type: string]: (event?: any, ...args: any) => void
 }
 export type EmitterType = string | EventList
+
+export type FrameEvent = {
+    delta: number
+    time: number
+    count: number
+}
+
+export type ResizeEvent = {
+    size: Size
+    delta: Size
+}
 
 export default abstract class Emitter extends Base {
     protected _eventTypes: {

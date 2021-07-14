@@ -55,6 +55,28 @@ export default class Base extends Straps {
     }
 
     /**
+     * The unique id of the item.
+     *
+     * @bean
+     * @type Number
+     */
+    getId() {
+        return this._id
+    }
+
+    setId(id: string) {
+        this._id = id
+    }
+
+    get id() {
+        return this._id
+    }
+
+    set id(id: string) {
+        this._id = id
+    }
+
+    /**
      * Renders base objects to strings in object literal notation.
      */
     toString(): string {
@@ -577,7 +599,7 @@ export default class Base extends Straps {
      * @param {Object} dest the object on which to set the supported properties
      * @return {Boolean} {@true if any property was read from the source object}
      */
-    static readSupported(list: any, dest?: any) {
+    static readSupported(list: any, dest?: any): boolean {
         const source = this.getSource(list)
         const that = this
         let read = false
