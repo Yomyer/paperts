@@ -190,8 +190,8 @@ export default class Size extends Base {
      * Returns a copy of the size.
      * @return {Size}
      */
-    clone(): Size {
-        return new Size(this.width, this.height)
+    clone(): this {
+        return new Size(this.width, this.height) as this
     }
 
     /**
@@ -425,6 +425,103 @@ export default class Size extends Base {
     abs(): Size {
         const op = Math.abs
         return new Size(op(this.width), op(this.height))
+    }
+
+    /**
+     * Returns a new size object with the smallest {@link #width} and
+     * {@link #height} of the supplied sizes.
+     *
+     * @static
+     * @param {Size} size1
+     * @param {Size} size2
+     * @return {Size} the newly created size object
+     *
+     * @example
+     * var size1 = new Size(10, 100);
+     * var size2 = new Size(200, 5);
+     * var minSize = Size.min(size1, size2);
+     * console.log(minSize); // {width: 10, height: 5}
+     *
+     * @example
+     * // Find the minimum of multiple sizes:
+     * var size1 = new Size(60, 100);
+     * var size2 = new Size(200, 5);
+     * var size3 = new Size(250, 35);
+     * [size1, size2, size3].reduce(Size.min) // {width: 60, height: 5}
+     */
+    static min(
+        width1: number,
+        height1: number,
+        xwidth2: number,
+        height2: number
+    ): Size
+
+    static min(point1: SizeType, point2: SizeType): Size
+    static min(...args: any[]): Size {
+        const size1 = Size.read(args)
+        const size2 = Size.read(args)
+
+        return new Size(
+            Math.min(size1.width, size2.width),
+            Math.min(size1.height, size2.height)
+        )
+    }
+
+    /**
+     * Returns a new size object with the largest {@link #width} and
+     * {@link #height} of the supplied sizes.
+     *
+     * @static
+     * @param {Size} size1
+     * @param {Size} size2
+     * @return {Size} the newly created size object
+     *
+     * @example
+     * var size1 = new Size(10, 100);
+     * var size2 = new Size(200, 5);
+     * var maxSize = Size.max(size1, size2);
+     * console.log(maxSize); // {width: 200, height: 100}
+     *
+     * @example
+     * // Find the maximum of multiple sizes:
+     * var size1 = new Size(60, 100);
+     * var size2 = new Size(200, 5);
+     * var size3 = new Size(250, 35);
+     * [size1, size2, size3].reduce(Size.max) // {width: 250, height: 100}
+     */
+    static max(
+        width1: number,
+        height1: number,
+        xwidth2: number,
+        height2: number
+    ): Size
+
+    static max(point1: SizeType, point2: SizeType): Size
+    static max(...args: any[]): Size {
+        const size1 = Size.read(args)
+        const size2 = Size.read(args)
+        return new Size(
+            Math.max(size1.width, size2.width),
+            Math.max(size1.height, size2.height)
+        )
+    }
+
+    /**
+     * Returns a point object with random {@link #x} and {@link #y} values
+     * between `0` and `1`.
+     *
+     * @return {Point} the newly created point object
+     * @static
+     *
+     * @example
+     * var maxPoint = new Point(100, 100);
+     * var randomPoint = Point.random();
+     *
+     * // A point between {x:0, y:0} and {x:100, y:100}:
+     * var point = maxPoint * randomPoint;
+     */
+    static random(): Size {
+        return new Size(Math.random(), Math.random())
     }
 }
 

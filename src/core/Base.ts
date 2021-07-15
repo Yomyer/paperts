@@ -635,7 +635,7 @@ export default class Base extends Straps {
      *     `undefined` if there is no arguments object If no name is
      *     provided, it returns the whole arguments object
      */
-    static getNamed(list: any, name: any) {
+    static getNamed(list: any, name?: string) {
         const source = this.getSource(list)
         if (source) {
             // Return the whole arguments object if no name is provided.

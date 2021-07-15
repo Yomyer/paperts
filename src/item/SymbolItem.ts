@@ -2,8 +2,12 @@ import { Matrix } from '../basic'
 import Point from '../basic/Point'
 import { Change } from './ChangeFlag'
 import HitResult, { HitResultOptions } from './HitResult'
-import Item, { BoundsOptions } from './Item'
+import Item, { BoundsOptions, DrawOptions, ItemSerializeFields } from './Item'
 import SymbolDefinition from './SymbolDefinition'
+
+export type SymbolSerializeFields = ItemSerializeFields & {
+    symbol: any
+}
 
 export default class SymbolItem extends Item {
     protected _class = 'SymbolItem'
@@ -11,7 +15,7 @@ export default class SymbolItem extends Item {
     protected _canApplyMatrix = false
     protected _definition: SymbolDefinition
     protected _boundsOptions = { stroke: true }
-    protected _serializeFields: any = {
+    protected _serializeFields: SymbolSerializeFields = {
         symbol: null
     }
 
@@ -120,14 +124,14 @@ export default class SymbolItem extends Item {
         options: HitResultOptions,
         viewMatrix?: Matrix
     ): HitResult {
-        const opts = { ...options, ...{ all: false } }
+        const opts: HitResultOptions = { ...options, all: null }
         const res = this._definition.item._hitTest(point, opts, viewMatrix)
 
         if (res) res.item = this
         return res
     }
 
-    protected _draw(ctx: CanvasRenderingContext2D, param) {
+    protected _draw(ctx: CanvasRenderingContext2D, param: DrawOptions) {
         this._definition.item.draw(ctx, param)
     }
 }

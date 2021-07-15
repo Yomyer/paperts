@@ -1,13 +1,18 @@
 import { Rectangle, Size } from '../basic'
 
-type Element = HTMLElement | CSSStyleDeclaration | Document | Window
+type Element =
+    | HTMLElement
+    | CSSStyleDeclaration
+    | Document
+    | Window
+    | CanvasRenderingContext2D
 
 export default class DomElement {
     private static handlePrefix(
         el: Element,
         name: string,
         set?: boolean,
-        value?: string
+        value?: string | boolean
     ) {
         const prefixes = ['', 'webkit', 'moz', 'Moz', 'ms', 'o']
         const suffix = name[0].toUpperCase() + name.substring(1)
@@ -98,7 +103,11 @@ export default class DomElement {
         return el && DomElement.handlePrefix(el, name)
     }
 
-    static setPrefixed(el: Element, name: string | object, value?: string) {
+    static setPrefixed(
+        el: Element,
+        name: string | object,
+        value?: string | boolean
+    ) {
         if (typeof name === 'object') {
             for (const key in name)
                 DomElement.handlePrefix(el, key, true, name[key])

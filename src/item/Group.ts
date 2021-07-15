@@ -3,14 +3,18 @@ import Point from '../basic/Point'
 import Base from '../core/Base'
 import { ChangeFlag } from './ChangeFlag'
 import { HitResultOptions } from './HitResult'
-import Item, { BoundsOptions, DrawOptions, SerializFields } from './Item'
+import Item, { BoundsOptions, DrawOptions, ItemSerializeFields } from './Item'
+
+export type GroupSerializeFields = ItemSerializeFields & {
+    children?: Item[]
+}
 
 export default class Group extends Item {
     protected _class = 'Group'
     protected _selectBounds = false
     protected _clipItem: Item
     protected _selectChildren = true
-    protected _serializeFields: SerializFields = {
+    protected _serializeFields: GroupSerializeFields = {
         children: []
     }
 
@@ -88,7 +92,7 @@ export default class Group extends Item {
         // Allow Group to have children and named children
         this._children = []
         this._namedChildren = {}
-        if (!super._initialize(args[0]))
+        if (!this._initialize(args[0]))
             this.addChildren(Array.isArray(args[0]) ? args[0] : args)
 
         return this

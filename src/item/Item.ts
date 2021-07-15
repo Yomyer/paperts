@@ -35,7 +35,7 @@ import CompoundPath from '../path/CompundPath'
 import Tween, { TweenOptions } from '../anim/Tween'
 import Raster from './Raster'
 
-export type SerializFields = {
+export type ItemSerializeFields = {
     name?: string
     applyMatrix?: boolean
     matrix?: Matrix
@@ -48,9 +48,6 @@ export type SerializFields = {
     clipMask?: boolean
     selected?: boolean
     data?: {}
-    children?: Item[]
-    crossOrigin?: string
-    source?: string
 }
 
 type ItemEventTypes =
@@ -82,7 +79,7 @@ export type BoundsCacheProps = {
     list: Array<Item | SymbolDefinition>
 }
 
-type CloneOptions = {
+export type CloneOptions = {
     insert: boolean
     deep: boolean
 }
@@ -112,8 +109,8 @@ type MatchParamOptions = {
     path: Path
 }
 
-type ItemFrameEventFunction = (_: FrameEvent) => void
-type ItemMouseEventFunction = (_: PaperMouseEvent) => void
+type ItemFrameEventFunction = (frameEvent: FrameEvent) => void
+type ItemMouseEventFunction = (mouseEvent: PaperMouseEvent) => void
 
 export type DrawOptions = {
     pixelRatio?: number
@@ -2389,11 +2386,11 @@ export default class Item extends Emitter {
                     filter(
                         this._hitTestSelf(
                             point,
-                            options
-                            /* ,viewMatrix,
+                            options,
+                            viewMatrix,
                             this.getStrokeScaling()
                                 ? null
-                                : viewMatrix.shiftless().invert() */
+                                : viewMatrix.shiftless().invert()
                         )
                     )) ||
                 null
@@ -2405,7 +2402,12 @@ export default class Item extends Emitter {
         return res
     }
 
-    protected _hitTestSelf(point: Point, options: HitResultOptions): HitResult {
+    protected _hitTestSelf(
+        point: Point,
+        options: HitResultOptions,
+        _viewMatrix: Matrix,
+        _strokeMatrix: Matrix
+    ): HitResult {
         if (options.fill && this.hasFill() && this._contains(point))
             return new HitResult('fill', this)
 
@@ -3055,7 +3057,7 @@ export default class Item extends Emitter {
         return removed
     }
 
-    clear(): Item[] {
+    clear(): Item[] | void {
         return this.removeChildren()
     }
 

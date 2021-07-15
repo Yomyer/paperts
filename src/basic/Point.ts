@@ -983,7 +983,7 @@ export default class Point extends Base {
      * // A point between {x:0, y:0} and {x:100, y:100}:
      * var point = maxPoint * randomPoint;
      */
-    static random() {
+    static random(): Point {
         return new Point(Math.random(), Math.random())
     }
 

@@ -8,7 +8,7 @@ import { Change, ChangeFlag } from './ChangeFlag'
 import Layer from './Layer'
 import HitResult, { HitResultOptions } from './HitResult'
 import { Point as PointType } from '../basic/Types'
-import { Matrix, Point } from '../basic'
+import { Matrix, Point, Size } from '../basic'
 import SymbolDefinition from './SymbolDefinition'
 import SymbolItem from './SymbolItem'
 import ItemSelection from './ItemSelection'
@@ -34,7 +34,7 @@ export default class Project extends PaperScopeItem {
     protected _changesById: { [key: string]: ItemChange }
     protected _removeSets: RemoveSets
 
-    constructor(element?: HTMLCanvasElement)
+    constructor(element?: HTMLCanvasElement | String | Size)
     constructor(...args: any[]) {
         super(...args)
     }

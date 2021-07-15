@@ -235,6 +235,10 @@ export default class View extends Emitter {
         return this._requested
     }
 
+    get scope() {
+        return this._scope
+    }
+
     /**
      * Controls whether the view is automatically updated in the next animation
      * frame on changes, or whether you prefer to manually call

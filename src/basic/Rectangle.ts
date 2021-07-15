@@ -34,7 +34,16 @@ export default class Rectangle extends Base {
      * @param {Point} point the top-left point of the rectangle
      * @param {Size} size the size of the rectangle
      */
-    constructor(point: PointType, size: SizeType)
+    constructor(point: PointType, size?: SizeType)
+
+    /**
+     * Creates a Rectangle object.
+     *
+     * @name Rectangle#initialize
+     * @param {Size} size the size of the rectangle
+     * @param {Point} point the top-left point of the rectangle
+     */
+    constructor(size: SizeType, point?: PointType)
 
     /**
      * Creates a Rectangle object.
@@ -242,8 +251,8 @@ export default class Rectangle extends Base {
      * Returns a copy of the rectangle.
      * @return {Rectangle}
      */
-    clone() {
-        return new Rectangle(this.x, this.y, this.width, this.height)
+    clone(): this {
+        return new Rectangle(this.x, this.y, this.width, this.height) as this
     }
 
     /**
