@@ -29,7 +29,7 @@ export default class Base extends Straps {
     ): any
 
     // Todo into item
-    protected _changed?(flag?: ChangeFlag | Change, ...args: any[]): any
+    protected _changed?(flag?: ChangeFlag | Change | Base, ...args: any[]): any
     protected _prioritize?: string[]
     protected _compactSerialize?: boolean
     protected _readIndex?: boolean
@@ -50,7 +50,7 @@ export default class Base extends Straps {
         return Base.clone(this)
     }
 
-    changed(flag?: ChangeFlag | Change, ...args: any[]) {
+    changed(flag?: ChangeFlag | Change | Base, ...args: any[]) {
         return this._changed(flag, ...args)
     }
 

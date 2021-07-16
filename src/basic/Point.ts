@@ -792,7 +792,7 @@ export default class Point extends Base {
      * @param {Point} point
      * @return {Number} the dot product of the two points
      */
-    dot(number: number): number
+    dot(x: number, y: number): number
     dot(point: PointType): number
     dot(...args: any[]): number {
         const point = Point.read(args)
@@ -826,6 +826,39 @@ export default class Point extends Base {
         const scale = point.isZero() ? 0 : this.dot(point) / point.dot(point)
         return new Point(point.x * scale, point.y * scale)
     }
+
+    /**
+     * This property is only valid if the point is an anchor or handle point
+     * of a {@link Segment} or a {@link Curve}, or the position of an
+     * {@link Item}, as returned by {@link Item#position},
+     * {@link Segment#point}, {@link Segment#handleIn},
+     * {@link Segment#handleOut}, {@link Curve#point1}, {@link Curve#point2},
+     * {@link Curve#handle1}, {@link Curve#handle2}.
+     *
+     * In those cases, it returns {@true if it the point is selected}.
+     *
+     * Paper.js renders selected points on top of your project. This is very
+     * useful when debugging.
+     *
+     * @name Point#selected
+     * @property
+     * @type Boolean
+     * @default false
+     *
+     * @example {@paperscript}
+     * var path = new Path.Circle({
+     *     center: [80, 50],
+     *     radius: 40
+     * });
+     *
+     * // Select the third segment point:
+     * path.segments[2].point.selected = true;
+     *
+     * // Select the item's position, which is the pivot point
+     * // around which it is transformed:
+     * path.position.selected = true;
+     */
+    selected: boolean
 
     /**
      * {@grouptitle Math Functions}
@@ -1039,22 +1072,38 @@ export class LinkedPoint extends Point {
         return this
     }
 
-    get x() {
+    getX() {
         return this._x
     }
 
-    set x(x) {
+    setX(x: number) {
         this._x = x
         this._owner[this._setter](this)
     }
 
-    get y() {
+    get x() {
+        return this.getX()
+    }
+
+    set x(x: number) {
+        this.setX(x)
+    }
+
+    getY() {
         return this._y
     }
 
-    set y(y) {
+    setY(y: number) {
         this._y = y
         this._owner[this._setter](this)
+    }
+
+    get y() {
+        return this.getX()
+    }
+
+    set y(y: number) {
+        this.setY(y)
     }
 
     isSelected() {

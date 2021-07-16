@@ -109,8 +109,8 @@ type MatchParamOptions = {
     path: Path
 }
 
-type ItemFrameEventFunction = (frameEvent: FrameEvent) => void
-type ItemMouseEventFunction = (mouseEvent: PaperMouseEvent) => void
+export type ItemFrameEventFunction = (frameEvent: FrameEvent) => void
+export type ItemMouseEventFunction = (mouseEvent: PaperMouseEvent) => void
 
 export type DrawOptions = {
     pixelRatio?: number
@@ -163,7 +163,7 @@ export default class Item extends Emitter {
     protected _namedChildren: { [key: string]: Item[] }
     protected _updateVersion: number
 
-    protected _serializeFields: SerializFields = {
+    protected _serializeFields: ItemSerializeFields = {
         name: null,
         applyMatrix: null,
         matrix: new Matrix(),
@@ -1898,7 +1898,7 @@ export default class Item extends Emitter {
     clone(options?: CloneOptions | boolean): this {
         const copy = new Base.exports[this._class](
             Item.NO_INSERT
-        ) as unknown as Item
+        ) as unknown as this
 
         const children = this._children
         const insert = Base.pick(
@@ -2938,7 +2938,7 @@ export default class Item extends Emitter {
      *
      * @return {Item} the reduced item
      */
-    reduce(options?: any): Item {
+    reduce(options?: any): this {
         const children = this._children
         if (children && children.length === 1) {
             const child = children[0].reduce(options)
@@ -2949,7 +2949,7 @@ export default class Item extends Emitter {
             } else {
                 child.remove()
             }
-            return child
+            return child as this
         }
         return this
     }
@@ -3979,7 +3979,7 @@ export default class Item extends Emitter {
         matrix: Matrix,
         _applyRecursively?: boolean,
         _setApplyMatrix?: boolean
-    ) {
+    ): this {
         const _matrix = this._matrix
         const transformMatrix = matrix && !matrix.isIdentity()
         let applyMatrix =

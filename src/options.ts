@@ -2,7 +2,7 @@ const version = '0.12.15'
 
 const load = typeof window === 'object'
 
-const __options = {
+const Options = {
     version: version + (load ? '-load' : ''),
     load: load,
     parser: 'acorn',
@@ -12,4 +12,4 @@ const __options = {
     paperScript: true
 }
 
-export default __options
+export default Options

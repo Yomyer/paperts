@@ -1,7 +1,7 @@
 import BlendMode, { BlendModes } from '../canvas/BlendMode'
 import CanvasProvider from '../canvas/CanvasProvider'
 import Project from '../item/Project'
-import __options from '../options'
+import Options from '../options'
 import Tool from '../tool/Tool'
 import UID from '../utils/UID'
 import Base from './Base'
@@ -98,7 +98,7 @@ export default class PaperScope extends Base {
      */
     tool: Tool
 
-    version = __options.version
+    version = Options.version
     support: {
         nativeDash: boolean
         nativeBlendModes: BlendModes
