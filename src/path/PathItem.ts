@@ -9,6 +9,9 @@ import CanvasProvider from '../canvas/CanvasProvider'
 import Matrix from '../basic/Matrix'
 import { Point as PointType, Size as SizeType } from '../basic/Types'
 import { Change } from '../item'
+import CollisionDetection from '../utils/CollisionDetection'
+import Curve from './Curve'
+import CurveLocation from './CurveLocation'
 
 export type PathSmoothOptions = {
     type?: 'continuous' | 'asymmetric' | 'catmull-rom' | 'geometric'
@@ -18,11 +21,11 @@ export type PathSmoothOptions = {
 }
 
 export type PathOperator = {
-    unite: { [key: string]: boolean }
-    intersect: { [key: string]: boolean }
-    subtract: { [key: string]: boolean }
-    exclude: { [key: string]: boolean }
-    divide: { [key: string]: boolean }
+    unite?: { [key: string]: boolean }
+    intersect?: { [key: string]: boolean }
+    subtract?: { [key: string]: boolean }
+    exclude?: { [key: string]: boolean }
+    divide?: { [key: string]: boolean }
 }
 
 export type PathOperators = keyof PathOperator
@@ -46,7 +49,7 @@ export default abstract class PathItem extends Item {
     private max = Math.max
     private abs = Math.abs
 
-    private operators: PathOperators = {
+    private operators: PathOperator = {
         unite: { '1': true, '2': true },
         intersect: { '2': true },
         subtract: { '1': true },
@@ -1315,7 +1318,7 @@ export default abstract class PathItem extends Item {
         operator[operation] = true
         if (
             _path2 &&
-            (operator.subtract || operator.exclude) ^
+            (+operator.subtract || +operator.exclude) ^
                 (+_path2.isClockwise() ^ +_path1.isClockwise())
         )
             _path2.reverse()
@@ -1328,7 +1331,7 @@ export default abstract class PathItem extends Item {
         const paths1 = getPaths(_path1)
         const paths2 = _path2 && getPaths(_path2)
         const segments = []
-        const curves = []
+        const curves: Curve[] = []
         let paths
 
         function collectPaths(paths: Path[]) {
@@ -1363,7 +1366,8 @@ export default abstract class PathItem extends Item {
                     curvesValues,
                     0,
                     true
-                )
+                ) as any
+
             const curveCollisionsMap = {}
             for (let i = 0; i < curves.length; i++) {
                 const curve = curves[i]

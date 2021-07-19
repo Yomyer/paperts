@@ -9,6 +9,7 @@ import { Point as PointType } from '../basic/Types'
 import SegmentPoint from './SegmentPoint'
 import CurveLocation from './CurveLocation'
 import { Numerical } from '../utils'
+import CollisionDetection from '../utils/CollisionDetection'
 
 export default class Curve extends Base {
     protected _class = 'Curve'
@@ -2421,7 +2422,8 @@ export default class Curve extends Base {
             values1,
             values2,
             epsilon
-        )
+        ) as any
+
         for (let index1 = 0; index1 < length1; index1++) {
             const curve1 = curves1[index1]
             const v1 = values1[index1]
