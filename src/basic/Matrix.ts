@@ -675,6 +675,10 @@ export default class Matrix extends Base {
         return dst
     }
 
+    transformCoordinates(src?: number[], dst?: number[], count?: number) {
+        this._transformCoordinates(src, dst, count)
+    }
+
     protected _transformCorners(rect: Rectangle) {
         const x1 = rect.x
         const y1 = rect.y

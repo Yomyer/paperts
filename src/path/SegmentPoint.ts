@@ -41,7 +41,7 @@ export default class SegmentPoint extends Point {
         return this
     }
 
-    _set(x: number, y: number) {
+    _set(x: number, y: number, _?: boolean) {
         this._x = x
         this._y = y
         this._owner.changed(this)

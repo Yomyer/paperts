@@ -164,8 +164,8 @@ export default class Line extends Base {
         p2y: number,
         v2x: number,
         v2y: number,
-        asVector: boolean,
-        isInfinite: boolean
+        asVector?: boolean,
+        isInfinite?: boolean
     ): Point | null {
         // Convert 2nd points to vectors if they are not specified as such.
         if (!asVector) {
@@ -230,7 +230,7 @@ export default class Line extends Base {
         vy: number,
         x: number,
         y: number,
-        asVector: boolean
+        asVector?: boolean
     ) {
         if (!asVector) {
             vx -= px

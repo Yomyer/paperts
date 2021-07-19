@@ -22,6 +22,7 @@ export type PathOperator = {
     intersect: { [key: string]: boolean }
     subtract: { [key: string]: boolean }
     exclude: { [key: string]: boolean }
+    divide: { [key: string]: boolean }
 }
 
 export type PathOperators = keyof PathOperator
@@ -328,8 +329,8 @@ export default abstract class PathItem extends Item {
     getIntersections(
         path: PathItem,
         include: Function,
-        _matrix: Matrix,
-        _returnFirst: any
+        _matrix?: Matrix,
+        _returnFirst?: any
     ): CurveLocation[] {
         const self = this === path || !path
         const matrix1 = this._matrix._orNullIfIdentity()
@@ -1293,7 +1294,7 @@ export default abstract class PathItem extends Item {
         return inter.hasOverlap() || inter.isCrossing()
     }
 
-    traceBoolean(
+    private traceBoolean(
         path1: Path,
         path2: Path,
         operation: PathOperators,
@@ -1315,11 +1316,11 @@ export default abstract class PathItem extends Item {
         if (
             _path2 &&
             (operator.subtract || operator.exclude) ^
-                (_path2.isClockwise() ^ _path1.isClockwise())
+                (+_path2.isClockwise() ^ +_path1.isClockwise())
         )
             _path2.reverse()
 
-        const crossings = divideLocations(
+        const crossings = this.divideLocations(
             CurveLocation.expand(
                 _path1.getIntersections(_path2, filterIntersection)
             )
@@ -1409,5 +1410,65 @@ export default abstract class PathItem extends Item {
             )
         }
         return this.createResult(paths, true, path1, path2, options)
+    }
+
+    private splitBoolean(path1: Path, path2: Path, operation: PathOperators) {
+        const _path1 = this.preparePath(path1)
+        const _path2 = this.preparePath(path2)
+        const crossings = _path1.getIntersections(
+            _path2,
+            this.filterIntersection
+        )
+        const subtract = operation === 'subtract'
+        const divide = operation === 'divide'
+        const added = {}
+        const paths = []
+
+        function addPath(path) {
+            if (
+                !added[path._id] &&
+                (divide ||
+                    +_path2.contains(path.getPointAt(path.getLength() / 2)) ^
+                        +subtract)
+            ) {
+                paths.unshift(path)
+                return (added[path._id] = true)
+            }
+        }
+
+        for (let i = crossings.length - 1; i >= 0; i--) {
+            const path = crossings[i].split()
+            if (path) {
+                if (addPath(path)) path.getFirstSegment().setHandleIn(0, 0)
+                _path1.getLastSegment().setHandleOut(0, 0)
+            }
+        }
+        addPath(_path1)
+        return this.createResult(paths, false, path1, path2)
+    }
+
+    /*
+     * Creates linked lists between intersections through their _next and _prev
+     * properties.
+     *
+     * @private
+     */
+    private linkIntersections(from: any, to: any) {
+        let prev = from
+        while (prev) {
+            if (prev === to) return
+            prev = prev._previous
+        }
+
+        while (from._next && from._next !== to) from = from._next
+        if (!from._next) {
+            while (to._previous) to = to._previous
+            from._next = to
+            to._previous = from
+        }
+    }
+
+    private clearCurveHandles(curves) {
+        for (const i = curves.length - 1; i >= 0; i--) curves[i].clearHandles()
     }
 }

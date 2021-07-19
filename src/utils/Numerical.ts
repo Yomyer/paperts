@@ -286,8 +286,8 @@ export default class Numerical {
         b: number,
         c: number,
         roots: number[],
-        min: number,
-        max: number
+        min?: number,
+        max?: number
     ) {
         let x1
         let x2 = Infinity
@@ -379,7 +379,7 @@ export default class Numerical {
         roots: number[],
         min: number,
         max: number
-    ) {
+    ): number {
         const f = this.getNormalizationFactor(
             this.abs(a),
             this.abs(b),
