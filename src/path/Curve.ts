@@ -10,6 +10,7 @@ import SegmentPoint from './SegmentPoint'
 import CurveLocation from './CurveLocation'
 import { Numerical } from '../utils'
 import CollisionDetection from '../utils/CollisionDetection'
+import Path from './Path'
 
 export default class Curve extends Base {
     protected _class = 'Curve'
@@ -23,7 +24,7 @@ export default class Curve extends Base {
 
     constructor()
 
-    constructor(pats: number[])
+    constructor(parts: number[])
 
     /**
      * Creates a new curve object.
@@ -69,6 +70,8 @@ export default class Curve extends Base {
         x2: number,
         y2: number
     )
+
+    constructor(path: Path, segment1: Segment, segment2: Segment)
 
     constructor(...args: any[]) {
         super(...args)
@@ -140,7 +143,7 @@ export default class Curve extends Base {
         )
     }
 
-    _changed() {
+    protected _changed() {
         this._length = this._bounds = undefined
     }
 
@@ -309,6 +312,10 @@ export default class Curve extends Base {
         return this.getSegment1()
     }
 
+    set segment1(segment1: Segment) {
+        this._segment1 = segment1
+    }
+
     /**
      * The second segment of the curve.
      *
@@ -321,6 +328,10 @@ export default class Curve extends Base {
 
     get segment2(): Segment {
         return this.getSegment2()
+    }
+
+    set segment2(segment2: Segment) {
+        this._segment2 = segment2
     }
 
     /**
@@ -337,6 +348,10 @@ export default class Curve extends Base {
         return this.getPath()
     }
 
+    set path(path: Path) {
+        this._path = path
+    }
+
     /**
      * The index of the curve in the {@link Path#curves} array.
      *
@@ -349,6 +364,10 @@ export default class Curve extends Base {
 
     get index(): number {
         return this.getIndex()
+    }
+
+    set index(index: number) {
+        this._index = index
     }
 
     /**
@@ -719,7 +738,7 @@ export default class Curve extends Base {
      *     only containing its values are returned.
      * @private
      */
-    static getMonoCurves(v: number[], dir: number): number[][] {
+    static getMonoCurves(v: number[], dir?: number): number[][] {
         const curves: number[][] = []
         const io = dir ? 0 : 1
         const o0 = v[io + 0]

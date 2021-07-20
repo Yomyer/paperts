@@ -8,6 +8,8 @@ import Point from '../basic/Point'
 import Matrix from '../basic/Matrix'
 import { SegmentSelection } from './SegmentSelection'
 import CurveLocation from './CurveLocation'
+import { BooleanWinding } from './PathItem'
+import Path from './Path'
 
 export type SmoothOptions = {
     type: 'catmull-rom' | 'geometric'
@@ -21,6 +23,10 @@ export default class Segment extends Base {
     protected _handleIn: SegmentPoint
     protected _handleOut: SegmentPoint
     protected _path: Path
+
+    protected _visited: boolean
+    protected _winding: BooleanWinding
+    protected _intersection: CurveLocation
 
     beans = true
 
@@ -199,6 +205,46 @@ export default class Segment extends Base {
                 curve._changed()
         }
         path._changed(Change.SEGMENTS)
+    }
+
+    get visited() {
+        return this._visited
+    }
+
+    set visited(visited: boolean) {
+        this._visited = visited
+    }
+
+    get winding() {
+        return this._winding
+    }
+
+    set winding(winding: BooleanWinding) {
+        this._winding = winding
+    }
+
+    /**
+     * The curve location on the intersecting curve, if this location is the
+     * result of a call to {@link PathItem#getIntersections(path)} /
+     * {@link Curve#getIntersections(curve)}.
+     *
+     * @bean
+     * @type CurveLocation
+     */
+    getIntersection(): CurveLocation {
+        return this._intersection
+    }
+
+    setIntersection(intersection: CurveLocation) {
+        this._intersection = intersection
+    }
+
+    get intersection(): CurveLocation {
+        return this.getIntersection()
+    }
+
+    set intersection(intersection: CurveLocation) {
+        this.setIntersection(intersection)
     }
 
     /**
@@ -383,6 +429,10 @@ export default class Segment extends Base {
         return this.getIndex()
     }
 
+    set index(index: number) {
+        this._index = index
+    }
+
     /**
      * The path that the segment belongs to.
      *
@@ -395,6 +445,10 @@ export default class Segment extends Base {
 
     get path() {
         return this.getPath()
+    }
+
+    set path(path: Path) {
+        this._path = path
     }
 
     /**
@@ -700,7 +754,7 @@ export default class Segment extends Base {
         this._changed()
     }
 
-    _transformCoordinates(matrix: Matrix, coords: number[], change: boolean) {
+    _transformCoordinates(matrix: Matrix, coords: number[], change?: boolean) {
         const point = this._point
         const handleIn =
             !change || !this._handleIn.isZero() ? this._handleIn : null

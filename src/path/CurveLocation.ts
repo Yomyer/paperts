@@ -98,14 +98,14 @@ export default class CurveLocation extends Base {
             const curve = this.getCurve()
             const time = this.getTime()
             if (time === 0) {
-                segment = curve._segment1
+                segment = curve.segment1
             } else if (time === 1) {
-                segment = curve._segment2
+                segment = curve.segment2
             } else if (time != null) {
                 segment =
                     curve.getPartLength(0, time) < curve.getPartLength(time, 1)
-                        ? curve._segment1
-                        : curve._segment2
+                        ? curve.segment1
+                        : curve.segment2
             }
             this._segment = segment
         }
@@ -122,7 +122,7 @@ export default class CurveLocation extends Base {
      * @bean
      * @type Curve
      */
-    getCurve(): Cruve {
+    getCurve(): Curve {
         const path = this._path
         const that = this
         if (path && path._version !== this._version) {
@@ -155,13 +155,21 @@ export default class CurveLocation extends Base {
      * @bean
      * @type Path
      */
-    getPath(): path {
+    getPath(): Path {
         const curve = this.getCurve()
-        return curve && curve._path
+        return curve && curve.path
     }
 
     get path() {
         return this.getPath()
+    }
+
+    get previous() {
+        return this._previous
+    }
+
+    get next() {
+        return this._next
     }
 
     /**
@@ -198,6 +206,10 @@ export default class CurveLocation extends Base {
 
     get time() {
         return this.getTime()
+    }
+
+    set time(time: number) {
+        this._time = time
     }
 
     /**
@@ -535,6 +547,14 @@ export default class CurveLocation extends Base {
      */
     hasOverlap(): boolean {
         return !!this._overlap
+    }
+
+    get overlap() {
+        return this._overlap
+    }
+
+    set overlap(overlap: boolean) {
+        this._overlap = overlap
     }
 
     static insert(

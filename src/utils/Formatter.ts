@@ -41,15 +41,15 @@ export default class Formatter {
             : value
     }
 
-    pair(val1: number, val2: number, separator: string) {
+    pair(val1: number, val2: number, separator?: string) {
         return this.number(val1) + (separator || ',') + this.number(val2)
     }
 
-    point(val: Point, separator: string): string {
+    point(val: Point, separator?: string): string {
         return this.number(val.x) + (separator || ',') + this.number(val.y)
     }
 
-    size(val: Size, separator: string) {
+    size(val: Size, separator?: string) {
         return (
             this.number(val.width) +
             (separator || ',') +
@@ -57,7 +57,7 @@ export default class Formatter {
         )
     }
 
-    rectangle(val: Point & Size, separator: string) {
+    rectangle(val: Point & Size, separator?: string) {
         return (
             this.point(val, separator) +
             (separator || ',') +

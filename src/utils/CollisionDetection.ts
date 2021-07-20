@@ -22,7 +22,7 @@ export default class CollisionDetection {
         items1: Item[],
         items2: Item[],
         tolerance?: number
-    ) {
+    ): number[][] {
         function getBounds(items: Item[]): number[][] {
             const bounds = new Array(items.length)
             for (let i = 0; i < items.length; i++) {
@@ -157,7 +157,7 @@ export default class CollisionDetection {
         tolerance?: number,
         sweepVertical?: boolean,
         onlySweepAxisCollisions?: boolean
-    ): number[] {
+    ): number[][] {
         const self = !boundsB || boundsA === boundsB
         const allBounds = self ? boundsA : boundsA.concat(boundsB)
         const lengthA = boundsA.length
