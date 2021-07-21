@@ -11,7 +11,7 @@ import CurveLocation from './CurveLocation'
 import { BooleanWinding } from './PathItem'
 import Path from './Path'
 
-export type SmoothOptions = {
+export type SegmentSmoothOptions = {
     type: 'catmull-rom' | 'geometric'
     factor: number
 }
@@ -551,8 +551,12 @@ export default class Segment extends Base {
      *
      * @see PathItem#smooth([options])
      */
-    smooth(options: SmoothOptions, _first?: boolean, _last?: boolean): any {
-        const opts = (options || {}) as SmoothOptions
+    smooth(
+        options: SegmentSmoothOptions,
+        _first?: boolean,
+        _last?: boolean
+    ): any {
+        const opts = (options || {}) as SegmentSmoothOptions
         const type = opts.type
         const factor = opts.factor
         const prev = this.getPrevious()

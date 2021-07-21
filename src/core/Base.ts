@@ -114,6 +114,10 @@ export default class Base extends Straps {
         return this._class || ''
     }
 
+    get class() {
+        return this.getClassName()
+    }
+
     /**
      * Imports (deserializes) the stored JSON data into the object, if the
      * classes match. If they do not match, a newly created object is returned

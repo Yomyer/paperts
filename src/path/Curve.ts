@@ -378,11 +378,11 @@ export default class Curve extends Base {
      * @type Curve
      */
     getNext(): Curve {
-        const curves = this._path && this._path._curves
+        const curves = this._path && this._path.curves
         return (
             (curves &&
                 (curves[this._segment1.index + 1] ||
-                    (this._path._closed && curves[0]))) ||
+                    (this._path.closed && curves[0]))) ||
             null
         )
     }
@@ -399,11 +399,11 @@ export default class Curve extends Base {
      * @type Curve
      */
     getPrevious(): Curve {
-        const curves = this._path && this._path._curves
+        const curves = this._path && this._path.curves
         return (
             (curves &&
                 (curves[this._segment1.index - 1] ||
-                    (this._path._closed && curves[curves.length - 1]))) ||
+                    (this._path.closed && curves[curves.length - 1]))) ||
             null
         )
     }
@@ -429,7 +429,7 @@ export default class Curve extends Base {
     isLast(): boolean {
         const path = this._path
         return (
-            (path && this._segment1.index === path._curves.length - 1) || false
+            (path && this._segment1.index === path.curves.length - 1) || false
         )
     }
 
@@ -969,7 +969,7 @@ export default class Curve extends Base {
      * determine potential extremas when finding the bounds of a curve.
      * NOTE: padding is only used for Path.getBounds().
      */
-    private static _addBounds(
+    static _addBounds(
         v0: number,
         v1: number,
         v2: number,

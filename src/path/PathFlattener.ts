@@ -1,4 +1,5 @@
 import Matrix from '../basic/Matrix'
+import { Point } from '../basic/Types'
 import Base from '../core/Base'
 import Curve from './Curve'
 import Path from './Path'
@@ -48,7 +49,7 @@ export default class PathFlattener extends Base {
     )
 
     constructor(...args: any[]) {
-        super(args)
+        super(...args)
     }
 
     initialize(
@@ -174,5 +175,35 @@ export default class PathFlattener extends Base {
                 curve[7]
             )
         }
+    }
+
+    getPointAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getPoint(this.curves[param.index], param.time)
+    }
+
+    getTangentAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getTangent(this.curves[param.index], param.time)
+    }
+
+    getNormalAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getNormal(this.curves[param.index], param.time)
+    }
+
+    getWeightedTangentAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getWeightedTangent(this.curves[param.index], param.time)
+    }
+
+    getWeightedNormalAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getWeightedNormal(this.curves[param.index], param.time)
+    }
+
+    getCurvatureAt(offset?: number): Point {
+        const param = this._get(offset)
+        return Curve.getCurvature(this.curves[param.index], param.time)
     }
 }

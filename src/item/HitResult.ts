@@ -4,6 +4,8 @@ import Point from '../basic/Point'
 import PaperScope from '../core/PaperScope'
 import Size from '../basic/Size'
 import Item from './Item'
+import CurveLocation from '../path/CurveLocation'
+import Segment from '../path/Segment'
 
 export type HitResultTypes =
     | 'segment'
@@ -35,6 +37,7 @@ export type HitResultOptions = {
     fill?: boolean
     stroke?: boolean
     segment?: boolean
+    segments?: boolean
     curves?: boolean
     handles?: boolean
     ends?: boolean

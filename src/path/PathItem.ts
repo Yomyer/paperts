@@ -18,8 +18,8 @@ import SegmentPoint from './SegmentPoint'
 export type PathSmoothOptions = {
     type?: 'continuous' | 'asymmetric' | 'catmull-rom' | 'geometric'
     factor?: number
-    from?: number
-    to?: number
+    from?: number | Curve | Segment
+    to?: number | Curve | Segment
 }
 
 export type PathOperator = {
