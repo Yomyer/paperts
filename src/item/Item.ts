@@ -34,6 +34,7 @@ import CanvasProvider from '../canvas/CanvasProvider'
 import CompoundPath from '../path/CompundPath'
 import Tween, { TweenOptions } from '../anim/Tween'
 import Raster from './Raster'
+import Path from '../path/Path'
 
 export type ItemSerializeFields = {
     name?: string
@@ -257,15 +258,11 @@ export default class Item extends Emitter {
         const settings = paper.settings
         this._id = internal ? null : UID.get()
         this._parent = this._index = null
-        // Inherit the applyMatrix setting from settings.applyMatrix
         this._applyMatrix = this._canApplyMatrix && settings.applyMatrix
-        // Handle matrix before everything else, to avoid issues with
-        // #addChild() calling _changed() and accessing _matrix already.
         if (point) matrix.translate(point)
         matrix.owner = this
         this._style = new Style(project.getCurrentStyle(), this, project)
-        // Do not add to the project if it's an internal path,  or if
-        // props.insert  or settings.isnertItems is false.
+
         if (
             internal ||
             (hasProps && props.insert === false) ||
@@ -296,7 +293,7 @@ export default class Item extends Emitter {
         const props = {}
         const that = this
 
-        function serialize(fields: StyleProps | SerializFields) {
+        function serialize(fields: StyleProps | ItemSerializeFields) {
             for (const key in fields) {
                 const value = that[key]
                 if (
@@ -318,7 +315,7 @@ export default class Item extends Emitter {
             }
         }
 
-        serialize(this._serializeFields as SerializFields)
+        serialize(this._serializeFields as ItemSerializeFields)
         if (!(this instanceof Group)) serialize(this._style.defaults)
 
         return [this._class, props]
@@ -1216,7 +1213,7 @@ export default class Item extends Emitter {
      * `true`, otherwise the parent's inverted view matrix. The returned matrix
      * is always shiftless, meaning its translation vector is reset to zero.
      */
-    protected _getStrokeMatrix(matrix: Matrix, options: BoundsOptions) {
+    protected _getStrokeMatrix(matrix: Matrix, options: BoundsOptions): Matrix {
         const parent = this.getStrokeScaling()
             ? null
             : options && options.internal
@@ -2176,10 +2173,7 @@ export default class Item extends Emitter {
         const point = Point.read(args)
         const options = HitResult.getOptions(args)
         const all: HitResult[] = []
-        this._hitTest(
-            point,
-            new Base({ all: all }, options) as HitResultOptions
-        )
+        this._hitTest(point, { ...options, all: all } as HitResultOptions)
         return all
     }
 
@@ -2570,11 +2564,11 @@ export default class Item extends Emitter {
             const obj = typeof options === 'object' && options
             const overlapping = obj && obj.overlapping
             const inside = obj && obj.inside
-            // If overlapping is set, we also perform the inside check:
+
             const bounds = overlapping || inside
             const rect = bounds && Rectangle.read([bounds])
             param = {
-                items: [], // The list to contain the results.
+                items: [],
                 recursive: obj && obj.recursive !== false,
                 inside: !!inside,
                 overlapping: !!overlapping,
@@ -2791,7 +2785,7 @@ export default class Item extends Emitter {
      * @return {Item[]} the added items, or `null` if adding was not possible
      */
     addChildren(items: Item[]): Item[] {
-        return this.insertChildren(this._children.length, items)
+        return this.insertChildren(this._children.length, items) as this[]
     }
 
     /**
@@ -4945,7 +4939,7 @@ export default class Item extends Emitter {
         ctx: CanvasRenderingContext2D,
         matrix: Matrix,
         size: number,
-        selectionItems: Item[],
+        selectionItems: Record<string, Item>,
         updateVersion: number
     ) {
         const selection = this._selection
@@ -5033,7 +5027,7 @@ export default class Item extends Emitter {
     protected _drawSelected(
         _ctx: CanvasRenderingContext2D,
         _matrix?: Matrix,
-        _selectionItems?: Item[]
+        _selectionItems?: Record<string, Item>
     ) {}
 
     /**

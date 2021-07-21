@@ -1,4 +1,4 @@
-import { Matrix } from '../basic'
+import Matrix from '../basic/Matrix'
 import Base from '../core/Base'
 import Item, { DrawOptions, ItemSerializeFields } from '../item/Item'
 import PathItem, { PathSmoothOptions } from './PathItem'
@@ -7,6 +7,7 @@ import Point from '../basic/Point'
 import HitResult, { HitResultOptions } from '../item/HitResult'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
+import Path from './Path'
 
 export type CompoundPathSerializeFields = {
     children: Path[]
@@ -106,10 +107,11 @@ export default class CompoundPath extends PathItem {
         return this
     }
 
-    insertChildren(index: number, items: Path[]) {
+    insertChildren(index: number, items: Array<Path | CompoundPath>) {
         let list = items
         const first = list[0]
-        if (first && typeof first[0] === 'number') list = [list]
+        if (first && typeof first[0] === 'number')
+            list = [list as unknown as Path | CompoundPath]
 
         for (let i = items.length - 1; i >= 0; i--) {
             const item = list[i]
@@ -126,7 +128,7 @@ export default class CompoundPath extends PathItem {
         return super.insertChildren(index, list)
     }
 
-    reduce(options: any) {
+    reduce(options?: any): this {
         const children = this._children
         for (let i = children.length - 1; i >= 0; i--) {
             const path = children[i].reduce(options)
@@ -137,7 +139,7 @@ export default class CompoundPath extends PathItem {
             path.copyAttributes(this)
             path.insertAbove(this)
             this.remove()
-            return path
+            return path as unknown as this
         }
         return super.reduce()
     }
@@ -163,6 +165,14 @@ export default class CompoundPath extends PathItem {
         for (let i = 0, l = children.length; i < l; i++) {
             children[i].setClosed(closed)
         }
+    }
+
+    getFirstChild(): Path {
+        return super.getFirstChild() as Path
+    }
+
+    getLastChild(): Path {
+        return super.getLastChild() as Path
     }
 
     /**
@@ -263,10 +273,10 @@ export default class CompoundPath extends PathItem {
 
     getPathData(_matrix?: Matrix, _precision?: number) {
         const children = this._children
-        const paths: Path[] = []
+        const paths: string[] = []
         for (let i = 0, l = children.length; i < l; i++) {
             const child = children[i]
-            const mx = child._matrix
+            const mx = child.matrix
             paths.push(
                 child.getPathData(
                     _matrix && !mx.isIdentity()
@@ -323,14 +333,14 @@ export default class CompoundPath extends PathItem {
     _drawSelected(
         ctx: CanvasRenderingContext2D,
         matrix: Matrix,
-        selectionItems: Record<string, Path>
+        selectionItems?: Record<string, Path>
     ) {
         const children = this._children
-        for (const i = 0, l = children.length; i < l; i++) {
+        for (let i = 0, l = children.length; i < l; i++) {
             const child = children[i]
-            const mx = child._matrix
+            const mx = child.matrix
 
-            if (!selectionItems[child._id]) {
+            if (!selectionItems[child.id]) {
                 child._drawSelected(
                     ctx,
                     mx.isIdentity() ? matrix : matrix.appended(mx)
@@ -831,7 +841,7 @@ export default class CompoundPath extends PathItem {
         const current = this.getCurrentPath(this, true)
         const last = current && current.getLastSegment()
         const point = Point.read(args)
-        this.moveTo(last ? point.add(last._point) : point)
+        this.moveTo(last ? point.add(last.point) : point)
     }
 
     /**

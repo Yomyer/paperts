@@ -4,6 +4,7 @@ import { Numerical } from '../utils'
 import Curve from './Curve'
 import Segment from './Segment'
 import Formatter from '../utils/Formatter'
+import Path from './Path'
 
 export default class CurveLocation extends Base {
     protected _class = 'CurveLocation'
@@ -61,7 +62,7 @@ export default class CurveLocation extends Base {
 
     _setPath(path: Path) {
         this._path = path
-        this._version = path ? path._version : 0
+        this._version = path ? path.version : 0
     }
 
     _setCurve(curve: Curve) {
@@ -125,7 +126,7 @@ export default class CurveLocation extends Base {
     getCurve(): Curve {
         const path = this._path
         const that = this
-        if (path && path._version !== this._version) {
+        if (path && path.version !== this._version) {
             this._time = this._offset = this._curveOffset = this._curve = null
         }
 
@@ -135,6 +136,8 @@ export default class CurveLocation extends Base {
                 that._setCurve(curve)
                 return curve
             }
+
+            return null
         }
 
         return (
@@ -366,14 +369,14 @@ export default class CurveLocation extends Base {
         const res = curve && curve.divideAtTime(this.getTime())
 
         if (res) {
-            this._setSegment(res._segment1)
+            this._setSegment(res.segment1)
         }
         return res
     }
 
     split() {
         const curve = this.getCurve()
-        const path = curve._path
+        const path = curve.path
         const res = curve && curve.splitAtTime(this.getTime())
         if (res) {
             // Set the segment to the end-segment of the path after splitting.
@@ -395,8 +398,8 @@ export default class CurveLocation extends Base {
         if (!res && loc instanceof CurveLocation) {
             const c1 = this.getCurve()
             const c2 = loc.getCurve()
-            const p1 = c1._path
-            const p2 = c2._path
+            const p1 = c1.path
+            const p2 = c2.path
             if (p1 === p2) {
                 const abs = Math.abs
                 const epsilon = Numerical.GEOMETRIC_EPSILON
@@ -601,7 +604,7 @@ export default class CurveLocation extends Base {
             const path2 = loc2.getPath()
             const diff =
                 path1 !== path2
-                    ? path1._id - path2._id
+                    ? +path1.id - +path2.id
                     : loc.getIndex() +
                       loc.getTime() -
                       (loc2.getIndex() + loc2.getTime())

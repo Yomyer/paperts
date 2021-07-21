@@ -1035,7 +1035,7 @@ export default class Rectangle extends Base {
      * both directions
      * @return {Rectangle} the expanded rectangle
      */
-    expand(amount: Number | Size | Point): Rectangle
+    expand(amount: number | SizeType | PointType): Rectangle
 
     /**
      * Returns a new rectangle expanded by the specified amounts in horizontal

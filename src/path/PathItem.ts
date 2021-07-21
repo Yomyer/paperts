@@ -14,6 +14,7 @@ import Curve from './Curve'
 import Segment from './Segment'
 import CurveLocation from './CurveLocation'
 import SegmentPoint from './SegmentPoint'
+import Path from './Path'
 
 export type PathSmoothOptions = {
     type?: 'continuous' | 'asymmetric' | 'catmull-rom' | 'geometric'
@@ -93,7 +94,7 @@ export default abstract class PathItem extends Item {
      * @param {String} pathData the SVG path-data to parse
      * @return {Path|CompoundPath} the newly created path item
      */
-    static create(pathData: string): PathItem
+    static create(pathData: string): Path | CompoundPath
 
     /**
      * Creates a path item from the given segments array, determining if the
@@ -105,7 +106,7 @@ export default abstract class PathItem extends Item {
      * @param {Number[][]} segments the segments array to parse
      * @return {Path|CompoundPath} the newly created path item
      */
-    static create(segments: number[][]): PathItem
+    static create(segments: number[][]): Path | CompoundPath
 
     /**
      * Creates a path item from the given object, determining if the
@@ -118,8 +119,8 @@ export default abstract class PathItem extends Item {
      *     the item to be created
      * @return {Path|CompoundPath} the newly created path item
      */
-    static create(object: object): PathItem
-    static create(arg: any) {
+    static create(object: object): Path | CompoundPath
+    static create(arg: any): Path | CompoundPath {
         let data, segments, compound
         if (Base.isPlainObject(arg)) {
             segments = arg.segments
@@ -294,8 +295,12 @@ export default abstract class PathItem extends Item {
         }
     }
 
-    removeChildren(start?: number, end?: number): PathItem[] {
-        return super.removeChildren(start, end) as PathItem[]
+    removeChildren(start?: number, end?: number): Path[] | CompoundPath[] {
+        return super.removeChildren(start, end) as Path[] | CompoundPath[]
+    }
+
+    addChildren(items: Path[] | CompoundPath[]): Path[] | CompoundPath[] {
+        return super.addChildren(items) as Path[] | CompoundPath[]
     }
 
     protected _canComposite() {
@@ -423,8 +428,8 @@ export default abstract class PathItem extends Item {
         let minLoc = null
         for (let i = 0, l = curves.length; i < l; i++) {
             const loc = curves[i].getNearestLocation(point)
-            if (loc._distance < minDist) {
-                minDist = loc._distance
+            if (loc.distance < minDist) {
+                minDist = loc.distance
                 minLoc = loc
             }
         }
@@ -819,6 +824,12 @@ export default abstract class PathItem extends Item {
         }
     }
 
+    setClosed(_closed: boolean) {}
+
+    add(..._args: any[]): Segment | Segment[] {
+        return null
+    }
+
     /**
      * Compares the geometry of two paths to see if they describe the same
      * shape, detecting cases where paths start in different segments or even
@@ -832,7 +843,7 @@ export default abstract class PathItem extends Item {
      * @param {PathItem} path the path to compare this path's geometry with
      * @return {Boolean} {@true if two paths describe the same shape}
      */
-    compare(path: PathItem): boolean {
+    compare(path: Path): boolean {
         let ok = false
         if (path) {
             const paths1 = this._children || [this]
@@ -1333,11 +1344,11 @@ export default abstract class PathItem extends Item {
     quadraticCurveBy(through: PointType, to: PointType): void
     quadraticCurveBy(..._args: any[]): void {}
 
-    private getPaths(path: PathItem) {
-        return path._children || [path]
+    private getPaths(path: Path | CompoundPath): Path[] {
+        return (path.children || [path]) as Path[]
     }
 
-    private preparePath(path: Path, resolve?: boolean) {
+    private preparePath(path: Path | CompoundPath, resolve?: boolean) {
         let res = path
             .clone(false)
             .reduce({ simplify: true })
@@ -1347,14 +1358,13 @@ export default abstract class PathItem extends Item {
             const paths = this.getPaths(res)
             for (let i = 0, l = paths.length; i < l; i++) {
                 const path = paths[i]
-                if (!path._closed && !path.isEmpty()) {
-                    // Close with epsilon tolerance, to avoid tiny straight
-                    // that would cause issues with intersection detection.
+                if (!path.closed && !path.isEmpty()) {
                     path.closePath(Numerical.EPSILON)
                     path.getFirstSegment().setHandleIn(0, 0)
                     path.getLastSegment().setHandleOut(0, 0)
                 }
             }
+
             res = res
                 .resolveCrossings()
                 .reorient(res.getFillRule() === 'nonzero', true)
@@ -1363,12 +1373,12 @@ export default abstract class PathItem extends Item {
     }
 
     private createResult(
-        paths: PathItem[],
+        paths: Path[] | CompoundPath[],
         simplify: boolean,
-        path1: PathItem,
-        path2: PathItem,
+        path1: Path | CompoundPath,
+        path2: Path | CompoundPath,
         options?: PathOptions
-    ): PathItem {
+    ): Path | CompoundPath {
         let result = new CompoundPath(Item.NO_INSERT)
         result.addChildren(paths)
         result = result.reduce({ simplify: simplify })
@@ -1390,11 +1400,11 @@ export default abstract class PathItem extends Item {
     }
 
     private traceBoolean(
-        path1: Path,
-        path2: Path,
+        path1: Path | CompoundPath,
+        path2: Path | CompoundPath,
         operation: PathOperators,
         options: PathOptions
-    ): PathItem {
+    ): Path | CompoundPath {
         if (
             options &&
             (options.trace === false || options.stroke) &&
@@ -1424,15 +1434,15 @@ export default abstract class PathItem extends Item {
         const paths2 = _path2 && this.getPaths(_path2)
         const segments: Segment[] = []
         const curves: Curve[] = []
-        let paths
+        let paths: Path[] | CompoundPath[]
 
-        function collectPaths(paths: PathItem[]) {
+        function collectPaths(paths: Path[]) {
             for (let i = 0, l = paths.length; i < l; i++) {
                 const path = paths[i]
-                Base.push(segments, path._segments)
+                Base.push(segments, path.segments)
                 Base.push(curves, path.getCurves())
 
-                path._overlapsOnly = true
+                path.overlapsOnly = true
             }
         }
 
@@ -1445,8 +1455,8 @@ export default abstract class PathItem extends Item {
         }
 
         if (crossings.length) {
-            collectPaths(paths1)
-            if (paths2) collectPaths(paths2)
+            collectPaths(paths1 as Path[])
+            if (paths2) collectPaths(paths2 as Path[])
 
             const curvesValues = new Array(curves.length)
             for (let i = 0, l = curves.length; i < l; i++) {
@@ -1493,8 +1503,7 @@ export default abstract class PathItem extends Item {
                         operator
                     )
                 }
-                if (!(inter && inter.overlap))
-                    segment.path._overlapsOnly = false
+                if (!(inter && inter.overlap)) segment.path.overlapsOnly = false
             }
             paths = this.tracePaths(segments, operator)
         } else {
@@ -1509,10 +1518,10 @@ export default abstract class PathItem extends Item {
     }
 
     private splitBoolean(
-        path1: Path,
-        path2: Path,
+        path1: Path | CompoundPath,
+        path2: Path | CompoundPath,
         operation: PathOperators
-    ): PathItem {
+    ): Path | CompoundPath {
         const _path1 = this.preparePath(path1)
         const _path2 = this.preparePath(path2)
         const crossings = _path1.getIntersections(
@@ -1545,7 +1554,7 @@ export default abstract class PathItem extends Item {
                 _path1.getLastSegment().setHandleOut(0, 0)
             }
         }
-        addPath(_path1)
+        addPath(_path1 as Path)
         return this.createResult(paths, false, path1, path2)
     }
 
@@ -1591,10 +1600,10 @@ export default abstract class PathItem extends Item {
      * @return {Item[]} the reoriented paths
      */
     private reorientPaths(
-        paths: PathItem[],
+        paths: Path[] | CompoundPath[],
         isInside: (w: number) => boolean,
         clockwise?: boolean
-    ): PathItem[] {
+    ): Path[] | CompoundPath[] {
         const length = paths && paths.length
         if (length) {
             const lookup = Base.each(
@@ -1960,7 +1969,7 @@ export default abstract class PathItem extends Item {
                 if (vClose && (res = handleCurve(vClose))) return res
                 if (onPath && !pathWindingL && !pathWindingR) {
                     pathWindingL = pathWindingR =
-                        path.isClockwise(closed) ^ +dir ? 1 : -1
+                        +path.isClockwise() ^ +dir ? 1 : -1
                 }
                 windingL += pathWindingL
                 windingR += pathWindingR
@@ -2018,7 +2027,7 @@ export default abstract class PathItem extends Item {
                 const curveLength = entry.length
                 if (length <= curveLength) {
                     const curve = entry.curve
-                    const path = curve._path
+                    const path = curve.path
                     const parent = path._parent
                     const operand =
                         parent instanceof CompoundPath ? parent : path
@@ -2081,11 +2090,8 @@ export default abstract class PathItem extends Item {
      *     value indicating whether the curve should be included in result
      * @return {Path[]} the traced closed paths
      */
-    private tracePaths(
-        segments: Segment[],
-        operator?: PathOperator
-    ): PathItem[] {
-        const paths: PathItem[] = []
+    private tracePaths(segments: Segment[], operator?: PathOperator): Path[] {
+        const paths: Path[] = []
         let starts: Segment[]
 
         function isValid(seg: Segment) {
@@ -2114,9 +2120,9 @@ export default abstract class PathItem extends Item {
         }
 
         function visitPath(path: Path) {
-            const segments = path._segments
+            const segments = path.segments
             for (let i = 0, l = segments.length; i < l; i++) {
-                segments[i]._visited = true
+                segments[i].visited = true
             }
         }
 
@@ -2135,7 +2141,7 @@ export default abstract class PathItem extends Item {
                     const path = other && other.path
                     if (path) {
                         const next = other.getNext() || path.getFirstSegment()
-                        const nextInter = next._intersection
+                        const nextInter = next.intersection
 
                         if (
                             other !== segment &&
@@ -2145,7 +2151,7 @@ export default abstract class PathItem extends Item {
                                     isValid(other) &&
                                     (isValid(next) ||
                                         (nextInter &&
-                                            isValid(nextInter._segment)))))
+                                            isValid(nextInter.segment)))))
                         ) {
                             crossings.push(other)
                         }
@@ -2181,7 +2187,7 @@ export default abstract class PathItem extends Item {
                     ? 1
                     : -1
                 : path1 !== path2
-                ? path1._id - path2._id
+                ? +path1._id - +path2._id // Todoojo con el id que ahora es un string :'(
                 : seg1.index - seg2.index
         })
 
@@ -2196,7 +2202,7 @@ export default abstract class PathItem extends Item {
             let visited: Segment[]
             let handleIn: SegmentPoint
 
-            if (valid && seg.path._overlapsOnly) {
+            if (valid && seg.path.overlapsOnly) {
                 const path1 = seg.path
                 const path2 = seg.intersection.segment.path
                 if (path1.compare(path2)) {
@@ -2230,7 +2236,7 @@ export default abstract class PathItem extends Item {
                 if (!branch) {
                     if (cross) crossings.push(seg)
                     branch = {
-                        start: path._segments.length,
+                        start: path.segments.length,
                         crossings: crossings,
                         visited: (visited = []),
                         handleIn: handleIn
@@ -2314,7 +2320,11 @@ export default abstract class PathItem extends Item {
      * @param {Object} [options] the boolean operation options
      * @return {PathItem} the resulting path item
      */
-    unite(path: PathItem, options: PathOptions): PathItem {
+    unite(
+        this: Path | CompoundPath,
+        path: Path | CompoundPath,
+        options?: PathOptions
+    ): Path | CompoundPath {
         return this.traceBoolean(this, path, 'unite', options)
     }
 
@@ -2335,7 +2345,11 @@ export default abstract class PathItem extends Item {
      * @param {Object} [options] the boolean operation options
      * @return {PathItem} the resulting path item
      */
-    intersect(path: PathItem, options: PathOptions): PathItem {
+    intersect(
+        this: Path | CompoundPath,
+        path: Path | CompoundPath,
+        options?: PathOptions
+    ): Path | CompoundPath {
         return this.traceBoolean(this, path, 'intersect', options)
     }
 
@@ -2356,7 +2370,11 @@ export default abstract class PathItem extends Item {
      * @param {Object} [options] the boolean operation options
      * @return {PathItem} the resulting path item
      */
-    subtract(path: PathItem, options: PathOptions): PathItem {
+    subtract(
+        this: Path | CompoundPath,
+        path: Path | CompoundPath,
+        options?: PathOptions
+    ): Path | CompoundPath {
         return this.traceBoolean(this, path, 'subtract', options)
     }
 
@@ -2372,7 +2390,11 @@ export default abstract class PathItem extends Item {
      * @param {Object} [options] the boolean operation options
      * @return {PathItem} the resulting path item
      */
-    exclude(path: PathItem, options: PathOptions): PathItem {
+    exclude(
+        this: Path | CompoundPath,
+        path: Path | CompoundPath,
+        options?: PathOptions
+    ): Path | CompoundPath {
         return this.traceBoolean(this, path, 'exclude', options)
     }
 
@@ -2394,16 +2416,33 @@ export default abstract class PathItem extends Item {
      * @param {Object} [options] the boolean operation options
      * @return {PathItem} the resulting path item
      */
-    divide(path: PathItem, options: PathOptions): PathItem {
+    divide(
+        this: Path | CompoundPath,
+        path: Path | CompoundPath,
+        options?: PathOptions
+    ): Path | CompoundPath {
         return options && (options.trace === false || options.stroke)
             ? this.splitBoolean(this, path, 'divide')
             : this.createResult(
-                  [this.subtract(path, options), this.intersect(path, options)],
+                  [
+                      this.subtract(path, options) as Path,
+                      this.intersect(path, options) as Path
+                  ],
                   true,
                   this,
                   path,
                   options
               )
+    }
+
+    setSegments(_segments: Segment[]) {}
+
+    removeSegments(
+        _start?: number,
+        _end?: number,
+        _includeCurves?: boolean
+    ): Segment[] {
+        return null
     }
 
     /*
@@ -2415,7 +2454,7 @@ export default abstract class PathItem extends Item {
      *
      * @return {PathItem} the resulting path item
      */
-    resolveCrossings(): PathItem {
+    resolveCrossings(): Path | CompoundPath {
         const children = this._children
         let paths = children || [this]
 
@@ -2472,7 +2511,7 @@ export default abstract class PathItem extends Item {
                         const other = inter.intersection
                         const curve2 = other.curve
                         const seg2 = other.segment
-                        if (curve1 && curve2 && curve1._path && curve2._path)
+                        if (curve1 && curve2 && curve1.path && curve2.path)
                             return true
 
                         if (seg1) seg1.intersection = null
@@ -2507,12 +2546,12 @@ export default abstract class PathItem extends Item {
 
         if (!item) {
             item = new CompoundPath(Item.NO_INSERT)
-            item.addChildren(paths)
+            item.addChildren(paths as Path[])
             item = item.reduce()
             item.copyAttributes(this)
             this.replaceWith(item)
         }
-        return item
+        return item as Path | CompoundPath
     }
 
     /**
@@ -2530,8 +2569,12 @@ export default abstract class PathItem extends Item {
      *     otherwise the orientation of the largest root child is used.
      * @return {PathItem} a reference to the item itself, reoriented
      */
-    reorient(nonZero?: boolean, clockwise?: boolean): PathItem {
-        const children = this._children
+    reorient(
+        this: Path | CompoundPath,
+        nonZero?: boolean,
+        clockwise?: boolean
+    ): Path | CompoundPath {
+        const children = this.children
         if (children && children.length) {
             this.setChildren(
                 this.reorientPaths(
@@ -2545,6 +2588,7 @@ export default abstract class PathItem extends Item {
         } else if (clockwise !== undefined) {
             this.setClockwise(clockwise)
         }
+
         return this
     }
 

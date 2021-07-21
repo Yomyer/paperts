@@ -1214,7 +1214,7 @@ export default class Curve extends Base {
      *     curve's length
      * @return {Boolean} {@true if the curve is longer than the given epsilon}
      */
-    hasLength(epsilon: number): boolean {
+    hasLength(epsilon?: number): boolean {
         return (
             (!this.getPoint1().equals(this.getPoint2()) || this.hasHandles()) &&
             this.getLength() > (epsilon || 0)

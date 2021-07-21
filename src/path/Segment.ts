@@ -81,7 +81,7 @@ export default class Segment extends Base {
      *     strokeColor: 'black'
      * });
      */
-    constructor(object: object)
+    constructor(object?: object)
 
     /**
      * Creates a new Segment object.
@@ -181,7 +181,7 @@ export default class Segment extends Base {
         const path = this._path
         if (!path) return
 
-        const curves = path._curves
+        const curves = path.curves
         const index = this._index
         let curve
         if (curves) {
@@ -190,11 +190,11 @@ export default class Segment extends Base {
                 (curve =
                     index > 0
                         ? curves[index - 1]
-                        : path._closed
+                        : path.closed
                         ? curves[curves.length - 1]
                         : null)
             )
-                curve._changed()
+                curve.changed()
 
             if (
                 (!point ||
@@ -202,9 +202,9 @@ export default class Segment extends Base {
                     point === this._handleOut) &&
                 (curve = curves[index])
             )
-                curve._changed()
+                curve.changed()
         }
-        path._changed(Change.SEGMENTS)
+        path.changed(Change.SEGMENTS)
     }
 
     get visited() {
@@ -372,7 +372,7 @@ export default class Segment extends Base {
 
         if (path && selection !== oldSelection) {
             path._updateSelection(this, oldSelection, selection)
-            path._changed(Change.ATTRIBUTE)
+            path.changed(Change.ATTRIBUTE)
         }
     }
 
@@ -463,11 +463,7 @@ export default class Segment extends Base {
         let index = this._index
         if (path) {
             // The last segment of an open path belongs to the last curve.
-            if (
-                index > 0 &&
-                !path._closed &&
-                index === path._segments.length - 1
-            )
+            if (index > 0 && !path.closed && index === path.segments.length - 1)
                 index--
             return path.getCurves()[index] || null
         }
@@ -487,7 +483,7 @@ export default class Segment extends Base {
     getLocation() {
         const curve = this.getCurve()
         return curve
-            ? new CurveLocation(curve, this === curve._segment1 ? 0 : 1)
+            ? new CurveLocation(curve, this === curve.segment1 ? 0 : 1)
             : null
     }
 
@@ -506,11 +502,11 @@ export default class Segment extends Base {
      * @type Segment
      */
     getNext(): Segment {
-        const segments = this._path && this._path._segments
+        const segments = this._path && this._path.segments
         return (
             (segments &&
                 (segments[this._index + 1] ||
-                    (this._path._closed && segments[0]))) ||
+                    (this._path.closed && segments[0]))) ||
             null
         )
     }
@@ -624,7 +620,7 @@ export default class Segment extends Base {
         return (
             (segments &&
                 (segments[this._index - 1] ||
-                    (this._path._closed && segments[segments.length - 1]))) ||
+                    (this._path.closed && segments[segments.length - 1]))) ||
             null
         )
     }
@@ -647,7 +643,7 @@ export default class Segment extends Base {
      */
     isLast(): boolean {
         const path = this._path
-        return (path && this._index === path._segments.length - 1) || false
+        return (path && this._index === path.segments.length - 1) || false
     }
 
     /**

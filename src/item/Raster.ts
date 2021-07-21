@@ -20,6 +20,8 @@ import { Color as ColorType } from '../style/Types'
 import HitResult from './HitResult'
 import Numerical from '../utils/Numerical'
 import DomElement from '../dom/DomElement'
+import Path from '../path/Path'
+import PathItem from '../path/PathItem'
 
 export type RasterSerializeFields = ItemSerializeFields & {
     crossOrigin?: string
@@ -727,7 +729,7 @@ export default class Raster extends Item {
             .translate(-bounds.x, -bounds.y)
         matrix.applyToContext(ctx)
 
-        if (path) path.draw(ctx, new Base({ clip: true, matrices: [matrix] }))
+        if (path) path.draw(ctx, { clip: true, matrices: [matrix] })
 
         this._matrix.applyToContext(ctx)
         const element = this.getElement()

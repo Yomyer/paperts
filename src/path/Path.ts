@@ -22,7 +22,7 @@ import Shape from '../item/Shape'
 import Line from '../basic/Line'
 import Size from '../basic/Size'
 import HitResult, { HitResultOptions, HitResultTypes } from '../item/HitResult'
-import { StrokeCaps, StrokeJoins } from '../style/Style'
+import Style, { StrokeCaps, StrokeJoins } from '../style/Style'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
 import PaperScope from '../../dist/core/PaperScope'
@@ -48,6 +48,7 @@ export default class Path extends PathItem {
     protected _segmentSelection: number
     protected _length: number
     protected _area: number
+    protected _overlapsOnly: boolean
 
     /**
      * Creates a new path item and places it at the top of the active layer.
@@ -95,7 +96,7 @@ export default class Path extends PathItem {
      *     selected: true
      * });
      */
-    constructor(object: object)
+    constructor(object?: object)
 
     /**
      * Creates a new path item from SVG path-data and places it at the top of
@@ -153,6 +154,10 @@ export default class Path extends PathItem {
         )
     }
 
+    get version() {
+        return this._version
+    }
+
     copyContent(source: Path) {
         this.setSegments(source._segments)
         this._closed = source._closed
@@ -174,7 +179,7 @@ export default class Path extends PathItem {
         }
     }
 
-    getStyle() {
+    getStyle(): Style {
         const parent = this._parent
         return (parent instanceof CompoundPath ? parent : this).style
     }
@@ -871,6 +876,14 @@ export default class Path extends PathItem {
 
     get area() {
         return this.getArea()
+    }
+
+    get overlapsOnly() {
+        return this._overlapsOnly
+    }
+
+    set overlapsOnly(overlapsOnly: boolean) {
+        this._overlapsOnly = overlapsOnly
     }
 
     /**
@@ -2327,7 +2340,7 @@ export default class Path extends PathItem {
         }
     }
 
-    protected _drawSelected(ctx: CanvasRenderingContext2D, matrix: Matrix) {
+    _drawSelected(ctx: CanvasRenderingContext2D, matrix: Matrix) {
         const paper = PaperScope.paper
         ctx.beginPath()
         this.drawSegments(ctx, this, matrix)
@@ -2343,6 +2356,7 @@ export default class Path extends PathItem {
 
     moveTo(x: number, y: number): void
     moveTo(point: PointType): void
+    moveTo(...args: any[]): void
     moveTo(...args: any[]): void {
         const segments = this._segments
         if (segments.length === 1) this.removeSegment(0)
@@ -2352,12 +2366,14 @@ export default class Path extends PathItem {
 
     moveBy(toX: number, toY: number): void
     moveBy(to: PointType): void
+    moveBy(..._args: any[]): void
     moveBy(..._args: any[]): void {
         throw new Error('moveBy() is unsupported on Path items.')
     }
 
     lineTo(x: number, y: number): void
     lineTo(point: PointType): void
+    lineTo(...args: any[]): void
     lineTo(...args: any[]): void {
         this._add([new Segment(Point.read(args))])
     }
@@ -2372,6 +2388,7 @@ export default class Path extends PathItem {
     ): void
 
     cubicCurveTo(handle1: PointType, handle2: PointType, to: PointType): void
+    cubicCurveTo(...args: any[]): void
     cubicCurveTo(...args: any[]): void {
         const handle1 = Point.read(args)
         const handle2 = Point.read(args)
@@ -2391,6 +2408,7 @@ export default class Path extends PathItem {
     ): void
 
     quadraticCurveTo(handle: PointType, to: PointType): void
+    quadraticCurveTo(...args: any[]): void
     quadraticCurveTo(...args: any[]): void {
         const handle = Point.read(args)
         const to = Point.read(args)
@@ -2412,6 +2430,7 @@ export default class Path extends PathItem {
     ): void
 
     curveTo(through: PointType, to: PointType, time?: number): void
+    curveTo(...args: any[]): void
     curveTo(...args: any[]): void {
         const through = Point.read(args)
         const to = Point.read(args)
@@ -2453,6 +2472,7 @@ export default class Path extends PathItem {
         large?: number
     ): void
 
+    arcTo(...args: any[]): void
     arcTo(...args: any[]): void {
         const abs = Math.abs
         const sqrt = Math.sqrt
@@ -2596,6 +2616,7 @@ export default class Path extends PathItem {
 
     lineBy(x: number, y: number): void
     lineBy(point: PointType): void
+    lineBy(...args: any[]): void
     lineBy(...args: any[]): void {
         const to = Point.read(args)
         const current = this.getCurrentSegment().point
@@ -2611,6 +2632,7 @@ export default class Path extends PathItem {
     ): void
 
     curveBy(through: PointType, to: PointType, time?: number): void
+    curveBy(...args: any[]): void
     curveBy(...args: any[]): void {
         const through = Point.read(args)
         const to = Point.read(args)
@@ -2629,6 +2651,7 @@ export default class Path extends PathItem {
     ): void
 
     cubicCurveBy(handle1: PointType, handle2: PointType, to: PointType): void
+    cubicCurveBy(...args: any[]): void
     cubicCurveBy(...args: any[]): void {
         const handle1 = Point.read(args)
         const handle2 = Point.read(args)
@@ -2649,6 +2672,7 @@ export default class Path extends PathItem {
     ): void
 
     quadraticCurveBy(through: PointType, to: PointType): void
+    quadraticCurveBy(...args: any[]): void
     quadraticCurveBy(...args: any[]): void {
         const handle = Point.read(args)
         const to = Point.read(args)
@@ -2660,6 +2684,7 @@ export default class Path extends PathItem {
     arcBy(through: PointType, to: PointType): void
     arcBy(x: number, y: number, clockwise: boolean): void
     arcBy(point: PointType, clockwise: boolean): void
+    arcBy(...args: any[]): void
     arcBy(...args: any[]): void {
         const current = this.getCurrentSegment().point
         const point = current.add(Point.read(args))
@@ -2685,12 +2710,12 @@ export default class Path extends PathItem {
         return Path[method](this._segments, this._closed, this, matrix, options)
     }
 
-    private static getBounds(
+    static getBounds(
         segments: Segment[],
         closed: boolean,
         _path: Path,
-        matrix: Matrix,
-        _options: BoundsOptions,
+        matrix?: Matrix,
+        _options?: BoundsOptions,
         strokePadding?: number[]
     ) {
         const first = segments[0]
@@ -2728,12 +2753,12 @@ export default class Path extends PathItem {
         return new Rectangle(min[0], min[1], max[0] - min[0], max[1] - min[1])
     }
 
-    private static getStrokeBounds(
+    static getStrokeBounds(
         segments: Segment[],
         closed: boolean,
         path: Path,
-        matrix: Matrix,
-        options: BoundsOptions
+        matrix?: Matrix,
+        options?: BoundsOptions
     ) {
         const style = path.getStyle()
         const stroke = style.hasStroke()
@@ -2818,7 +2843,7 @@ export default class Path extends PathItem {
      * stroke adds to the bounding box, by calculating the dimensions of a
      * rotated ellipse.
      */
-    protected static _getStrokePadding(radius: number, matrix: Matrix) {
+    static _getStrokePadding(radius: number, matrix: Matrix) {
         if (!matrix) return [radius, radius]
 
         const hor = new Point(radius, 0).transform(matrix)
@@ -2838,7 +2863,7 @@ export default class Path extends PathItem {
         ]
     }
 
-    protected static _addBevelJoin(
+    static _addBevelJoin(
         segment: Segment,
         join: StrokeJoins,
         radius: number,
@@ -2917,12 +2942,12 @@ export default class Path extends PathItem {
         addPoint(point.subtract(normal))
     }
 
-    private static getHandleBounds(
+    static getHandleBounds(
         segments: Segment[],
         _closed: boolean,
         path: Path,
-        matrix: Matrix,
-        options: BoundsOptions
+        matrix?: Matrix,
+        options?: BoundsOptions
     ) {
         const style = path.getStyle()
         const stroke = options.stroke && style.hasStroke()

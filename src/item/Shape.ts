@@ -20,6 +20,7 @@ import Matrix from '../basic/Matrix'
 import Rectangle from '../basic/Rectangle'
 import { Numerical } from '../utils'
 import HitResult, { HitResultOptions } from './HitResult'
+import Path from '../path/Path'
 
 export type ShapeTypes = 'rectangle' | 'circle' | 'ellipse'
 
