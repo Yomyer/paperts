@@ -12,7 +12,6 @@ import { Matrix, Point, Size } from '../basic'
 import SymbolDefinition from './SymbolDefinition'
 import SymbolItem from './SymbolItem'
 import ItemSelection from './ItemSelection'
-import SvgImport, { SvgImportOptions } from '../svg/SvgImport'
 
 type ItemChange = { item: Item; flags: ChangeFlag | Change }
 type RemoveSets = { [key: string]: { [key: string]: Item } }
@@ -864,7 +863,7 @@ export default class Project extends PaperScopeItem {
      * @return {Item} the newly created Paper.js item containing the converted
      *     SVG content
      */
-    importSVG(node: SVGElement | string, options?: SvgImportOptions): Item
+    importSVG(node: SVGElement | string, options?: any): Item
 
     /**
      * Imports the provided external SVG file, converts it into Paper.js items
@@ -883,15 +882,15 @@ export default class Project extends PaperScopeItem {
      *     SVG content
      */
     importSVG(node: SVGElement | string, onLoad?: Function): Item
-    importSVG(
-        node: SVGElement | string,
-        options?: Function | SvgImportOptions
-    ): Item {
+    importSVG(_node: SVGElement | string, _options?: Function | any): Item {
+        return null
+        /*
         return SvgImport.importSVG(
             node as unknown as HTMLElement,
             options,
             this
         )
+        */
     }
 
     removeOn(type: string) {

@@ -44,7 +44,12 @@ export default class Curve extends Base {
      * @param {Point} handle2
      * @param {Point} point2
      */
-    constructor(point1: Point, handle1: Point, handle2: Point, point2: Point)
+    constructor(
+        point1: PointType,
+        handle1: PointType,
+        handle2: PointType,
+        point2: PointType
+    )
 
     /**
      * Creates a new curve object.

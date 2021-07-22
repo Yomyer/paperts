@@ -1099,7 +1099,7 @@ export class LinkedPoint extends Point {
     }
 
     get y() {
-        return this.getX()
+        return this.getY()
     }
 
     set y(y: number) {

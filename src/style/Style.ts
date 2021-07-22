@@ -349,7 +349,7 @@ export default class Style extends Base {
         return this.getParam('strokeColor', _dontMerge) as Color
     }
 
-    setStrokeColor(color: Partial<Color & ColorType>): this {
+    setStrokeColor(color: Color | ColorType): this {
         this.setParam('strokeColor', color)
         return this
     }
@@ -358,8 +358,8 @@ export default class Style extends Base {
         return this.getStrokeColor()
     }
 
-    set strokeColor(color: Partial<Color & ColorType>) {
-        this.setStrokeColor(color)
+    set strokeColor(color: Color | ColorType) {
+        this.setStrokeColor(color as Color)
     }
 
     /**
@@ -634,7 +634,7 @@ export default class Style extends Base {
         return this.getParam('fillColor', _dontMerge)
     }
 
-    setFillColor(color: Partial<Color & ColorType>): this {
+    setFillColor(color: Color | ColorType): this {
         this.setParam('fillColor', color)
         return this
     }
@@ -643,7 +643,7 @@ export default class Style extends Base {
         return this.getFillColor()
     }
 
-    set fillColor(color: Partial<Color & ColorType>) {
+    set fillColor(color: Color | ColorType) {
         this.setFillColor(color)
     }
 
@@ -702,7 +702,7 @@ export default class Style extends Base {
         return this.getParam('shadowColor', _dontMerge)
     }
 
-    setShadowColor(color: Partial<Color & ColorType>): this {
+    setShadowColor(color: Color | ColorType): this {
         this.setParam('shadowColor', color)
         return this
     }
@@ -711,7 +711,7 @@ export default class Style extends Base {
         return this.getShadowColor()
     }
 
-    set shadowColor(color: Partial<Color & ColorType>) {
+    set shadowColor(color: Color | ColorType) {
         this.setShadowColor(color)
     }
 
@@ -752,7 +752,7 @@ export default class Style extends Base {
         return this.getParam('shadowOffset', _dontMerge)
     }
 
-    setShadowOffset(offset: Partial<Point & PointType>): this {
+    setShadowOffset(offset: Point | PointType): this {
         this.setParam('shadowOffset', offset)
         return this
     }
@@ -761,7 +761,7 @@ export default class Style extends Base {
         return this.getShadowOffset()
     }
 
-    set shadowOffset(offset: Partial<Point & PointType>) {
+    set shadowOffset(offset: Point | PointType) {
         this.setShadowOffset(offset)
     }
 
@@ -779,7 +779,7 @@ export default class Style extends Base {
         return this.getParam('selectedColor', _dontMerge)
     }
 
-    setSelectedColor(color: Partial<Color & ColorType>): this {
+    setSelectedColor(color: Color | ColorType): this {
         this.setParam('selectedColor', color)
         return this
     }
@@ -788,7 +788,7 @@ export default class Style extends Base {
         return this.getSelectedColor()
     }
 
-    set selectedColor(color: Partial<Color & ColorType>) {
+    set selectedColor(color: Color | ColorType) {
         this.setSelectedColor(color)
     }
 
@@ -879,7 +879,7 @@ export default class Style extends Base {
         const leading = this.getParam('leading', _dontMerge)
         let fontSize = this.getFontSize()
         if (/pt|em|%|px/.test(fontSize.toString()))
-            fontSize = this.getView().getPixelSize(fontSize.toString())
+            fontSize = this.getView().getPixelSize(fontSize)
         return leading != null ? leading : fontSize * 1.2
     }
 
