@@ -1,4 +1,4 @@
-import Base, { Dictionary } from '../core/Base'
+import { Base, Dictionary } from '..'
 import Segment from './Segment'
 import Matrix from '../basic/Matrix'
 import Line from '../basic/Line'

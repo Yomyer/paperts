@@ -1,5 +1,12 @@
 export * from './ChangeFlag'
+export { default as Project } from './Project'
 export { default as Item } from './Item'
-export { default as ItemSelection } from './ItemSelection'
 export { default as Group } from './Group'
 export { default as Layer } from './Layer'
+export { default as Shape } from './Shape'
+export { default as Raster } from './Raster'
+export { default as SymbolItem } from './SymbolItem'
+export { default as SymbolDefinition } from './SymbolDefinition'
+export { default as HitResult } from './HitResult'
+
+export { default as ItemSelection } from './ItemSelection'

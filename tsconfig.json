@@ -24,7 +24,11 @@
         "isolatedModules": true,
         "noEmit": true,
         "experimentalDecorators": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "baseUrl": "src",
+        "paths": {
+            "@yomyer/yomtor": ["index.ts"]
+        }
     },
     "include": ["src"],
     "exclude": ["node_modules", "dist", "example"]
