@@ -1,37 +1,45 @@
-import Item, {
+import {
+    Item,
     BoundsOptions,
     DrawOptions,
-    ItemSerializeFields
-} from '../item/Item'
-import PathItem, { PathSmoothOptions } from './PathItem'
-import Segment, { SegmentSmoothOptions } from './Segment'
-import Curve from './Curve'
-import Base from '../core/Base'
-import { Change, ChangeFlag } from '../item'
-import CompoundPath from './CompundPath'
-import Matrix from '../basic/Matrix'
-import Formatter from '../utils/Formatter'
-import Point, { LinkedPoint } from '../basic/Point'
-import { SegmentSelection } from './SegmentSelection'
-import ItemSelection from '../item/ItemSelection'
-import CurveLocation from './CurveLocation'
-import { Numerical } from '../utils'
-import PathFlattener from './PathFlattener'
-import PathFitter from './PathFitter'
-import Shape from '../item/Shape'
-import Line from '../basic/Line'
-import Size from '../basic/Size'
-import HitResult, { HitResultOptions, HitResultTypes } from '../item/HitResult'
-import Style, { StrokeCaps, StrokeJoins } from '../style/Style'
+    ItemSerializeFields,
+    PathItem,
+    PathSmoothOptions,
+    Segment,
+    SegmentSmoothOptions,
+    Curve,
+    Base,
+    Change,
+    ChangeFlag,
+    CompoundPath,
+    Matrix,
+    Formatter,
+    Point,
+    LinkedPoint,
+    SegmentSelection,
+    ItemSelection,
+    CurveLocation,
+    Numerical,
+    PathFlattener,
+    PathFitter,
+    Shape,
+    Line,
+    Size,
+    HitResult,
+    HitResultOptions,
+    HitResultTypes,
+    Style,
+    StrokeCaps,
+    StrokeJoins,
+    PaperScope,
+    Rectangle
+} from '@paperts'
 
 import {
     Point as PointType,
     Size as SizeType,
     Rectangle as RectangleType
 } from '../basic/Types'
-
-import PaperScope from '../../dist/core/PaperScope'
-import Rectangle from '../basic/Rectangle'
 
 export type PathSerializeFields = {
     segments: Segment[]
@@ -40,7 +48,7 @@ export type PathSerializeFields = {
 
 type SegmentType = Segment | Point | Number[]
 
-export default class Path extends PathItem {
+export class Path extends PathItem {
     protected _class = 'Path'
     protected _serializeFields: PathSerializeFields = {
         segments: [],

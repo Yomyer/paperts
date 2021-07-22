@@ -1,3 +1,3 @@
-export default class TextItem {
+export class TextItem {
     _class = 'TextItem'
 }

@@ -1,9 +1,14 @@
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import { Change } from '../item/ChangeFlag'
-import { Exportable } from '../utils/Decorators'
-import Formatter from '../utils/Formatter'
-import Point from './Point'
-import Rectangle from './Rectangle'
+import {
+    Base,
+    Dictionary,
+    ExportJsonOptions,
+    Change,
+    Exportable,
+    Formatter,
+    Point,
+    Rectangle
+} from '@paperts'
+
 import { Point as PointType, Size as SizeType } from './Types'
 
 export type MatrixDecompose = {
@@ -14,7 +19,7 @@ export type MatrixDecompose = {
 }
 
 @Exportable()
-export default class Matrix extends Base {
+export class Matrix extends Base {
     protected _class = 'Matrix'
     protected _a: number
     protected _b: number

@@ -1,9 +1,6 @@
-import Point from '../basic/Point'
-import { Numerical } from '../utils'
-import Segment from './Segment'
-import { SegmentSelection } from './SegmentSelection'
+import { Point, Numerical, Segment, SegmentSelection } from '@paperts'
 
-export default class SegmentPoint extends Point {
+export class SegmentPoint extends Point {
     protected _owner: Segment
 
     constructor(point: Point, owner: Segment, key: string)

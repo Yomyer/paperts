@@ -1,6 +1,4 @@
-import Base from '../core/Base'
-import Matrix from './Matrix'
-import Point from './Point'
+import { Base, Matrix, Point } from '@paperts'
 
 test('Decomposition: rotate()', function () {
     function testAngle(a: any, ea?: any) {

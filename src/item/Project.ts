@@ -1,22 +1,32 @@
-import CanvasProvider from '../canvas/CanvasProvider'
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import PaperScopeItem from '../core/PaperScopeItem'
-import { Style } from '../style'
-import View from '../view/View'
-import Item, { MatchOptions } from './Item'
-import { Change, ChangeFlag } from './ChangeFlag'
-import Layer from './Layer'
-import HitResult, { HitResultOptions } from './HitResult'
+import {
+    Base,
+    Dictionary,
+    ExportJsonOptions,
+    Matrix,
+    Point,
+    Size,
+    CanvasProvider,
+    PaperScopeItem,
+    Style,
+    View,
+    Item,
+    MatchOptions,
+    Change,
+    ChangeFlag,
+    Layer,
+    HitResult,
+    HitResultOptions,
+    SymbolDefinition,
+    SymbolItem,
+    ItemSelection
+} from '@paperts'
+
 import { Point as PointType } from '../basic/Types'
-import { Matrix, Point, Size } from '../basic'
-import SymbolDefinition from './SymbolDefinition'
-import SymbolItem from './SymbolItem'
-import ItemSelection from './ItemSelection'
 
 type ItemChange = { item: Item; flags: ChangeFlag | Change }
 type RemoveSets = { [key: string]: { [key: string]: Item } }
 
-export default class Project extends PaperScopeItem {
+export class Project extends PaperScopeItem {
     protected _class = 'Project'
     protected _list = 'projects'
     protected _reference = 'project'

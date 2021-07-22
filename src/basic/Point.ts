@@ -1,11 +1,15 @@
-import Base, { ExportJsonOptions } from '../core/Base'
-import Formatter from '../utils/Formatter'
-import Numerical from '../utils/Numerical'
-import { Exportable, ReadIndex } from '../utils/Decorators'
+import {
+    Base,
+    ExportJsonOptions,
+    Formatter,
+    Numerical,
+    Exportable,
+    ReadIndex,
+    Matrix,
+    Rectangle,
+    ItemSelection
+} from '@paperts'
 
-import Matrix from './Matrix'
-import Rectangle from './Rectangle'
-import ItemSelection from '../item/ItemSelection'
 import {
     Point as PointType,
     Size as SizeType,
@@ -14,7 +18,7 @@ import {
 
 @ReadIndex()
 @Exportable()
-export default class Point extends Base {
+export class Point extends Base {
     protected _class = 'Point'
     protected _angle = 0
     protected _x: number

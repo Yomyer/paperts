@@ -1,4 +1,4 @@
-import Base from '../core/Base'
+import { Base } from '@paperts'
 
 type HttpOptions = {
     method?: 'get' | 'post' | 'put' | 'delete' | 'patch'

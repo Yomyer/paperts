@@ -1,5 +1,4 @@
-import Size from '../basic/Size'
-import Base from './Base'
+import { Base, Size } from '@paperts'
 
 export type EventList = {
     [type: string]: (event?: any, ...args: any) => void
@@ -17,7 +16,7 @@ export type ResizeEvent = {
     delta: Size
 }
 
-export default abstract class Emitter extends Base {
+export abstract class Emitter extends Base {
     protected _eventTypes: {
         [key: string]: {
             install?: (event?: any, ...args: any) => void

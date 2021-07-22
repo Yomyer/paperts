@@ -1,4 +1,4 @@
-import Gradient from './Gradient'
+import { Gradient } from '@paperts'
 
 export {}
 

@@ -1,12 +1,14 @@
-import Point from '../basic/Point'
-import Base from '../core/Base'
-import { Numerical } from '../utils'
-import Curve from './Curve'
-import Segment from './Segment'
-import Formatter from '../utils/Formatter'
-import Path from './Path'
+import {
+    Point,
+    Base,
+    Numerical,
+    Curve,
+    Segment,
+    Formatter,
+    Path
+} from '@paperts'
 
-export default class CurveLocation extends Base {
+export class CurveLocation extends Base {
     protected _class = 'CurveLocation'
     protected _time: number
     protected _point: Point

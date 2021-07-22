@@ -1,39 +1,55 @@
-import Point, { LinkedPoint } from '../basic/Point'
-import Matrix, { MatrixDecompose } from '../basic/Matrix'
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import Style, {
+import {
+    Base,
+    Dictionary,
+    PaperScope,
+    UID,
+    ExportJsonOptions,
+    Point,
+    LinkedPoint,
+    Matrix,
+    Size,
+    MatrixDecompose,
+    Style,
     FillRules,
     StrokeCaps,
     StrokeJoins,
-    StyleProps
-} from '../style/Style'
-import Emitter, { EmitterType, EventList, FrameEvent } from '../core/Emitter'
-import Project from './Project'
-import PaperScope from '../core/PaperScope'
-import UID from '../utils/UID'
-import Group from './Group'
-import Rectangle, { LinkedRectangle } from '../basic/Rectangle'
-import ItemSelection from './ItemSelection'
-import BlendMode, { BlendModesKeys } from '../canvas/BlendMode'
-import { Change, ChangeFlag } from './ChangeFlag'
-import { Numerical } from '../utils'
+    StyleProps,
+    Emitter,
+    EmitterType,
+    EventList,
+    FrameEvent,
+    Project,
+    Group,
+    Rectangle,
+    LinkedRectangle,
+    ItemSelection,
+    BlendMode,
+    BlendModesKeys,
+    Change,
+    ChangeFlag,
+    Numerical,
+    Layer,
+    HitResult,
+    HitResultOptions,
+    HitResultTypes,
+    SymbolDefinition,
+    Color,
+    MouseEvent as PaperMouseEvent,
+    CanvasProvider,
+    CompoundPath,
+    Tween,
+    TweenOptions,
+    Raster,
+    Path
+} from '@paperts'
+
 import {
     Point as PointType,
     Size as SizeType,
     Rectangle as RectangleType
 } from '../basic/Types'
-import Layer from './Layer'
-import { Size } from '../basic'
-import HitResult, { HitResultOptions, HitResultTypes } from './HitResult'
-import SymbolDefinition from './SymbolDefinition'
-import Color from '../style/Color'
+
 import { Color as ColorType } from '../style/Types'
-import PaperMouseEvent from '../event/MouseEvent'
-import CanvasProvider from '../canvas/CanvasProvider'
-import CompoundPath from '../path/CompundPath'
-import Tween, { TweenOptions } from '../anim/Tween'
-import Raster from './Raster'
-import Path from '../path/Path'
 
 export type ItemSerializeFields = {
     name?: string
@@ -131,7 +147,7 @@ type RemoveOnOptions = {
     up?: boolean
 }
 
-export default class Item extends Emitter {
+export class Item extends Emitter {
     static NO_INSERT: { insert: false }
 
     protected _class = 'Item'

@@ -1,13 +1,19 @@
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
+import {
+    Base,
+    Dictionary,
+    ExportJsonOptions,
+    Exportable,
+    ReadIndex,
+    CanvasProvider,
+    Gradient,
+    Change,
+    Matrix,
+    Point,
+    Formatter
+} from '@paperts'
+
 import { Point as PointType } from '../basic/Types'
-import { Exportable, ReadIndex } from '../utils/Decorators'
 import { ColorOptions, ColorTypes, Color as ColorType } from './Types'
-import CanvasProvider from '../canvas/CanvasProvider'
-import Gradient from './Gradient'
-import { Change } from '../item/ChangeFlag'
-import Formatter from '../utils/Formatter'
-import Matrix from '../basic/Matrix'
-import Point from '../basic/Point'
 
 const types = {
     gray: ['gray'],
@@ -204,7 +210,7 @@ const converters = {
 
 @ReadIndex()
 @Exportable()
-export default class Color extends Base {
+export class Color extends Base {
     protected _class = 'Color'
     private _type: ColorTypes
     private _canvasStyle: string

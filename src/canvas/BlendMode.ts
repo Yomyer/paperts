@@ -1,4 +1,4 @@
-import CanvasProvider from './CanvasProvider'
+import { CanvasProvider } from '@paperts'
 
 export type BlendModesKeys =
     | 'normal'
@@ -50,7 +50,7 @@ export type BlendModes = {
     xor: boolean
 }
 
-class BlendModeClass {
+export class BlendModeClass {
     private min = Math.min
     private max = Math.max
     private abs = Math.abs
@@ -424,4 +424,3 @@ class BlendModeClass {
 }
 
 export const BlendMode = new BlendModeClass()
-export default BlendMode

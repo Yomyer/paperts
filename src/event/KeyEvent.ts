@@ -1,8 +1,8 @@
-import Event from './Event'
+import { Event } from '@paperts'
 
 export type KeyEventTypes = 'keydown' | 'keyup'
 
-export default class KeyEvent extends Event {
+export class KeyEvent extends Event {
     protected _class = 'KeyEvent'
 
     type: KeyEventTypes

@@ -1,15 +1,19 @@
-import Point from '../basic/Point'
-import { EmitterType, EventList } from '../core/Emitter'
-import PaperScope from '../core/PaperScope'
-import PaperScopeItem from '../core/PaperScopeItem'
-import ToolEvent, { ToolEventTypes } from './ToolEvent'
+import {
+    PaperScope,
+    PaperScopeItem,
+    Point,
+    EmitterType,
+    EventList,
+    ToolEvent,
+    ToolEventTypes
+} from '@paperts'
 
 type ToolEventFunction = (_: ToolEvent) => void
 type ToolProps = {
     onMouseDown?: (event: ToolEvent) => void
 }
 
-export default class Tool extends PaperScopeItem {
+export class Tool extends PaperScopeItem {
     protected _class = 'Tool'
     protected _list = 'tools'
     protected _reference: 'tool'

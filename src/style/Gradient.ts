@@ -1,10 +1,15 @@
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import { UID } from '../utils'
-import Color from './Color'
-import GradientStop from './GradientStop'
+import {
+    Base,
+    Dictionary,
+    ExportJsonOptions,
+    UID,
+    Color,
+    GradientStop
+} from '@paperts'
+
 import { GradientStop as GradientStopType } from './Types'
 
-export default class Gradient extends Base {
+export class Gradient extends Base {
     protected _class = 'Gradient'
 
     protected _stops: GradientStop[]

@@ -1,5 +1,0 @@
-export { default as Color } from './Color'
-export { default as Gradient } from './Gradient'
-export { default as GradientStop } from './GradientStop'
-export { default as Style } from './Style'
-export * from './Types'

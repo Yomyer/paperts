@@ -1,11 +1,15 @@
-import BlendMode, { BlendModes } from '../canvas/BlendMode'
-import CanvasProvider from '../canvas/CanvasProvider'
-import Project from '../item/Project'
+import {
+    Base,
+    UID,
+    Size,
+    Tool,
+    Project,
+    CanvasProvider,
+    BlendMode,
+    BlendModes
+} from '@paperts'
+
 import Options from '../options'
-import Tool from '../tool/Tool'
-import UID from '../utils/UID'
-import Base from './Base'
-import Size from '../basic/Size'
 
 export type OSPlatforms =
     | 'darwin'
@@ -56,7 +60,7 @@ export type PapperSettings = {
     hitTolerance: number
 }
 
-export default class PaperScope extends Base {
+export class PaperScope extends Base {
     public _class = 'PaperScope'
     static paper: PaperScope
 

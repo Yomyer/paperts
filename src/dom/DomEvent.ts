@@ -1,10 +1,8 @@
-import { Point } from '../basic'
-import { EventList } from '../core/Emitter'
-import DomElement from './DomElement'
+import { Point, EventList, DomElement } from '@paperts'
 
 type Element = HTMLElement | Document | Window
 
-export default class DomEvent {
+export class DomEvent {
     static nativeRequest = DomElement.getPrefixed(
         window,
         'requestAnimationFrame'

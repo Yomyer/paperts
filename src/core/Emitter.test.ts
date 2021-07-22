@@ -1,4 +1,4 @@
-import Item from '../item/Item'
+import { Item } from '@paperts'
 
 test('emit()', () => {
     const emitter = new Item()

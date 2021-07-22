@@ -1,7 +1,6 @@
-import Base from '../core/Base'
-import Key from './Key'
+import { Base, Key } from '@paperts'
 
-export default class Event extends Base {
+export class Event extends Base {
     protected _class = 'Event'
 
     event: UIEvent

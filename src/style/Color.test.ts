@@ -1,4 +1,4 @@
-import Color from './Color'
+import { Color } from '@paperts'
 
 test('Creating Colors', function () {
     expect(new Color()).toStrictEqual(new Color(0, 0, 0))

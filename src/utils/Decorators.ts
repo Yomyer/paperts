@@ -1,4 +1,4 @@
-import { Base } from '../core'
+import { Base } from '@paperts'
 
 export const ReadIndex = () => {
     return (target: any) => {

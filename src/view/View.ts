@@ -1,25 +1,34 @@
-import Size, { LinkedSize } from '../basic/Size'
-import { Size as SizeType, Point as PointType } from '../basic/Types'
-import Base from '../core/Base'
-import Matrix, { MatrixDecompose } from '../basic/Matrix'
-import Emitter, {
+import {
+    Base,
+    PaperScope,
+    Size,
+    LinkedSize,
+    Matrix,
+    MatrixDecompose,
+    Emitter,
     EmitterType,
     EventList,
     FrameEvent,
-    ResizeEvent
-} from '../core/Emitter'
-import DomElement from '../dom/DomElement'
-import Project from '../item/Project'
-import PaperScope from '../core/PaperScope'
-import DomEvent from '../dom/DomEvent'
-import Stats from '../utils/Stats'
-import { Change, Item } from '../item'
-import Rectangle from '../basic/Rectangle'
-import Point, { LinkedPoint } from '../basic/Point'
-import { Exportable, Injection } from '../utils/Decorators'
-import PaperMouseEvent, { MouseEventTypes } from '../event/MouseEvent'
-import PaperKeyEvent, { KeyEventTypes } from '../event/KeyEvent'
-import { ToolEventTypes } from '../tool/ToolEvent'
+    ResizeEvent,
+    DomElement,
+    Project,
+    DomEvent,
+    Stats,
+    Change,
+    Item,
+    Rectangle,
+    Point,
+    LinkedPoint,
+    Exportable,
+    Injection,
+    PaperMouseEvent,
+    MouseEventTypes,
+    PaperKeyEvent,
+    KeyEventTypes,
+    ToolEventTypes
+} from '@paperts'
+
+import { Size as SizeType, Point as PointType } from '../basic/Types'
 
 type ViewFrameEventFunction = (_: FrameEvent) => void
 type ViewMouseEventFunction = (_: PaperMouseEvent) => void
@@ -29,7 +38,7 @@ type ViewResizeEventFunction = (_: ResizeEvent) => void
 @Injection((proto: typeof View) => {
     View.registerEvents(proto)
 })
-export default class View extends Emitter {
+export class View extends Emitter {
     protected _class = 'View'
     protected _viewEvents: EventList
     protected _windowEvents: EventList

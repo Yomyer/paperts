@@ -1,15 +1,21 @@
-import { Matrix } from '../basic'
-import Point from '../basic/Point'
-import { Change } from './ChangeFlag'
-import HitResult, { HitResultOptions } from './HitResult'
-import Item, { BoundsOptions, DrawOptions, ItemSerializeFields } from './Item'
-import SymbolDefinition from './SymbolDefinition'
+import {
+    Point,
+    Matrix,
+    Change,
+    Item,
+    HitResult,
+    HitResultOptions,
+    BoundsOptions,
+    DrawOptions,
+    ItemSerializeFields,
+    SymbolDefinition
+} from '@paperts'
 
 export type SymbolSerializeFields = ItemSerializeFields & {
     symbol: any
 }
 
-export default class SymbolItem extends Item {
+export class SymbolItem extends Item {
     protected _class = 'SymbolItem'
     protected _applyMatrix = false
     protected _canApplyMatrix = false

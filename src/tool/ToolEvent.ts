@@ -1,11 +1,8 @@
-import { Point } from '../basic'
-import Event from '../event/Event'
-import Item from '../item/Item'
-import Tool from './Tool'
+import { Point, Event, Item, Tool } from '@paperts'
 
 export type ToolEventTypes = 'mousedown' | 'mouseup' | 'mousemove' | 'mousedrag'
 
-export default class ToolEvent extends Event {
+export class ToolEvent extends Event {
     protected _class = 'ToolEvent'
     protected _item: Item = null
     protected _point: Point
@@ -167,10 +164,10 @@ export default class ToolEvent extends Event {
             const result = this.tool.scope.project.hitTest(this.getPoint())
             if (result) {
                 let item = result.item
-                let parent = item._parent
-                while (/^(Group|CompoundPath)$/.test(parent._class)) {
+                let parent = item.parent
+                while (/^(Group|CompoundPath)$/.test(parent.class)) {
                     item = parent
-                    parent = parent._parent
+                    parent = parent.parent
                 }
                 this._item = item
             }

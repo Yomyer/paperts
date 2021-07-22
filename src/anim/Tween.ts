@@ -1,6 +1,4 @@
-import Base from '../core/Base'
-import Emitter from '../core/Emitter'
-import { Item } from '../item'
+import { Base, Item, Emitter } from '@paperts'
 
 export type TweenOptions = {
     easing: string | Function
@@ -8,7 +6,7 @@ export type TweenOptions = {
     duration: number
 }
 
-export default class Tween extends Emitter {
+export class Tween extends Emitter {
     _class = 'Tween'
 
     object: object

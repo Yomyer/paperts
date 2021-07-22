@@ -1,7 +1,6 @@
-import Item from '../item/Item'
-import Curve from '../path/Curve'
+import { Item, Curve } from '@paperts'
 
-export default class CollisionDetection {
+export class CollisionDetection {
     /**
      * Finds collisions between axis aligned bounding boxes of items.
      *

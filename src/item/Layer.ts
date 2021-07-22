@@ -1,8 +1,6 @@
-import Group from './Group'
-import Item from './Item'
-import Project from './Project'
+import { Group, Item, Project } from '@paperts'
 
-export default class Layer extends Group {
+export class Layer extends Group {
     protected _class = 'Layer'
 
     // DOCS: improve constructor code example.

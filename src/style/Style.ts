@@ -1,14 +1,17 @@
-import Base from '../core/Base'
-import { Change } from '../item/ChangeFlag'
-import Group from '../item/Group'
-import Item from '../item/Item'
-import TextItem from '../text/TextItem'
-import Color from './Color'
-import { Color as ColorType } from './Types'
+import {
+    Base,
+    Change,
+    Group,
+    Project,
+    Item,
+    TextItem,
+    Color,
+    CompoundPath,
+    Point
+} from '@paperts'
+
 import { Point as PointType } from '../basic/Types'
-import CompoundPath from '../path/CompundPath'
-import Point from '../basic/Point'
-import Project from '../item/Project'
+import { Color as ColorType } from './Types'
 
 export type StrokeCaps = 'round' | 'square' | 'butt'
 export type StrokeJoins = 'miter' | 'round' | 'bevel'
@@ -110,11 +113,11 @@ const flags = {
     justification: Change.GEOMETRY
 }
 
-export default class Style extends Base {
+export class Style extends Base {
     protected _class = 'Style'
     protected _owner: Item
 
-    protected _values: any = {}
+    protected _values: { [key: string]: any } = {}
     protected _project: Project
     protected _defaults: any = {}
 
@@ -123,10 +126,14 @@ export default class Style extends Base {
         super(...args)
     }
 
-    initialize(style: StyleProps | Style, _owner: Item, _project: Project) {
+    initialize(
+        style: StyleProps | Style,
+        _owner: Item,
+        _project: Project
+    ): this {
         this._values = {}
         this._owner = _owner
-        this._project = (_owner && _owner.project) || _project // || TODO: Default paper.project
+        this._project = (_owner && _owner.project) || _project
         this._defaults =
             !_owner || _owner instanceof Group
                 ? groupDefaults
@@ -134,6 +141,12 @@ export default class Style extends Base {
                 ? textDefaults
                 : itemDefaults
         if (style) this.set(style)
+
+        this.fillColor = '#f00'
+
+        console.log(this)
+
+        return this
     }
 
     set(style: StyleProps | Style): this {
@@ -298,7 +311,7 @@ export default class Style extends Base {
             for (let i = 0, l = children.length; i < l; i++)
                 children[i].style[set](value)
         }
-
+        console.log(isColor, this._defaults)
         if (
             (key === 'selectedColor' || !applyToChildren) &&
             key in this._defaults
@@ -321,6 +334,8 @@ export default class Style extends Base {
                 this._values[key] = value
                 if (owner) owner.changed(flag || Change.STYLE)
             }
+
+            console.log(this._values)
         }
     }
 
@@ -644,7 +659,10 @@ export default class Style extends Base {
     }
 
     set fillColor(color: Color | ColorType) {
+        console.log(this)
         this.setFillColor(color)
+
+        console.log(this._values)
     }
 
     /**

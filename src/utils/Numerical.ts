@@ -1,4 +1,4 @@
-export default class Numerical {
+export class Numerical {
     static abscissas = [
         [0.5773502691896257645091488],
         [0, 0.7745966692414833770358531],

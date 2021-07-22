@@ -1,22 +1,25 @@
-import Base, { Dictionary } from '../core/Base'
+import {
+    Base,
+    Dictionary,
+    Point,
+    Matrix,
+    Change,
+    ExportJsonOptions,
+    SegmentPoint,
+    SegmentSelection,
+    CurveLocation,
+    BooleanWinding,
+    Path
+} from '@paperts'
 
 import { Point as PointType } from '../basic/Types'
-import SegmentPoint from './SegmentPoint'
-import { ExportJsonOptions } from '../../dist/core/Base'
-import { Change } from '../item/ChangeFlag'
-import Point from '../basic/Point'
-import Matrix from '../basic/Matrix'
-import { SegmentSelection } from './SegmentSelection'
-import CurveLocation from './CurveLocation'
-import { BooleanWinding } from './PathItem'
-import Path from './Path'
 
 export type SegmentSmoothOptions = {
     type: 'catmull-rom' | 'geometric'
     factor: number
 }
 
-export default class Segment extends Base {
+export class Segment extends Base {
     protected _class = 'Segment'
     protected _selection = false
     protected _point: SegmentPoint

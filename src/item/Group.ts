@@ -1,15 +1,20 @@
-import Matrix from '../basic/Matrix'
-import Point from '../basic/Point'
-import Base from '../core/Base'
-import { ChangeFlag } from './ChangeFlag'
-import { HitResultOptions } from './HitResult'
-import Item, { BoundsOptions, DrawOptions, ItemSerializeFields } from './Item'
+import {
+    Base,
+    Matrix,
+    Point,
+    ChangeFlag,
+    HitResultOptions,
+    Item,
+    BoundsOptions,
+    DrawOptions,
+    ItemSerializeFields
+} from '@paperts'
 
 export type GroupSerializeFields = ItemSerializeFields & {
     children?: Item[]
 }
 
-export default class Group extends Item {
+export class Group extends Item {
     protected _class = 'Group'
     protected _selectBounds = false
     protected _clipItem: Item

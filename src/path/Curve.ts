@@ -1,18 +1,22 @@
-import { Base, Dictionary } from '..'
-import Segment from './Segment'
-import Matrix from '../basic/Matrix'
-import Line from '../basic/Line'
-import Point from '../basic/Point'
-import { ExportJsonOptions } from '../../dist/core/Base'
-import Rectangle from '../basic/Rectangle'
-import { Point as PointType } from '../basic/Types'
-import SegmentPoint from './SegmentPoint'
-import CurveLocation from './CurveLocation'
-import { Numerical } from '../utils'
-import CollisionDetection from '../utils/CollisionDetection'
-import Path from './Path'
+import {
+    Base,
+    Dictionary,
+    Segment,
+    Matrix,
+    Line,
+    Point,
+    ExportJsonOptions,
+    Rectangle,
+    SegmentPoint,
+    CurveLocation,
+    Numerical,
+    CollisionDetection,
+    Path
+} from '@paperts'
 
-export default class Curve extends Base {
+import { Point as PointType } from '../basic/Types'
+
+export class Curve extends Base {
     protected _class = 'Curve'
     protected _path: Path
     protected _segment1: Segment

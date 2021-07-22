@@ -1,11 +1,13 @@
-import Base from '../core/Base'
-import Color from '../style/Color'
-import Point from '../basic/Point'
-import PaperScope from '../core/PaperScope'
-import Size from '../basic/Size'
-import Item from './Item'
-import CurveLocation from '../path/CurveLocation'
-import Segment from '../path/Segment'
+import {
+    Base,
+    PaperScope,
+    Color,
+    Point,
+    Size,
+    Item,
+    CurveLocation,
+    Segment
+} from '@paperts'
 
 export type HitResultTypes =
     | 'segment'
@@ -50,7 +52,7 @@ export type HitResultOptions = {
     _tolerancePadding?: Size
 }
 
-export default class HitResult extends Base {
+export class HitResult extends Base {
     protected _class = 'HitResult'
 
     type: HitResultTypes

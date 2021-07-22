@@ -1,7 +1,4 @@
-import Base from '../core/Base'
-import Point from './Point'
-import Rectangle from './Rectangle'
-import Size from './Size'
+import { Base, Point, Rectangle, Size } from '@paperts'
 
 test('initialize one params', () => {
     const rect = new Rectangle(10, 10, 100, 100)

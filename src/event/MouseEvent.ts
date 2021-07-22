@@ -1,6 +1,4 @@
-import Event from './Event'
-import Point from '../basic/Point'
-import Emitter from '../core/Emitter'
+import { Point, Event, Emitter } from '@paperts'
 
 export type MouseEventTypes =
     | 'mousedown'
@@ -12,7 +10,7 @@ export type MouseEventTypes =
     | 'mouseenter'
     | 'mouseleave'
 
-export default class MouseEvent extends Event {
+export class MouseEvent extends Event {
     protected _class = 'MouseEvent'
 
     type: MouseEventTypes

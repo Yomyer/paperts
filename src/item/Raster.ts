@@ -1,14 +1,24 @@
-import Point from '../basic/Point'
-import Size from '../basic/Size'
-import CanvasProvider from '../canvas/CanvasProvider'
-import Item, { DrawOptions, ItemSerializeFields } from './Item'
-import LinkedSize from '../../dist/basic/LinkedSize.d'
-import Base from '../core/Base'
-import DomEvent from '../dom/DomEvent'
-import PaperScope from '../core/PaperScope'
-import { Change } from './ChangeFlag'
-import { Matrix, Rectangle } from '../basic'
-import Color from '../style/Color'
+import {
+    Base,
+    PaperScope,
+    Point,
+    Size,
+    Matrix,
+    Rectangle,
+    Color,
+    CanvasProvider,
+    Item,
+    DrawOptions,
+    ItemSerializeFields,
+    LinkedSize,
+    DomEvent,
+    Change,
+    HitResult,
+    Numerical,
+    DomElement,
+    Path,
+    PathItem
+} from '@paperts'
 
 import {
     Point as PointType,
@@ -17,18 +27,13 @@ import {
 } from '../basic/Types'
 
 import { Color as ColorType } from '../style/Types'
-import HitResult from './HitResult'
-import Numerical from '../utils/Numerical'
-import DomElement from '../dom/DomElement'
-import Path from '../path/Path'
-import PathItem from '../path/PathItem'
 
 export type RasterSerializeFields = ItemSerializeFields & {
     crossOrigin?: string
     source?: string
 }
 
-export default class Raster extends Item {
+export class Raster extends Item {
     protected _class = 'Raster'
     protected _applyMatrix = false
     protected _canApplyMatrix = false

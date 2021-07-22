@@ -1,19 +1,24 @@
-import Matrix from '../basic/Matrix'
-import Base from '../core/Base'
-import Item, { DrawOptions, ItemSerializeFields } from '../item/Item'
-import PathItem, { PathSmoothOptions } from './PathItem'
-import Curve from './Curve'
-import Point from '../basic/Point'
-import HitResult, { HitResultOptions } from '../item/HitResult'
+import {
+    Matrix,
+    Base,
+    Item,
+    DrawOptions,
+    ItemSerializeFields,
+    PathItem,
+    PathSmoothOptions,
+    Curve,
+    Point,
+    HitResult,
+    HitResultOptions,
+    Path
+} from '@paperts'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
-import Path from './Path'
-
 export type CompoundPathSerializeFields = {
     children: Path[]
 } & ItemSerializeFields
 
-export default class CompoundPath extends PathItem {
+export class CompoundPath extends PathItem {
     protected _class = 'CompoundPath'
     protected _serializeFields: CompoundPathSerializeFields = {
         children: []

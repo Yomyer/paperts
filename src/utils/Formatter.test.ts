@@ -1,4 +1,4 @@
-import Formatter from './Formatter'
+import { Formatter } from '@paperts'
 
 test('number()', () => {
     const formatter = new Formatter(2)

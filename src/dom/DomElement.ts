@@ -1,4 +1,4 @@
-import { Rectangle, Size } from '../basic'
+import { Rectangle, Size } from '@paperts'
 
 type Element =
     | HTMLElement
@@ -7,7 +7,7 @@ type Element =
     | Window
     | CanvasRenderingContext2D
 
-export default class DomElement {
+export class DomElement {
     private static handlePrefix(
         el: Element,
         name: string,

@@ -1,26 +1,29 @@
-import Point from '../basic/Point'
-import Size from '../basic/Size'
-import Base from '../core/Base'
-import Item, {
+import {
+    Base,
+    PaperScope,
+    Numerical,
+    Point,
+    Size,
+    Matrix,
+    LinkedSize,
+    Item,
+    Rectangle,
     BoundsOptions,
     CloneOptions,
     DrawOptions,
     ItemProps,
-    ItemSerializeFields
-} from './Item'
-import LinkedSize from '../../dist/basic/LinkedSize.d'
+    ItemSerializeFields,
+    Change,
+    HitResult,
+    HitResultOptions,
+    Path
+} from '@paperts'
+
 import {
     Size as SizeType,
     Point as PointType,
     Rectangle as RectangleType
 } from '../basic/Types'
-import { Change } from './ChangeFlag'
-import PaperScope from '../../dist/core/PaperScope'
-import Matrix from '../basic/Matrix'
-import Rectangle from '../basic/Rectangle'
-import { Numerical } from '../utils'
-import HitResult, { HitResultOptions } from './HitResult'
-import Path from '../path/Path'
 
 export type ShapeTypes = 'rectangle' | 'circle' | 'ellipse'
 
@@ -30,7 +33,7 @@ export type ShapeSerializFields = ItemSerializeFields & {
     radius?: Size
 }
 
-export default class Shape extends Item {
+export class Shape extends Item {
     protected _class = 'Shape'
     protected _applyMatrix = false
     protected _canApplyMatrix = false

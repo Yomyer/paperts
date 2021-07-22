@@ -25,9 +25,9 @@
         "noEmit": true,
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
-        "baseUrl": "src",
+        "baseUrl": "./src",
         "paths": {
-            "@yomyer/yomtor": ["index.ts"]
+            "@paperts": ["./"]
         }
     },
     "include": ["src"],

@@ -1,18 +1,25 @@
-import Base, { ExportJsonOptions } from '../core/Base'
-import Formatter from '../utils/Formatter'
-import Point, { LinkedPoint } from './Point'
-import Size, { LinkedSize } from './Size'
-import ItemSelection from '../item/ItemSelection'
+import {
+    Base,
+    ExportJsonOptions,
+    Formatter,
+    Point,
+    LinkedPoint,
+    Size,
+    LinkedSize,
+    ItemSelection,
+    Exportable,
+    ReadIndex
+} from '@paperts'
+
 import {
     Point as PointType,
     Size as SizeType,
     Rectangle as RectangleType
 } from './Types'
-import { Exportable, ReadIndex } from '../utils/Decorators'
 
 @ReadIndex()
 @Exportable()
-export default class Rectangle extends Base {
+export class Rectangle extends Base {
     protected _class = 'Rectangle'
 
     beans = true

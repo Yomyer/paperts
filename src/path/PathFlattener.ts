@@ -1,9 +1,4 @@
-import Matrix from '../basic/Matrix'
-import { Point } from '../basic/Types'
-import Base from '../core/Base'
-import Curve from './Curve'
-import Path from './Path'
-import Segment from './Segment'
+import { Matrix, Point, Base, Curve, Path, Segment } from '@paperts'
 
 type PathFlattenerParts = {
     offset: number
@@ -12,7 +7,7 @@ type PathFlattenerParts = {
     time: number
 }
 
-export default class PathFlattener extends Base {
+export class PathFlattener extends Base {
     protected _class = 'PathFlattener'
 
     curves: number[][]

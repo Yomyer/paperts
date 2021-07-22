@@ -1,12 +1,17 @@
-import Base, { ExportJsonOptions } from '../core/Base'
-import { Exportable, ReadIndex } from '../utils/Decorators'
-import Formatter from '../utils/Formatter'
-import Numerical from '../utils/Numerical'
+import {
+    Base,
+    ExportJsonOptions,
+    Exportable,
+    ReadIndex,
+    Formatter,
+    Numerical
+} from '@paperts'
+
 import { Size as SizeType } from './Types'
 
 @ReadIndex()
 @Exportable()
-export default class Size extends Base {
+export class Size extends Base {
     protected _class = 'Size'
 
     protected _width: number

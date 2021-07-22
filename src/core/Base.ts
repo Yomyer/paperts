@@ -1,6 +1,4 @@
-import Straps from './Straps'
-import Formatter from '../utils/Formatter'
-import { Change, ChangeFlag } from '../item'
+import { Straps, Formatter, Change, ChangeFlag } from '@paperts'
 
 // import Item from '../item/Item'
 // import Layer from '../item/Layer'
@@ -18,7 +16,7 @@ export type Dictionary = {
     add: (item: Base, create: () => string) => string
 }
 
-export default class Base extends Straps {
+export class Base extends Straps {
     protected _id: string
     protected _class = 'Object'
     protected _name: string

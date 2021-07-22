@@ -1,10 +1,6 @@
-import Point from '../basic/Point'
-import Base from '../core/Base'
-import { Numerical } from '../utils'
-import Path from './Path'
-import Segment from './Segment'
+import { Point, Base, Numerical, Path, Segment } from '@paperts'
 
-export default class PathFitter extends Base {
+export class PathFitter extends Base {
     closed: boolean
     points: Point[]
 

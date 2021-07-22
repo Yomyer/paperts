@@ -1,5 +1,4 @@
-import Base from '../core/Base'
-import Size from './Size'
+import { Base, Size } from '@paperts'
 
 test('initialize one params', () => {
     const size = new Size(10)

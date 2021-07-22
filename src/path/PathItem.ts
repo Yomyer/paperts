@@ -1,20 +1,23 @@
-import Base from '../core/Base'
-import Point from '../basic/Point'
-import Size from '../basic/Size'
-import Item from '../item/Item'
-import CompoundPath from './CompundPath'
-import { Numerical } from '../utils'
-import Options from '../options'
-import CanvasProvider from '../canvas/CanvasProvider'
-import Matrix from '../basic/Matrix'
+import {
+    Base,
+    Point,
+    Size,
+    Item,
+    CompoundPath,
+    Numerical,
+    Options,
+    CanvasProvider,
+    Matrix,
+    Change,
+    CollisionDetection,
+    Curve,
+    Segment,
+    CurveLocation,
+    SegmentPoint,
+    Path
+} from '@paperts'
+
 import { Point as PointType, Size as SizeType } from '../basic/Types'
-import { Change } from '../item'
-import CollisionDetection from '../utils/CollisionDetection'
-import Curve from './Curve'
-import Segment from './Segment'
-import CurveLocation from './CurveLocation'
-import SegmentPoint from './SegmentPoint'
-import Path from './Path'
 
 export type PathSmoothOptions = {
     type?: 'continuous' | 'asymmetric' | 'catmull-rom' | 'geometric'
@@ -60,7 +63,7 @@ export type BooleanBranch = {
     handleIn: SegmentPoint
 }
 
-export default abstract class PathItem extends Item {
+export abstract class PathItem extends Item {
     protected _class = 'PathItem'
     protected _selectBounds = false
     protected _canScaleStroke = true

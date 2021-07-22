@@ -1,4 +1,4 @@
-export default class Straps {
+export class Straps {
     initialize(..._: any[]) {}
 
     protected constructor(...options: any[]) {

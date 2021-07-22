@@ -1,11 +1,8 @@
-import Base from '../core/Base'
-import Point from './Point'
-import Numerical from '../utils/Numerical'
+import { Base, Point, Numerical, Exportable } from '@paperts'
 import { Point as PointType } from './Types'
-import { Exportable } from '../utils/Decorators'
 
 @Exportable()
-export default class Line extends Base {
+export class Line extends Base {
     _class = 'Line'
 
     _px: number

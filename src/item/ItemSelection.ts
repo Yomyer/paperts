@@ -10,10 +10,8 @@
  * All rights reserved.
  */
 
-const ItemSelection = {
+export const ItemSelection = {
     ITEM: 1,
     BOUNDS: 2,
     POSITION: 4
 }
-
-export default ItemSelection

@@ -1,8 +1,6 @@
-import Base from './Base'
-import Emitter from './Emitter'
-import PaperScope from './PaperScope'
+import { Base, Emitter, PaperScope } from '@paperts'
 
-export default class PaperScopeItem extends Emitter {
+export class PaperScopeItem extends Emitter {
     protected _scope: PaperScope
     protected _list: string
     protected _reference: string

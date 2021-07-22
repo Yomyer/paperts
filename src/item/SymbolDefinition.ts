@@ -1,14 +1,20 @@
-import Base, { Dictionary, ExportJsonOptions } from '../core/Base'
-import Item, { BoundsCacheProps } from './Item'
-import UID from '../utils/UID'
-import Project from './Project'
-import PaperScope from '../core/PaperScope'
-import { Change, ChangeFlag } from './ChangeFlag'
-import Rectangle from '../basic/Rectangle'
-import Point from '../basic/Point'
-import SymbolItem from './SymbolItem'
+import {
+    Base,
+    PaperScope,
+    UID,
+    Dictionary,
+    ExportJsonOptions,
+    Rectangle,
+    Point,
+    Item,
+    SymbolItem,
+    Project,
+    BoundsCacheProps,
+    Change,
+    ChangeFlag
+} from '@paperts'
 
-export default class SymbolDefinition extends Base {
+export class SymbolDefinition extends Base {
     protected _class = 'SymbolDefinition'
 
     protected _item: Item

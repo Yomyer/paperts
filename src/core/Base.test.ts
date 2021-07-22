@@ -1,4 +1,4 @@
-import Base from './Base'
+import { Base } from '@paperts'
 
 test('toString() with _id, _class, _name', () => {
     const base: any = new Base()

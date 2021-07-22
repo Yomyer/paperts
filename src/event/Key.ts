@@ -1,8 +1,4 @@
-import Base from '../core/Base'
-import PaperScope from '../core/PaperScope'
-import { Injection } from '../utils/Decorators'
-import View from '../view/View'
-import DomEvent from '../dom/DomEvent'
+import { Base, PaperScope, Injection, View, DomEvent } from '@paperts'
 
 export type ModifiersType = {
     shift?: boolean
@@ -18,7 +14,7 @@ export type ModifiersType = {
 @Injection(() => {
     Key.registerEvents()
 })
-export default class Key {
+export class Key {
     static keyLookup = {
         '\t': 'tab',
         ' ': 'space',

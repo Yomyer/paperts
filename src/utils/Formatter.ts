@@ -13,7 +13,7 @@ type Size = {
  * @class
  * @private
  */
-export default class Formatter {
+export class Formatter {
     precision: number
     multiplier: number
 

@@ -1,5 +1,4 @@
-import Color from './Color'
-import GradientStop from './GradientStop'
+import { Color, GradientStop } from '@paperts'
 
 test('Gradient', function () {
     const stop1 = new GradientStop({ offset: 0.5 })

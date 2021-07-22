@@ -1,14 +1,16 @@
-import Size from '../basic/Size'
-import CanvasProvider from '../canvas/CanvasProvider'
-import Base from '../core/Base'
-import PaperScope from '../core/PaperScope'
-import DomElement from '../dom/DomElement'
-import Project from '../item/Project'
-import { Exportable } from '../utils/Decorators'
-import View from './View'
+import {
+    Size,
+    CanvasProvider,
+    Base,
+    PaperScope,
+    DomElement,
+    Project,
+    Exportable,
+    View
+} from '@paperts'
 
 @Exportable()
-export default class CanvasView extends View {
+export class CanvasView extends View {
     protected _class = 'CanvasView'
 
     protected _context: CanvasRenderingContext2D
