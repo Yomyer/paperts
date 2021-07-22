@@ -480,7 +480,7 @@ export default class View extends Emitter {
     /**
      * Private method, overridden in CanvasView for HiDPI support.
      */
-    _setElementSize(width: number, height: number) {
+    protected _setElementSize(width: number, height: number) {
         const element = this._element as Size
         if (element) {
             if (element.width !== width) element.width = width
@@ -542,7 +542,7 @@ export default class View extends Emitter {
     // Empty stubs of #getPixelSize() and #getTextWidth(), around so that
     // web-workers don't fail. Overridden with proper functionality in
     // CanvasView.
-    getPixelSize(size: string) {
+    getPixelSize(size: number) {
         const element = this._element as HTMLElement
         let pixels
         if (element) {
@@ -561,7 +561,7 @@ export default class View extends Emitter {
         return pixels
     }
 
-    getTextWidth(/* font: number, lines: number */) {
+    getTextWidth(_font: string, _lines: string[]) {
         return 0
     }
 

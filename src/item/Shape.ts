@@ -491,10 +491,12 @@ export default class Shape extends Item {
      * });
      */
     static get Circle(): {
+        (pointX: PointType, pointY: PointType, radius: number): Shape
         (point: PointType, radius: number): Shape
-        (object: object): Shape
+        (object?: object): Shape
+        new (pointX: PointType, pointY: PointType, radius: number): Shape
         new (point: PointType, radius: number): Shape
-        new (object: object): Shape
+        new (object?: object): Shape
     } {
         return function (...args: any[]) {
             const center = Point.readNamed(args, 'center')
@@ -603,13 +605,25 @@ export default class Shape extends Item {
 
     static get Rectangle(): {
         (rectangle: RectangleType, radius: SizeType): Shape
+        (
+            pointX: number,
+            pointY: number,
+            sizeWidth: number,
+            sizeHeight: number
+        ): Shape
         (point: PointType, size: SizeType): Shape
         (fromt: PointType, to: PointType): Shape
-        (object: object): Shape
+        (object?: object): Shape
         new (rectangle: RectangleType, radius: SizeType): Shape
+        new (
+            pointX: number,
+            pointY: number,
+            sizeWidth: number,
+            sizeHeight: number
+        ): Shape
         new (point: PointType, size: SizeType): Shape
         new (fromt: PointType, to: PointType): Shape
-        new (object: object): Shape
+        new (object?: object): Shape
     } {
         return function (...args: any[]) {
             const rect = Rectangle.readNamed(args, 'rectangle')
@@ -664,13 +678,27 @@ export default class Shape extends Item {
      */
     static get Ellipse(): {
         (rectangle: RectangleType, radius: SizeType): Shape
+        (
+            pointX: number,
+            pointY: number,
+            sizeWidth: number,
+            sizeHeight: number
+        ): Shape
         (point: PointType, size: SizeType): Shape
+        (fromX: number, fromY: number, toX: number, toY: number): Shape
         (fromt: PointType, to: PointType): Shape
-        (object: object): Shape
+        (object?: object): Shape
         new (rectangle: RectangleType, radius: SizeType): Shape
+        new (
+            pointX: number,
+            pointY: number,
+            sizeWidth: number,
+            sizeHeight: number
+        ): Shape
         new (point: PointType, size: SizeType): Shape
+        new (fromX: number, fromY: number, toX: number, toY: number): Shape
         new (fromt: PointType, to: PointType): Shape
-        new (object: object): Shape
+        new (object?: object): Shape
     } {
         return function (...args: any[]) {
             const ellipse = Shape._readEllipse(args)

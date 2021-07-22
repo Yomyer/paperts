@@ -26,7 +26,6 @@ import Layer from './Layer'
 import { Size } from '../basic'
 import HitResult, { HitResultOptions, HitResultTypes } from './HitResult'
 import SymbolDefinition from './SymbolDefinition'
-import SvgImport, { SvgImportOptions } from '../svg/SvgImport'
 import Color from '../style/Color'
 import { Color as ColorType } from '../style/Types'
 import PaperMouseEvent from '../event/MouseEvent'
@@ -2135,7 +2134,7 @@ export default class Item extends Emitter {
     // TODO: Move #getIntersections() to Item, make it handle all type of items
     // through _asPathItem(), and support Group items as well, taking nested
     // matrices into account properly!
-    protected _asPathItem() {
+    protected _asPathItem(): any {
         return new Path.Rectangle({
             rectangle: this.getInternalBounds(),
             matrix: this._matrix,
@@ -2718,7 +2717,7 @@ export default class Item extends Emitter {
      * @return {Item} the newly created Paper.js item containing the converted
      *     SVG content
      */
-    importSVG(node: SVGElement | string, options?: SvgImportOptions): Item
+    importSVG(node: SVGElement | string, options?: any): Item
 
     /**
      * Imports the provided external SVG file, converts it into Paper.js items
@@ -2737,15 +2736,15 @@ export default class Item extends Emitter {
      *     SVG content
      */
     importSVG(node: SVGElement | string, onLoad?: Function): Item
-    importSVG(
-        node: SVGElement | string,
-        options?: Function | SvgImportOptions
-    ): Item {
+    importSVG(_node: SVGElement | string, _options?: Function | any): Item {
+        return null
+        /*
         return SvgImport.importSVG(
             node as unknown as HTMLElement,
             options,
             this
         )
+        */
     }
 
     /**
