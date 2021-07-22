@@ -22,7 +22,7 @@ export class DomEvent {
 
                     const options =
                         el === document &&
-                        (name === 'touchstart' || name === 'touchmove')
+                            (name === 'touchstart' || name === 'touchmove')
                             ? { passive: false }
                             : false
                     el.addEventListener(name, func, options)

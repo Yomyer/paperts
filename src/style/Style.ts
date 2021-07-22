@@ -7,7 +7,8 @@ import {
     TextItem,
     Color,
     CompoundPath,
-    Point
+    Point,
+    Exportable
 } from '@paperts'
 
 import { Point as PointType } from '../basic/Types'
@@ -47,14 +48,14 @@ export type StyleItem = {
 export type StyleGroup = {
     fontFamily?: string
     fontWeight?:
-        | 'normal'
-        | 'bold'
-        | 'lighter'
-        | 'bolder'
-        | 'unset'
-        | 'inherit'
-        | 'uset'
-        | number
+    | 'normal'
+    | 'bold'
+    | 'lighter'
+    | 'bolder'
+    | 'unset'
+    | 'inherit'
+    | 'uset'
+    | number
     fontSize?: string | number
     leading?: string | number
     justification?: 'left' | 'right' | 'center'
@@ -113,13 +114,14 @@ const flags = {
     justification: Change.GEOMETRY
 }
 
+@Exportable()
 export class Style extends Base {
     protected _class = 'Style'
     protected _owner: Item
 
-    protected _values: { [key: string]: any } = {}
+    protected _values: { [key: string]: any }
     protected _project: Project
-    protected _defaults: any = {}
+    protected _defaults: any
 
     constructor(style?: StyleProps, owner?: Item, project?: Project)
     constructor(...args: any[]) {
@@ -138,13 +140,11 @@ export class Style extends Base {
             !_owner || _owner instanceof Group
                 ? groupDefaults
                 : _owner instanceof TextItem
-                ? textDefaults
-                : itemDefaults
+                    ? textDefaults
+                    : itemDefaults
+
+
         if (style) this.set(style)
-
-        this.fillColor = '#f00'
-
-        console.log(this)
 
         return this
     }
@@ -311,7 +311,7 @@ export class Style extends Base {
             for (let i = 0, l = children.length; i < l; i++)
                 children[i].style[set](value)
         }
-        console.log(isColor, this._defaults)
+
         if (
             (key === 'selectedColor' || !applyToChildren) &&
             key in this._defaults
@@ -334,8 +334,6 @@ export class Style extends Base {
                 this._values[key] = value
                 if (owner) owner.changed(flag || Change.STYLE)
             }
-
-            console.log(this._values)
         }
     }
 
@@ -659,10 +657,7 @@ export class Style extends Base {
     }
 
     set fillColor(color: Color | ColorType) {
-        console.log(this)
         this.setFillColor(color)
-
-        console.log(this._values)
     }
 
     /**

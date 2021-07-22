@@ -13,7 +13,6 @@ import {
     DomElement,
     Project,
     DomEvent,
-    Stats,
     Change,
     Item,
     Rectangle,
@@ -21,13 +20,14 @@ import {
     LinkedPoint,
     Exportable,
     Injection,
-    PaperMouseEvent,
+    MouseEvent as PaperMouseEvent,
     MouseEventTypes,
-    PaperKeyEvent,
+    KeyEvent as PaperKeyEvent,
     KeyEventTypes,
     ToolEventTypes
 } from '@paperts'
 
+import Stats from '../utils/Stats'
 import { Size as SizeType, Point as PointType } from '../basic/Types'
 
 type ViewFrameEventFunction = (_: FrameEvent) => void
@@ -313,7 +313,7 @@ export class View extends Emitter {
                     if (
                         (!DomElement.getPrefixed(document, 'hidden') ||
                             PaperScope.getAttribute(element, 'keepalive') ===
-                                'true') &&
+                            'true') &&
                         DomElement.isInView(element)
                     ) {
                         this._handleFrame()
@@ -1678,7 +1678,7 @@ export class View extends Emitter {
                 clickItem =
                 clickTime =
                 dblClick =
-                    null
+                null
         }
     }
 }

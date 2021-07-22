@@ -1,5 +1,4 @@
-import Project from '../item/Project'
-import View from './View'
+import { Project, View } from '@paperts'
 
 test('number()', () => {
     /*
