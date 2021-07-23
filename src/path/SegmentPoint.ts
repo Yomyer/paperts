@@ -17,7 +17,6 @@ export class SegmentPoint extends Point {
         if (!point) {
             x = y = 0
         } else if ((x = point[0]) !== undefined) {
-            // Array-like
             y = point[1]
         } else {
             let pt = point
@@ -72,7 +71,7 @@ export class SegmentPoint extends Point {
     }
 
     get y() {
-        return this.getX()
+        return this.getY()
     }
 
     set y(y: number) {

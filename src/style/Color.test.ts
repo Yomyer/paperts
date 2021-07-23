@@ -1,4 +1,4 @@
-import { Color } from '@paperts'
+import { Color, Group, Path } from '@paperts'
 
 test('Creating Colors', function () {
     expect(new Color()).toStrictEqual(new Color(0, 0, 0))
@@ -197,12 +197,11 @@ test('Color#equals()', function () {
     expect(new Color(1, 0, 0, 1).equals(red)).toStrictEqual(true)
 })
 
-/* TODO Faltan test con objectos reales
-test('Modifying group.strokeColor for multiple children', function() {
-    var item = new Group(new Path(), new Path());
-    item.strokeColor = 'red';
-    var strokeColor = item.strokeColor;
-    item.strokeColor.hue = 50;
-    equals(function() { return item.strokeColor !== undefined; }, true);
-});
-*/
+test('Modifying group.strokeColor for multiple children', function () {
+    const item = new Group(new Path(), new Path())
+    item.strokeColor = new Color('#F00')
+
+    item.strokeColor.hue = 50
+    console.log(item.strokeColor.toCSS(), item.strokeColor.type)
+    // expect(item.strokeColor !== undefined).toStrictEqual(true)
+})

@@ -212,15 +212,15 @@ const converters = {
 @Exportable()
 export class Color extends Base {
     protected _class = 'Color'
-    private _type: ColorTypes
-    private _canvasStyle: string
-    private _alpha: number
-    private _components: any[]
-    private _properties: string[]
-    private _owner: Base
-    private _setter: string
+    protected _type: ColorTypes
+    protected _canvasStyle: string
+    protected _alpha: number
+    protected _components: any[]
+    protected _properties: string[]
+    protected _owner: Base
+    protected _setter: string
 
-    private static types = types
+    protected static types = types
 
     /**
      * Creates a RGB Color object.
@@ -484,8 +484,7 @@ export class Color extends Base {
             values =
                 argType === 'number'
                     ? args
-                    : // Do not use Array.isArray() to also support arguments
-                    argType === 'object' && arg.length != null
+                    : argType === 'object' && arg.length != null
                     ? arg
                     : null
 
@@ -806,7 +805,6 @@ export class Color extends Base {
      * @return {String} a CSS string representation of the color
      */
     toCSS(hex?: boolean): string {
-        // TODO: Support HSL / HSLA CSS3 colors directly, without conversion
         let components = this._convert('rgb')
         const alpha = hex || this._alpha == null ? 1 : this._alpha
         function convert(val: number) {
@@ -940,8 +938,7 @@ export class Color extends Base {
     private parser(name: string, type: string) {
         return type === 'gradient'
             ? name === 'gradient'
-                ? // gradient property of gradient color:
-                  (...args: any[]) => {
+                ? (...args: any[]) => {
                       const current = this._components[0]
                       const value: any = Gradient.read(
                           Array.isArray(args[0]) ? args[0] : args,
@@ -997,7 +994,6 @@ export class Color extends Base {
         value: Gradient | PointType | number
     ) {
         const index = Color.types[type].findIndex((prop) => prop === name)
-
         if (
             this._type !== type &&
             !(this.hasOverlap(name) && /^hs[bl]$/.test(this._type))
@@ -1005,8 +1001,11 @@ export class Color extends Base {
             this._components = this._convert(type)
             this._properties = Color.types[type]
             this._type = type
+
+            console.log(this._components, this._properties, this._type)
         }
         this._components[index] = this.parser(name, type)(value)
+
         this.changed()
     }
 

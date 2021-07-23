@@ -18,7 +18,6 @@ export type Dictionary = {
 
 export class Base extends Straps {
     protected _id: string
-    protected _class = 'Object'
     protected _name: string
     protected _index?: number
     protected _serialize?(
@@ -110,6 +109,10 @@ export class Base extends Straps {
      */
     getClassName(): string {
         return this._class || ''
+    }
+
+    get className(): string {
+        return this._class
     }
 
     get class() {

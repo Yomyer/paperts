@@ -88,13 +88,13 @@ export class Group extends Item {
      * });
      */
     constructor(object?: object)
+    constructor(...items: Item[])
 
     constructor(...args: any[]) {
         super(...args)
     }
 
     initialize(...args: any[]): this {
-        // Allow Group to have children and named children
         this._children = []
         this._namedChildren = {}
         if (!this._initialize(args[0]))

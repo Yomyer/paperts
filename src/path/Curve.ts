@@ -16,6 +16,27 @@ import {
 
 import { Point as PointType } from '../basic/Types'
 
+export type CurveClassifyType =
+    | 'line'
+    | 'quadratic'
+    | 'serpentine'
+    | 'cusp'
+    | 'loop'
+    | 'arch'
+
+export type CurveClassify = {
+    type: CurveClassifyType
+    roots: number[]
+}
+
+export type CurveObject = Partial<
+    | Curve
+    | {
+          segment1: Segment | number[]
+          segment2: Segment | number[]
+      }
+>
+
 export class Curve extends Base {
     protected _class = 'Curve'
     protected _path: Path
@@ -28,7 +49,7 @@ export class Curve extends Base {
 
     constructor()
 
-    constructor(parts: number[])
+    // constructor(parts: number[])
 
     /**
      * Creates a new curve object.
@@ -51,8 +72,8 @@ export class Curve extends Base {
     constructor(
         point1: PointType,
         handle1: PointType,
-        handle2: PointType,
-        point2: PointType
+        handle2?: PointType,
+        point2?: PointType
     )
 
     /**
@@ -81,6 +102,8 @@ export class Curve extends Base {
     )
 
     constructor(path: Path, segment1: Segment, segment2: Segment)
+
+    constructor(object?: CurveObject)
 
     constructor(...args: any[]) {
         super(...args)
@@ -169,6 +192,7 @@ export class Curve extends Base {
      * @return {String} a string representation of the curve
      */
     toString(): string {
+        console.log(this._segment1.point, this._segment1.point.toString())
         const parts = ['point1: ' + this._segment1.point]
         if (!this._segment1.handleOut.isZero())
             parts.push('handle1: ' + this._segment1.handleOut)
@@ -191,7 +215,7 @@ export class Curve extends Base {
      *     associated points of inflection for serpentine curves, loops, cusps,
            etc
      */
-    classify() {
+    classify(): CurveClassify {
         return Curve.classify(this.getValues())
     }
 
@@ -321,8 +345,8 @@ export class Curve extends Base {
         return this.getSegment1()
     }
 
-    set segment1(segment1: Segment) {
-        this._segment1 = segment1
+    set segment1(segment1: Segment | number[]) {
+        this._segment1 = segment1 as Segment
     }
 
     /**
@@ -339,8 +363,8 @@ export class Curve extends Base {
         return this.getSegment2()
     }
 
-    set segment2(segment2: Segment) {
-        this._segment2 = segment2
+    set segment2(segment2: Segment | number[]) {
+        this._segment2 = segment2 as Segment
     }
 
     /**
@@ -1321,7 +1345,7 @@ export class Curve extends Base {
      * tangential to the given tangent
      */
     getTimesWithTangent(x: number, y: number): number[]
-    getTimesWithTangent(point: PointType): number[]
+    getTimesWithTangent(point?: PointType): number[]
     getTimesWithTangent(...args: any[]): number[] {
         const tangent = Point.read(args)
         return tangent.isZero()
@@ -1705,7 +1729,7 @@ export class Curve extends Base {
         return type === 2 ? new Point(y, -x) : new Point(x, y)
     }
 
-    static classify(v: number[]) {
+    static classify(v: number[]): CurveClassify {
         const x0 = v[0]
         const y0 = v[1]
         const x1 = v[2]
@@ -1730,7 +1754,11 @@ export class Curve extends Base {
         d2 *= s
         d3 *= s
 
-        function type(type: string, t1?: number, t2?: number) {
+        function type(
+            type: CurveClassifyType,
+            t1?: number,
+            t2?: number
+        ): CurveClassify {
             const hasRoots = t1 !== undefined
             let t1Ok = hasRoots && t1 > 0 && t1 < 1
             let t2Ok = hasRoots && t2 > 0 && t2 < 1
@@ -1761,6 +1789,7 @@ export class Curve extends Base {
                 : type(serpentine, d3 / (3 * d2))
         }
         const d = 3 * d2 * d2 - 4 * d1 * d3
+
         if (isZero(d)) {
             return type('cusp', d2 / (2 * d1))
         }

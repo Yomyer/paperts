@@ -48,14 +48,14 @@ export type StyleItem = {
 export type StyleGroup = {
     fontFamily?: string
     fontWeight?:
-    | 'normal'
-    | 'bold'
-    | 'lighter'
-    | 'bolder'
-    | 'unset'
-    | 'inherit'
-    | 'uset'
-    | number
+        | 'normal'
+        | 'bold'
+        | 'lighter'
+        | 'bolder'
+        | 'unset'
+        | 'inherit'
+        | 'uset'
+        | number
     fontSize?: string | number
     leading?: string | number
     justification?: 'left' | 'right' | 'center'
@@ -140,9 +140,8 @@ export class Style extends Base {
             !_owner || _owner instanceof Group
                 ? groupDefaults
                 : _owner instanceof TextItem
-                    ? textDefaults
-                    : itemDefaults
-
+                ? textDefaults
+                : itemDefaults
 
         if (style) this.set(style)
 
@@ -257,20 +256,19 @@ export class Style extends Base {
         const get = 'get' + part
         const set = 'set' + part
         const owner = this._owner
+
         const children = owner && owner.children
         const applyToChildren =
             children && children.length > 0 && !(owner instanceof CompoundPath)
 
         let value: any = null
-
         if (applyToChildren && !_dontMerge) {
             for (let i = 0, l = children.length; i < l; i++) {
                 const childValue = children[i].style[get]()
                 if (!i) {
                     value = childValue
                 } else if (!Base.equals(value, childValue)) {
-                    // If there is another child with a different
-                    // style, the style is not defined:
+                    console.log('dasda')
                     return undefined
                 }
             }

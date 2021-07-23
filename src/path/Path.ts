@@ -251,6 +251,10 @@ export class Path extends PathItem {
         return this._segments[0]
     }
 
+    get firstSegment() {
+        return this.getFirstSegment()
+    }
+
     /**
      * The last Segment contained within the path.
      *
@@ -259,6 +263,10 @@ export class Path extends PathItem {
      */
     getLastSegment() {
         return this._segments[this._segments.length - 1]
+    }
+
+    get lastSegment() {
+        return this.getLastSegment()
     }
 
     /**
@@ -297,6 +305,10 @@ export class Path extends PathItem {
         return this.getCurves()[0]
     }
 
+    get firstCurve() {
+        return this.getFirstCurve()
+    }
+
     /**
      * The last Curve contained within the path.
      *
@@ -306,6 +318,10 @@ export class Path extends PathItem {
     getLastCurve() {
         const curves = this.getCurves()
         return curves[curves.length - 1]
+    }
+
+    get lastCurve() {
+        return this.getLastCurve()
     }
 
     /**
@@ -416,6 +432,10 @@ export class Path extends PathItem {
             parts.push('z')
         }
         return parts.join('')
+    }
+
+    get pathData() {
+        return this.getPathData()
     }
 
     isEmpty() {
@@ -862,7 +882,7 @@ export class Path extends PathItem {
         return this._length
     }
 
-    get lenght() {
+    get length() {
         return this.getLength()
     }
 

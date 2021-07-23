@@ -387,13 +387,13 @@ export abstract class PathItem extends Item {
                 Numerical.EPSILON
             )
             ? Curve.getIntersections(
-                this.getCurves(),
-                !self && path.getCurves(),
-                include,
-                matrix1,
-                matrix2,
-                _returnFirst
-            )
+                  this.getCurves(),
+                  !self && path.getCurves(),
+                  include,
+                  matrix1,
+                  matrix2,
+                  _returnFirst
+              )
             : []
     }
 
@@ -486,7 +486,7 @@ export abstract class PathItem extends Item {
      * @name PathItem#reverse
      * @function
      */
-    reverse(): void { }
+    reverse(): void {}
 
     /**
      * Flattens the curves in path items to a sequence of straight lines, by
@@ -518,7 +518,7 @@ export abstract class PathItem extends Item {
      * // Flatten the copied path, with a maximum error of 4 points:
      * copy.flatten(4);
      */
-    flatten(_flatness = 0.25): void { }
+    flatten(_flatness = 0.25): void {}
 
     /**
      * Smooths the path item without changing the amount of segments in the path
@@ -668,7 +668,7 @@ export abstract class PathItem extends Item {
      * // Smooth a range, using negative indices:
      * paths[4].smooth({ type: 'continuous', from: -1, to: 1 });
      */
-    smooth(_options?: PathSmoothOptions): void { }
+    smooth(_options?: PathSmoothOptions): void {}
 
     /**
      * Fits a sequence of as few curves as possible through the path's anchor
@@ -826,7 +826,7 @@ export abstract class PathItem extends Item {
         }
     }
 
-    setClosed(_closed: boolean) { }
+    setClosed(_closed: boolean) {}
 
     add(..._args: any[]): Segment | Segment[] {
         return null
@@ -900,7 +900,7 @@ export abstract class PathItem extends Item {
      */
     moveTo(x: number, y: number): void
     moveTo(point: PointType): void
-    moveTo(..._args: any[]): void { }
+    moveTo(..._args: any[]): void {}
 
     /**
      * Adds a straight curve to the path, from the the last segment in the path
@@ -914,7 +914,7 @@ export abstract class PathItem extends Item {
      */
     lineTo(x: number, y: number): void
     lineTo(point: PointType): void
-    lineTo(..._args: any[]): void { }
+    lineTo(..._args: any[]): void {}
 
     /**
      * Adds an arc from the position of the last segment in the path, passing
@@ -1049,7 +1049,7 @@ export abstract class PathItem extends Item {
         large?: number
     ): void
 
-    arcTo(..._args: any[]): void { }
+    arcTo(..._args: any[]): void {}
 
     /**
      * Adds a curve from the last segment in the path through the specified
@@ -1096,7 +1096,7 @@ export abstract class PathItem extends Item {
     ): void
 
     curveTo(through: PointType, to: PointType, time?: number): void
-    curveTo(..._args: any[]): void { }
+    curveTo(..._args: any[]): void {}
 
     /**
      * Adds a cubic bezier curve to the path, from the last segment to the
@@ -1124,7 +1124,7 @@ export abstract class PathItem extends Item {
     ): void
 
     cubicCurveTo(handle1: PointType, handle2: PointType, to: PointType): void
-    cubicCurveTo(..._args: any[]): void { }
+    cubicCurveTo(..._args: any[]): void {}
 
     /**
      * Adds a quadratic bezier curve to the path, from the last segment to the
@@ -1152,7 +1152,7 @@ export abstract class PathItem extends Item {
     ): void
 
     quadraticCurveTo(handle: PointType, to: PointType): void
-    quadraticCurveTo(..._args: any[]): void { }
+    quadraticCurveTo(..._args: any[]): void {}
 
     /**
      * Closes the path. When closed, Paper.js connects the first and last
@@ -1165,7 +1165,7 @@ export abstract class PathItem extends Item {
      *
      * @see Path#closed
      */
-    closePath(_tolerance?: number): void { }
+    closePath(_tolerance?: number): void {}
 
     /**
      * {@grouptitle Relative Drawing Commands}
@@ -1181,7 +1181,7 @@ export abstract class PathItem extends Item {
      */
     moveBy(toX: number, toY: number): void
     moveBy(to: PointType): void
-    moveBy(..._args: any[]): void { }
+    moveBy(..._args: any[]): void {}
 
     /**
      * Adds a straight curve to the path, from the the last segment in the path
@@ -1236,7 +1236,7 @@ export abstract class PathItem extends Item {
      */
     lineBy(x: number, y: number): void
     lineBy(point: PointType): void
-    lineBy(..._args: any[]): void { }
+    lineBy(..._args: any[]): void {}
 
     /**
      * Adds an arc from the position of the last segment in the path, passing
@@ -1267,7 +1267,7 @@ export abstract class PathItem extends Item {
      */
     arcBy(x: number, y: number, clockwise: boolean): void
     arcBy(point: PointType, clockwise: boolean): void
-    arcBy(..._args: any[]): void { }
+    arcBy(..._args: any[]): void {}
 
     /**
      * Adds a curve from the last segment in the path through the specified
@@ -1291,7 +1291,7 @@ export abstract class PathItem extends Item {
     ): void
 
     curveBy(through: PointType, to: PointType, time?: number): void
-    curveBy(..._args: any[]): void { }
+    curveBy(..._args: any[]): void {}
 
     /**
      * Adds a cubic bezier curve to the path, from the last segment to the
@@ -1317,7 +1317,7 @@ export abstract class PathItem extends Item {
     ): void
 
     cubicCurveBy(handle1: PointType, handle2: PointType, to: PointType): void
-    cubicCurveBy(..._args: any[]): void { }
+    cubicCurveBy(..._args: any[]): void {}
 
     /**
      * Adds a quadratic bezier curve to the path, from the last segment to the
@@ -1344,7 +1344,7 @@ export abstract class PathItem extends Item {
     ): void
 
     quadraticCurveBy(through: PointType, to: PointType): void
-    quadraticCurveBy(..._args: any[]): void { }
+    quadraticCurveBy(..._args: any[]): void {}
 
     private getPaths(path: Path | CompoundPath): Path[] {
         return (path.children || [path]) as Path[]
@@ -1423,7 +1423,7 @@ export abstract class PathItem extends Item {
         if (
             _path2 &&
             (+operator.subtract || +operator.exclude) ^
-            (+_path2.isClockwise() ^ +_path1.isClockwise())
+                (+_path2.isClockwise() ^ +_path1.isClockwise())
         )
             _path2.reverse()
 
@@ -1540,7 +1540,7 @@ export abstract class PathItem extends Item {
                 !added[path._id] &&
                 (divide ||
                     +_path2.contains(path.getPointAt(path.getLength() / 2)) ^
-                    +subtract)
+                        +subtract)
             ) {
                 paths.unshift(path)
                 return (added[path._id] = true)
@@ -1847,19 +1847,19 @@ export abstract class PathItem extends Item {
                 po === o0
                     ? 0
                     : po === o3
-                        ? 1
-                        : paL > this.max(a0, a1, a2, a3) ||
-                            paR < this.min(a0, a1, a2, a3)
-                            ? 1
-                            : Curve.solveCubic(v, io, po, roots, 0, 1) > 0
-                                ? roots[0]
-                                : 1
+                    ? 1
+                    : paL > this.max(a0, a1, a2, a3) ||
+                      paR < this.min(a0, a1, a2, a3)
+                    ? 1
+                    : Curve.solveCubic(v, io, po, roots, 0, 1) > 0
+                    ? roots[0]
+                    : 1
             const a =
                 t === 0
                     ? a0
                     : t === 1
-                        ? a3
-                        : Curve.getPoint(v, t)[dir ? 'y' : 'x']
+                    ? a3
+                    : Curve.getPoint(v, t)[dir ? 'y' : 'x']
             const winding = o0 > o3 ? 1 : -1
             const windingPrev = vPrev[io] > vPrev[io + 6] ? 1 : -1
             const a3Prev = vPrev[ia + 6]
@@ -1918,7 +1918,7 @@ export abstract class PathItem extends Item {
 
                 const monoCurves =
                     paL > this.max(a0, a1, a2, a3) ||
-                        paR < this.min(a0, a1, a2, a3)
+                    paR < this.min(a0, a1, a2, a3)
                         ? [v]
                         : Curve.getMonoCurves(v, +dir)
                 let res
@@ -2185,12 +2185,12 @@ export abstract class PathItem extends Item {
                     ? 1
                     : -1
                 : +!inter1 ^ +!inter2
-                    ? inter1
-                        ? 1
-                        : -1
-                    : path1 !== path2
-                        ? +path1._id - +path2._id // Todoojo con el id que ahora es un string :'(
-                        : seg1.index - seg2.index
+                ? inter1
+                    ? 1
+                    : -1
+                : path1 !== path2
+                ? +path1._id - +path2._id // Todoojo con el id que ahora es un string :'(
+                : seg1.index - seg2.index
         })
 
         for (let i = 0, l = segments.length; i < l; i++) {
@@ -2426,18 +2426,18 @@ export abstract class PathItem extends Item {
         return options && (options.trace === false || options.stroke)
             ? this.splitBoolean(this, path, 'divide')
             : this.createResult(
-                [
-                    this.subtract(path, options) as Path,
-                    this.intersect(path, options) as Path
-                ],
-                true,
-                this,
-                path,
-                options
-            )
+                  [
+                      this.subtract(path, options) as Path,
+                      this.intersect(path, options) as Path
+                  ],
+                  true,
+                  this,
+                  path,
+                  options
+              )
     }
 
-    setSegments(_segments: Segment[]) { }
+    setSegments(_segments: Segment[]) {}
 
     removeSegments(
         _start?: number,
@@ -2633,17 +2633,17 @@ export abstract class PathItem extends Item {
                                 y === mo0
                                     ? mv[0]
                                     : y === mo3
-                                        ? mv[6]
-                                        : Curve.solveCubic(
-                                            mv,
-                                            1,
-                                            y,
-                                            roots,
-                                            0,
-                                            1
-                                        ) === 1
-                                            ? Curve.getPoint(mv, roots[0]).x
-                                            : (mv[0] + mv[6]) / 2
+                                    ? mv[6]
+                                    : Curve.solveCubic(
+                                          mv,
+                                          1,
+                                          y,
+                                          roots,
+                                          0,
+                                          1
+                                      ) === 1
+                                    ? Curve.getPoint(mv, roots[0]).x
+                                    : (mv[0] + mv[6]) / 2
                             intercepts.push(x)
                         }
                     }

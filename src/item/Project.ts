@@ -4,8 +4,8 @@ import {
     ExportJsonOptions,
     Matrix,
     Point,
-    Size,
     CanvasProvider,
+    PaperScope,
     PaperScopeItem,
     Style,
     View,
@@ -21,41 +21,55 @@ import {
     ItemSelection
 } from '@paperts'
 
-import { Point as PointType } from '../basic/Types'
+import { Point as PointType, Size as SizeType } from '../basic/Types'
 
 type ItemChange = { item: Item; flags: ChangeFlag | Change }
 type RemoveSets = { [key: string]: { [key: string]: Item } }
 
 export class Project extends PaperScopeItem {
     protected _class = 'Project'
-    protected _list = 'projects'
-    protected _reference = 'project'
     protected _compactSerialize: true
-    protected _children: Item[] = []
-    protected _namedChildren: any = {}
+    protected _children: Item[]
+    protected _namedChildren: any
     protected _activeLayer: any = null
     protected _currentStyle: Style
     protected _view: View
-    protected _selectionItems: any = {}
+    protected _selectionItems: any
     protected _selectionCount = 0
     protected _updateVersion = 0
-    protected _changes: ItemChange[] = []
+    protected _changes: ItemChange[]
     protected _changesById: { [key: string]: ItemChange }
     protected _removeSets: RemoveSets
 
-    constructor(element?: HTMLCanvasElement | String | Size)
+    constructor(element?: HTMLCanvasElement | String | SizeType)
+    constructor(
+        element?: HTMLCanvasElement | String | SizeType,
+        scope?: PaperScope
+    )
+
     constructor(...args: any[]) {
         super(...args)
     }
 
-    initialize(element?: HTMLCanvasElement): this {
+    initialize(element?: HTMLCanvasElement, scope?: PaperScope): this {
+        this._scope = scope || this._scope
+        this._list = 'projects'
+        this._reference = 'project'
+
         super.initialize(true)
 
+        this._children = []
+        this._namedChildren = {}
+        this._activeLayer = null
         this._currentStyle = new Style(null, null, this)
         this._view = View.create(
             this,
             element || CanvasProvider.getCanvas(1, 1)
         )
+
+        this._selectionItems = {}
+        this._selectionCount = 0
+        this._updateVersion = 0
 
         return this
     }

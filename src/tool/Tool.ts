@@ -15,9 +15,7 @@ type ToolProps = {
 
 export class Tool extends PaperScopeItem {
     protected _class = 'Tool'
-    protected _list = 'tools'
-    protected _reference: 'tool'
-    protected _events: [
+    protected _events = [
         'onMouseDown',
         'onMouseUp',
         'onMouseDrag',
@@ -43,6 +41,9 @@ export class Tool extends PaperScopeItem {
     }
 
     initialize(...args: any[]): this {
+        this._list = 'tools'
+        this._reference = 'tool'
+
         super.initialize()
 
         this._moveCount = -1

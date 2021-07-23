@@ -1,7 +1,10 @@
 export class Straps {
+    protected _class = 'Object'
+
     initialize(..._: any[]) {}
 
     protected constructor(...options: any[]) {
+        this._class = this.constructor.name
         this.initialize(...options)
     }
 

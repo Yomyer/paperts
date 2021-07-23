@@ -203,7 +203,7 @@ export class Point extends Base {
         return this._x
     }
 
-    set x(x) {
+    set x(x: number) {
         this._x = x
     }
 
@@ -211,7 +211,7 @@ export class Point extends Base {
         return this._y
     }
 
-    set y(y) {
+    set y(y: number) {
         this._y = y
     }
 

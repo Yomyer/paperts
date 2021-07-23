@@ -266,6 +266,7 @@ export class Item extends Emitter {
      */
     protected _initialize(props?: ItemProps, point?: Point): boolean {
         const paper = PaperScope.paper
+
         const hasProps = props && Base.isPlainObject(props)
         const internal = hasProps && props.internal === true
         const matrix = (this._matrix = new Matrix())
@@ -276,6 +277,7 @@ export class Item extends Emitter {
         this._applyMatrix = this._canApplyMatrix && settings.applyMatrix
         if (point) matrix.translate(point)
         matrix.owner = this
+
         this._style = new Style(project.getCurrentStyle(), this, project)
 
         if (
@@ -387,12 +389,12 @@ export class Item extends Emitter {
      *     selected: true
      * });
      */
-    set(...args: any[]): this {
+    /* set(...args: any[]): this {
         return this.initialize(...args)
     }
-
-    get className() {
-        return this._class
+    */
+    set(props: Object, exclude?: Object): this {
+        return super.set(props, exclude)
     }
 
     /**
@@ -515,11 +517,11 @@ export class Item extends Emitter {
     }
 
     get style(): Style {
-        return this.getStyle()
+        return this._style
     }
 
     set style(style: Style) {
-        this.setStyle(style)
+        this._style = style
     }
 
     /**

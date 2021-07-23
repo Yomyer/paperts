@@ -1,13 +1,14 @@
 import {
     Base,
     UID,
-    Size,
     Tool,
     Project,
     CanvasProvider,
     BlendMode,
     BlendModes
 } from '@paperts'
+
+import { Size as SizeType } from '../basic/Types'
 
 import Options from '../options'
 
@@ -62,7 +63,7 @@ export type PapperSettings = {
 
 export class PaperScope extends Base {
     public _class = 'PaperScope'
-    static paper: PaperScope
+    static _paper: PaperScope
 
     agent: PapperAgent = {}
     browser: PapperAgent
@@ -133,8 +134,6 @@ export class PaperScope extends Base {
 
         const proto = PaperScope.prototype
         if (!this.support) {
-            // Set up paper.support, as an object containing properties that
-            // describe the support of various features.
             const ctx = CanvasProvider.getContext(1, 1) || {}
             proto.support = {
                 nativeDash: 'setLineDash' in ctx || 'mozDash' in ctx,
@@ -184,12 +183,24 @@ export class PaperScope extends Base {
         }
     }
 
+    static get paper() {
+        if (!PaperScope._paper) {
+            this._paper = new PaperScope().setup([100, 100])
+        }
+
+        return PaperScope._paper
+    }
+
+    static set paper(paper: PaperScope) {
+        PaperScope._paper = paper
+    }
+
     get paper() {
-        return PaperScope.paper
+        return PaperScope._paper
     }
 
     set paper(paper: PaperScope) {
-        PaperScope.paper = paper
+        PaperScope._paper = paper
     }
 
     /**
@@ -256,9 +267,9 @@ export class PaperScope extends Base {
      * the element, or the size of the canvas to be created for usage in a web
      * worker.
      */
-    setup(element: HTMLCanvasElement | String | Size) {
+    setup(element: HTMLCanvasElement | String | SizeType) {
         this.paper = this
-        this.project = new Project(element)
+        this.project = new Project(element, this)
         return this
     }
 
@@ -275,8 +286,6 @@ export class PaperScope extends Base {
     }
 
     clear() {
-        // Remove all projects, views and tools.
-        // This also removes the installed event handlers.
         const projects = this.projects
         const tools = this.tools
         for (let i = projects.length - 1; i >= 0; i--) {
@@ -298,19 +307,18 @@ export class PaperScope extends Base {
      * @param {PaperScope} scope
      */
     static setGlobalPaper(scope: PaperScope) {
-        this.paper = scope
+        PaperScope._paper = scope
     }
 
     static get(id: string) {
-        return this._scopes[id] || null
+        return PaperScope._scopes[id] || null
     }
 
     static getAttribute(el: HTMLElement, attr: string) {
-        const name = attr + 'Attribute'
-        return el[name](attr) || el[name]('data-paper-' + attr)
+        return el.getAttribute(attr) || el.getAttribute('data-paper-' + attr)
     }
 
     static hasAttribute(el: HTMLElement, attr: string): boolean {
-        return !!PaperScope.getAttribute(el, attr)
+        return el.hasAttribute(attr) || el.hasAttribute('data-paper-' + attr)
     }
 }

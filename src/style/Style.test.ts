@@ -4,13 +4,10 @@ test('equals', function () {
     const style = new Style()
     style.fillColor = new Color('#F00')
 
-    expect(style.equals({ fillColor: '#F00' })).toStrictEqual(
-        true
-    )
+    expect(style.equals({ fillColor: '#F00' })).toStrictEqual(true)
 
     style.setStrokeColor('#FFF')
     expect(style.strokeColor).toMatchObject(new Color(1, 1, 1))
-
 })
 
 test('strokeColor', function () {
