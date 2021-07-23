@@ -76,7 +76,8 @@ export class Matrix extends Base {
     constructor(matrix: Matrix)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        this.initialize(...args)
     }
 
     initialize(...args: any[]) {

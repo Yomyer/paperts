@@ -143,7 +143,8 @@ export class Point extends Base {
     constructor(point?: { x: number; y: number })
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        this.initialize(...args)
     }
 
     initialize(...args: any[]): this {

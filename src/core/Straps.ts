@@ -3,9 +3,8 @@ export class Straps {
 
     initialize(..._: any[]) {}
 
-    protected constructor(...options: any[]) {
-        this._class = this.constructor.name
-        this.initialize(...options)
+    protected constructor() {
+        // this.initialize(...options)
     }
 
     static hidden = /^(statics|enumerable|beans|preserve)$/

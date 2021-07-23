@@ -35,8 +35,8 @@ export class Base extends Straps {
 
     enumerable: boolean
 
-    constructor(...args: any[]) {
-        super(...args)
+    constructor(_args?: any) {
+        super()
     }
 
     equals(..._: any[]): boolean {
@@ -732,7 +732,6 @@ export class Base extends Straps {
     }
 
     static construct(classname: string, ...args: any[]): any {
-        console.log(Base.exports)
         if (Base.exports[classname]) {
             return new Base.exports[classname](...args)
         }
