@@ -141,7 +141,10 @@ export class Raster extends Item {
     constructor(object?: object)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {
@@ -863,6 +866,7 @@ export class Raster extends Item {
     getImageData(rectangle: RectangleType): ImageData
     getImageData(x: number, y: number, width: number, height: number): ImageData
     getImageData(from: PointType, to: PointType): ImageData
+    getImageData(): ImageData
     getImageData(...args: any[]): ImageData {
         let rect = Rectangle.read(args)
         if (rect.isEmpty()) rect = new Rectangle(this._size)

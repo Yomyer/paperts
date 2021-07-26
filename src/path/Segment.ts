@@ -132,7 +132,10 @@ export class Segment extends Base {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]) {
@@ -161,6 +164,7 @@ export class Segment extends Base {
                 handleOut = args[4] !== undefined ? [args[4], args[5]] : null
             }
         }
+
         new SegmentPoint(point, this, '_point')
         new SegmentPoint(handleIn, this, '_handleIn')
         new SegmentPoint(handleOut, this, '_handleOut')

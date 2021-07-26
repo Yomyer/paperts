@@ -48,7 +48,14 @@ export class Shape extends Item {
     protected _size: Size
     protected _radius: Size
 
-    initialize(props: ItemProps, point?: Point): this {
+    constructor(...args: any[]) {
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
+    }
+
+    initialize(props?: ItemProps, point?: Point): this {
         this._initialize(props, point)
 
         return this

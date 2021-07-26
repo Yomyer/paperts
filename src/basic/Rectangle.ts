@@ -110,10 +110,13 @@ export class Rectangle extends Base {
      */
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any) {
+    initialize(...args: any): this {
         const type = typeof args[0]
         let read
 
@@ -1124,16 +1127,19 @@ export class LinkedRectangle extends Rectangle {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === 'LinkedRectangle') {
+            this.initialize(...args)
+        }
     }
 
     initialize(
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        owner: any,
-        setter: string
+        x?: number,
+        y?: number,
+        width?: number,
+        height?: number,
+        owner?: any,
+        setter?: string
     ) {
         this._set(x, y, width, height, true)
         this._owner = owner
@@ -1178,7 +1184,7 @@ export class LinkedRectangle extends Rectangle {
     }
 
     get width() {
-        return this._y
+        return this._width
     }
 
     set width(value: number) {
@@ -1188,7 +1194,7 @@ export class LinkedRectangle extends Rectangle {
     }
 
     get height() {
-        return this._y
+        return this._height
     }
 
     set height(value: number) {

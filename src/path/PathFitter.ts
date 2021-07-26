@@ -1,16 +1,21 @@
 import { Point, Base, Numerical, Path, Segment } from '@paperts'
 
 export class PathFitter extends Base {
+    protected _class = 'PathFitter'
+
     closed: boolean
     points: Point[]
 
     constructor(path: Path)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(path: Path): this {
+    initialize(path?: Path): this {
         const points: Point[] = (this.points = [])
         const segments = path.segments
         const closed = path.closed

@@ -19,10 +19,13 @@ export class Gradient extends Base {
     constructor(stops?: GradientStopType[], radial?: boolean)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(stops: GradientStop[], radial: boolean) {
+    initialize(stops?: GradientStop[], radial?: boolean) {
         // Use UID here since Gradients are exported through dictionary.add().
         this._id = UID.get()
         if (stops && Base.isPlainObject(stops)) {

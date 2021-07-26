@@ -174,6 +174,10 @@ export abstract class PathItem extends Item {
         if (this.isClockwise() !== (clockwise = !!clockwise)) this.reverse()
     }
 
+    get pathData() {
+        return ''
+    }
+
     /**
      * The path's geometry, formatted as SVG style path data.
      *

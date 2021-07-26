@@ -107,10 +107,13 @@ export class View extends Emitter {
     constructor(project: Project, size: SizeType)
     constructor(project?: Project)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(project: Project, element: HTMLElement | Size): this {
+    initialize(project?: Project, element?: HTMLElement | Size): this {
         function getSize(name: string) {
             return (
                 element[name] ||
@@ -313,7 +316,7 @@ export class View extends Emitter {
                     if (
                         (!DomElement.getPrefixed(document, 'hidden') ||
                             PaperScope.getAttribute(element, 'keepalive') ===
-                            'true') &&
+                                'true') &&
                         DomElement.isInView(element)
                     ) {
                         this._handleFrame()
@@ -1678,7 +1681,7 @@ export class View extends Emitter {
                 clickItem =
                 clickTime =
                 dblClick =
-                null
+                    null
         }
     }
 }

@@ -44,11 +44,14 @@ export class PathFlattener extends Base {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(
-        path: Path,
+        path?: Path,
         flatness?: number,
         maxRecursion?: number,
         ignoreStraight?: boolean,
@@ -197,7 +200,7 @@ export class PathFlattener extends Base {
         return Curve.getWeightedNormal(this.curves[param.index], param.time)
     }
 
-    getCurvatureAt(offset?: number): Point {
+    getCurvatureAt(offset?: number): number {
         const param = this._get(offset)
         return Curve.getCurvature(this.curves[param.index], param.time)
     }

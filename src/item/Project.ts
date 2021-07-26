@@ -20,6 +20,7 @@ import {
     SymbolItem,
     ItemSelection
 } from '@paperts'
+import { StyleProps } from 'style/Style'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
 
@@ -48,7 +49,10 @@ export class Project extends PaperScopeItem {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(element?: HTMLCanvasElement, scope?: PaperScope): this {
@@ -214,7 +218,7 @@ export class Project extends PaperScopeItem {
         return this._currentStyle
     }
 
-    setCurrentStyle(style: Style) {
+    setCurrentStyle(style: StyleProps) {
         this._currentStyle.set(style)
     }
 
@@ -222,7 +226,7 @@ export class Project extends PaperScopeItem {
         return this.getCurrentStyle()
     }
 
-    set currentStyle(style: Style) {
+    set currentStyle(style: StyleProps) {
         this.setCurrentStyle(style)
     }
 
@@ -376,7 +380,7 @@ export class Project extends PaperScopeItem {
      * @param {Layer} layer the layer to be added to the project
      * @return {Layer} the added layer, or `null` if adding was not possible
      */
-    addLayer(layer: Layer): Layer {
+    addLayer(layer: Item): Item {
         return this.insertLayer(undefined, layer)
     }
 
@@ -388,7 +392,7 @@ export class Project extends PaperScopeItem {
      * @param {Layer} layer the layer to be inserted in the project
      * @return {Layer} the added layer, or `null` if adding was not possible
      */
-    insertLayer(index: number, layer: Layer): Layer {
+    insertLayer(index: number, layer: Item): Item {
         if (layer instanceof Layer) {
             layer.remove(false, true)
             Base.splice(this._children, [layer], index, 0)
@@ -403,14 +407,11 @@ export class Project extends PaperScopeItem {
         } else {
             layer = null
         }
+
         return layer
     }
 
-    protected _insertItem(
-        index: number,
-        item: Layer,
-        _created?: boolean
-    ): Item {
+    protected _insertItem(index: number, item: Item, _created?: boolean): Item {
         item =
             this.insertLayer(index, item) ||
             (
@@ -418,12 +419,12 @@ export class Project extends PaperScopeItem {
                 this._insertItem(undefined, new Layer(Item.NO_INSERT), true)
             ).insertChild(index, item)
 
-        if (_created && item.activate) item.activate()
+        if (_created && item instanceof Layer && item.activate) item.activate()
         return item
     }
 
     insertItem(index: number, item: Item, _created?: boolean): Item {
-        return this.insertItem(index, item, _created)
+        return this._insertItem(index, item, _created)
     }
 
     /**

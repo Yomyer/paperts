@@ -4,7 +4,7 @@ import {
     UID,
     Dictionary,
     ExportJsonOptions,
-    Rectangle,
+    BoundsCache,
     Point,
     Item,
     SymbolItem,
@@ -18,9 +18,9 @@ export class SymbolDefinition extends Base {
     protected _class = 'SymbolDefinition'
 
     protected _item: Item
-    bounds: Rectangle
-    position: Point
-    boundsCache: BoundsCacheProps
+    protected _position: Point
+    protected _bounds: { [key: string]: BoundsCache }
+    protected _boundsCache: BoundsCacheProps
 
     project: Project
 
@@ -60,10 +60,13 @@ export class SymbolDefinition extends Base {
      */
     constructor(item: Item, dontCenter?: boolean)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(item: Item, dontCenter?: boolean) {
+    initialize(item?: Item, dontCenter?: boolean) {
         this._id = UID.get()
         this.project = PaperScope.paper.project
         if (item) this.setItem(item, dontCenter)
@@ -90,7 +93,8 @@ export class SymbolDefinition extends Base {
      * @param {ChangeFlag} flags describes what exactly has changed
      */
     protected _changed(flags: ChangeFlag | Change) {
-        if (flags & ChangeFlag.GEOMETRY) Item._clearBoundsCache(this)
+        if (flags & ChangeFlag.GEOMETRY)
+            Item._clearBoundsCache(this as unknown as Item)
         if (flags & ChangeFlag.APPEARANCE) this.project.changed(flags)
     }
 

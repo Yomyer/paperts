@@ -1,14 +1,19 @@
 import { Point, Numerical, Segment, SegmentSelection } from '@paperts'
 
 export class SegmentPoint extends Point {
+    protected _class = 'SegmentPoint'
     protected _owner: Segment
 
     constructor(point: Point, owner: Segment, key: string)
+
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]): this {
+    override initialize(...args: any[]): this {
         const point: Point = args[0]
         const owner: Segment = args[1]
         const key: number = args[2]
@@ -30,7 +35,6 @@ export class SegmentPoint extends Point {
         this._x = x
         this._y = y
         this._owner = owner
-
         owner[key] = this
         if (selected) this.setSelected(true)
 

@@ -92,7 +92,7 @@ export type BoundsOptions = {
 
 export type BoundsCacheProps = {
     ids: { [key: string]: Item }
-    list: Array<Item | SymbolDefinition>
+    list: Item[]
 }
 
 export type CloneOptions = {
@@ -100,7 +100,7 @@ export type CloneOptions = {
     deep: boolean
 }
 
-type RasterOptions = {
+export type RasterOptions = {
     resolution?: number
     raster?: Raster
     insert?: boolean
@@ -140,11 +140,17 @@ export type DrawOptions = {
     dontFinish?: boolean
 }
 
-type RemoveOnOptions = {
+export type RemoveOnOptions = {
     move?: boolean
     drag?: boolean
     down?: boolean
     up?: boolean
+}
+
+export type BoundsCache = {
+    rect?: Rectangle
+    internal?: boolean
+    nonscaling?: boolean
 }
 
 export class Item extends Emitter {
@@ -167,7 +173,7 @@ export class Item extends Emitter {
     protected _selectChildren = false
     protected _matrix: Matrix
     protected _style: Style
-    protected _bounds: Rectangle
+
     protected _position: Point
     protected _decomposed: MatrixDecompose
     protected _globalMatrix: Matrix
@@ -175,6 +181,7 @@ export class Item extends Emitter {
     protected _definition: SymbolDefinition
     protected _data: {}
     protected _boundsOptions: BoundsOptions = {}
+    protected _bounds: { [key: string]: BoundsCache }
     protected _boundsCache: BoundsCacheProps
     protected _namedChildren: { [key: string]: Item[] }
     protected _updateVersion: number
@@ -244,13 +251,14 @@ export class Item extends Emitter {
 
     constructor(props: ItemProps, point: Point)
     constructor(props?: ItemProps)
-    constructor(...args: any[]) {
-        super(...args)
+    constructor(..._args: any[]) {
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(..._args)
+        }
     }
 
     initialize(..._args: any[]): this {
-        // Do nothing, but declare it for named constructors.
-
         return this
     }
 
@@ -355,7 +363,7 @@ export class Item extends Emitter {
             this._globalMatrix = undefined
         }
         if (cacheParent && flags & (ChangeFlag.GEOMETRY | ChangeFlag.STROKE)) {
-            Item._clearBoundsCache(cacheParent)
+            Item._clearBoundsCache(cacheParent as Item)
         }
         if (flags & ChangeFlag.CHILDREN) {
             Item._clearBoundsCache(this)
@@ -521,7 +529,7 @@ export class Item extends Emitter {
     }
 
     set style(style: Style) {
-        this._style = style
+        this.setStyle(style)
     }
 
     /**
@@ -1182,7 +1190,10 @@ export class Item extends Emitter {
             this._getBoundsCacheKey(options, internal)
         let bounds = this._bounds
 
-        Item._updateBoundsCache(this._parent || this._symbol, cacheItem)
+        Item._updateBoundsCache(
+            (this._parent || this._symbol) as Item,
+            cacheItem
+        )
         if (cacheKey && bounds && cacheKey in bounds) {
             const cached = bounds[cacheKey]
             return {
@@ -1202,10 +1213,11 @@ export class Item extends Emitter {
 
         if (cacheKey) {
             if (!bounds) {
-                this._bounds = bounds = new Rectangle()
+                this._bounds = bounds = {}
             }
             // const cached =
             bounds[cacheKey] = {
+                rect: rect.clone(),
                 nonscaling: nonscaling,
                 internal: internal
             }
@@ -1250,10 +1262,10 @@ export class Item extends Emitter {
      * group for its bounds. If stored on the children, we would have 100
      * times the same structure.
      */
-    static _updateBoundsCache(parent: Item | SymbolDefinition, item: Item) {
+    static _updateBoundsCache(parent: Item, item: Item) {
         if (parent && item) {
             const id = item._id
-            const ref = (parent.boundsCache = parent.boundsCache || {
+            const ref = (parent._boundsCache = parent._boundsCache || {
                 ids: {},
                 list: []
             })
@@ -1270,15 +1282,15 @@ export class Item extends Emitter {
      * contributing to. See _updateBoundsCache() for an explanation why this
      * information is stored on parents, not the children themselves.
      */
-    static _clearBoundsCache(item: Item | SymbolDefinition) {
-        const cache = item.boundsCache
+    static _clearBoundsCache(item: Item) {
+        const cache = item._boundsCache
         if (cache) {
-            item.bounds = item.position = item.boundsCache = undefined
+            item._bounds = item._position = item._boundsCache = undefined
             for (let i = 0, list = cache.list, l = list.length; i < l; i++) {
                 const other = list[i]
                 if (other !== item) {
-                    other.bounds = other.position = undefined
-                    if (other.boundsCache) Item._clearBoundsCache(other)
+                    other._bounds = other._position = undefined
+                    if (other._boundsCache) Item._clearBoundsCache(other)
                 }
             }
         }
@@ -2997,12 +3009,14 @@ export class Item extends Emitter {
         const project = this._project
         const index = this._index
         if (this._style) this._style._dispose()
+
         if (owner) {
             if (this._name) this._removeNamed()
             if (index != null) {
                 if (this instanceof Layer && project.activeLayer === this)
                     project.activeLayer = (this.getNextSibling() ||
                         this.getPreviousSibling()) as Layer
+
                 Base.splice(owner.children, null, index, 1)
             }
             this._installEvents(false)

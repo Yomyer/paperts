@@ -3,7 +3,7 @@ export class Straps {
 
     initialize(..._: any[]) {}
 
-    protected constructor() {
+    protected constructor(..._args: any[]) {
         // this.initialize(...options)
     }
 

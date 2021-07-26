@@ -35,7 +35,7 @@ export class Base extends Straps {
 
     enumerable: boolean
 
-    constructor(_args?: any) {
+    constructor(..._args: any[]) {
         super()
     }
 
@@ -695,7 +695,7 @@ export class Base extends Straps {
         } else {
             const args = [index, remove]
             if (items) Base.push(args, items)
-            const removed = list.splice(index, remove, ...items)
+            const removed = list.splice(index, remove, ...(items || []))
 
             for (let i = 0, l = removed.length; i < l; i++)
                 removed[i]._index = undefined

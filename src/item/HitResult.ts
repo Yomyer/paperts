@@ -65,14 +65,17 @@ export class HitResult extends Base {
 
     constructor(type: HitResultTypes, item: Item, values?: any)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(type: HitResultTypes, item: Item, values?: any) {
-        this.type = type
-        this.item = item
+    initialize(...args: any[]) {
+        this.type = args[0]
+        this.item = args[1]
 
-        if (values) this.inject(values)
+        if (args[2]) this.inject(args[2])
     }
 
     static getOptions(args: HitResultOptions | any[]): HitResultOptions {

@@ -111,19 +111,22 @@ export class PaperScope extends Base {
 
     static _scopes: { [key: string]: PaperScope } = {}
 
-    constructor(...args: any[]) {
-        super(...args)
+    constructor(..._args: any[]) {
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize()
+        }
     }
 
-    initialize() {
+    initialize(): this {
         this.paper = this
 
-        this.settings = new Base({
+        this.settings = {
             applyMatrix: true,
             insertItems: true,
             handleSize: 4,
             hitTolerance: 0
-        }) as PapperSettings & Base
+        } as PapperSettings
 
         this.project = null
         this.projects = []
@@ -181,6 +184,8 @@ export class PaperScope extends Base {
             if (agent.chrome) delete agent.webkit
             if (agent.atom) delete agent.chrome
         }
+
+        return this
     }
 
     static get paper() {
@@ -308,6 +313,12 @@ export class PaperScope extends Base {
      */
     static setGlobalPaper(scope: PaperScope) {
         PaperScope._paper = scope
+    }
+
+    static clearGlobalPaper() {
+        PaperScope._paper = null
+        PaperScope._scopes = {}
+        return PaperScope.paper
     }
 
     static get(id: string) {

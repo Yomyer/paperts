@@ -201,7 +201,10 @@ test('Modifying group.strokeColor for multiple children', function () {
     const item = new Group(new Path(), new Path())
     item.strokeColor = new Color('#F00')
 
+    expect(item.strokeColor.type).toStrictEqual('rgb')
+
     item.strokeColor.hue = 50
-    console.log(item.strokeColor.toCSS(), item.strokeColor.type)
-    // expect(item.strokeColor !== undefined).toStrictEqual(true)
+    expect(item.strokeColor !== undefined).toStrictEqual(true)
+
+    expect(item.strokeColor.type).toStrictEqual('hsb')
 })

@@ -64,7 +64,7 @@ export class Path extends PathItem {
     protected _overlapsOnly: boolean
 
     private static kappa = Numerical.KAPPA
-    private static ellipseSegments = [
+    private static ellipseSegments: any = [
         new Segment([-1, 0], [0, Path.kappa], [0, -Path.kappa]),
         new Segment([0, -1], [-Path.kappa, 0], [Path.kappa, 0]),
         new Segment([1, 0], [0, -Path.kappa], [0, Path.kappa]),
@@ -135,7 +135,10 @@ export class Path extends PathItem {
     constructor(pathData: string)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {

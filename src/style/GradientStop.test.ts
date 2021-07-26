@@ -17,6 +17,45 @@ test('Gradient', function () {
     expect(stop4.offset).toStrictEqual(0.5)
 })
 
+/*
+test('Gradients with applyMatrix', function () {
+    const topLeft = [100, 100]
+    const bottomRight = [400, 400]
+    const gradientColor = {
+        gradient: {
+            stops: ['yellow', 'red', 'blue']
+        },
+        origin: topLeft,
+        destination: bottomRight
+    }
+
+    const path = new Path.Rectangle({
+        topLeft: topLeft,
+        bottomRight: bottomRight,
+        fillColor: gradientColor,
+        applyMatrix: true
+    })
+
+    const shape = new Shape.Rectangle({
+        topLeft: topLeft,
+        bottomRight: bottomRight,
+        fillColor: gradientColor,
+        applyMatrix: false
+    })
+
+    comparePixels(path, shape)
+
+  
+    path.scale(2)
+    path.rotate(45)
+    shape.scale(2)
+    shape.rotate(45)
+
+    comparePixels(path, shape)
+ 
+})
+*/
+
 test('exportJSON', function () {
     const gradientStop = new GradientStop()
     expect(gradientStop.exportJSON()).toStrictEqual(`["GradientStop",[0,0,0]]`)

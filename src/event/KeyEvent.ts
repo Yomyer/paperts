@@ -17,14 +17,19 @@ export class KeyEvent extends Event {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         this.type = args[0]
         this.event = args[1]
         this.key = args[2]
         this.character = args[3]
+
+        return this
     }
 
     /**

@@ -27,10 +27,13 @@ export class Line extends Base {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         let asVector = false
         if (args.length >= 4) {
             this._px = args[0]
@@ -49,6 +52,8 @@ export class Line extends Base {
             this._vx -= this._px
             this._vy -= this._py
         }
+
+        return this
     }
 
     /**

@@ -77,10 +77,12 @@ export class Matrix extends Base {
 
     constructor(...args: any[]) {
         super()
-        this.initialize(...args)
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         const count = args.length
         let ok = true
         if (count >= 6) {

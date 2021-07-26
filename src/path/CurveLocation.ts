@@ -37,12 +37,15 @@ export class CurveLocation extends Base {
     )
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(
-        curve: Curve,
-        time: number,
+        curve?: Curve,
+        time?: number,
         point?: Point,
         _overlap?: boolean,
         _distance?: number

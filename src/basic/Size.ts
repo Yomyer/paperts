@@ -97,10 +97,12 @@ export class Size extends Base {
 
     constructor(...args: any[]) {
         super()
-        this.initialize(...args)
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         const arg0 = args[0]
         const arg1 = args[1]
         const type = typeof arg0
@@ -539,14 +541,17 @@ export class LinkedSize extends Size {
 
     constructor(widthx: number, height: number, owner: Base, setter: string)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === 'LinkedSize') {
+            this.initialize(...args)
+        }
     }
 
     initialize(
-        width: number,
-        height: number,
-        owner: Base,
-        setter: string
+        width?: number,
+        height?: number,
+        owner?: Base,
+        setter?: string
     ): this {
         this._width = width
         this._height = height

@@ -37,7 +37,10 @@ export class Tool extends PaperScopeItem {
 
     constructor(props?: ToolProps)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {

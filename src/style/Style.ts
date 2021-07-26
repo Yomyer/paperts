@@ -125,13 +125,16 @@ export class Style extends Base {
 
     constructor(style?: StyleProps, owner?: Item, project?: Project)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(
-        style: StyleProps | Style,
-        _owner: Item,
-        _project: Project
+        style?: StyleProps | Style,
+        _owner?: Item,
+        _project?: Project
     ): this {
         this._values = {}
         this._owner = _owner
@@ -262,13 +265,13 @@ export class Style extends Base {
             children && children.length > 0 && !(owner instanceof CompoundPath)
 
         let value: any = null
+
         if (applyToChildren && !_dontMerge) {
             for (let i = 0, l = children.length; i < l; i++) {
                 const childValue = children[i].style[get]()
                 if (!i) {
                     value = childValue
                 } else if (!Base.equals(value, childValue)) {
-                    console.log('dasda')
                     return undefined
                 }
             }
@@ -289,9 +292,11 @@ export class Style extends Base {
                 }
             }
         }
+
         if (value && isColor) {
             value = Color._setOwner(value, owner, applyToChildren && set)
         }
+
         return value
     }
 
@@ -309,7 +314,6 @@ export class Style extends Base {
             for (let i = 0, l = children.length; i < l; i++)
                 children[i].style[set](value)
         }
-
         if (
             (key === 'selectedColor' || !applyToChildren) &&
             key in this._defaults
@@ -321,6 +325,7 @@ export class Style extends Base {
                         Color._setOwner(old as Color, null)
                         old._canvasStyle = null
                     }
+
                     if (value && value.constructor === Color) {
                         value = Color._setOwner(
                             value,
@@ -337,6 +342,10 @@ export class Style extends Base {
 
     get defaults() {
         return this._defaults
+    }
+
+    get owner() {
+        return this._owner
     }
 
     /**

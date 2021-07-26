@@ -185,6 +185,6 @@ test('exportJSON', function () {
     const style = new Style()
 
     expect(style.exportJSON()).toStrictEqual(
-        `{"_values":{},"_defaults":{"fillColor":null,"fillRule":"nonzero","strokeColor":null,"strokeWidth":1,"strokeCap":"butt","strokeJoin":"miter","strokeScaling":true,"miterLimit":10,"dashOffset":0,"dashArray":[],"shadowColor":null,"shadowBlur":0,"shadowOffset":["Point",0,0],"selectedColor":null,"fontFamily":"sans-serif","fontWeight":"normal","fontSize":12,"leading":null,"justification":"left"},"_class":"Style"}`
+        `{"_class":"Style","_values":{},"_defaults":{"fillColor":null,"fillRule":"nonzero","strokeColor":null,"strokeWidth":1,"strokeCap":"butt","strokeJoin":"miter","strokeScaling":true,"miterLimit":10,"dashOffset":0,"dashArray":[],"shadowColor":null,"shadowBlur":0,"shadowOffset":["Point",0,0],"selectedColor":null,"fontFamily":"sans-serif","fontWeight":"normal","fontSize":12,"leading":null,"justification":"left"}}`
     )
 })

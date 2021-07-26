@@ -11,12 +11,17 @@ export class Event extends Base {
     constructor(event?: UIEvent)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         this.event = args[0]
         this.type = this.event && this.event.type
+
+        return this
     }
 
     /**

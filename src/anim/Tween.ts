@@ -68,19 +68,6 @@ export class Tween extends Emitter {
         }
     })
 
-    constructor(
-        object: Item,
-        from: object,
-        to: object,
-        duration: number,
-        easing: string | Function,
-        start: boolean
-    )
-
-    constructor(...args: any[]) {
-        super(...args)
-    }
-
     /**
      * Creates a new tween.
      *
@@ -91,16 +78,31 @@ export class Tween extends Emitter {
      * @param {String|Function} [easing='linear'] the type of the easing
      *     function or the easing function
      * @param {Boolean} [start=true] whether to start tweening automatically
-     * @return {Tween} the newly created tween
      */
-    initialize(
-        object: object,
+    constructor(
+        object: Item,
         from: object,
         to: object,
         duration: number,
-        easing: string | Function,
-        start: boolean
-    ): this {
+        easing?: string | Function,
+        start?: boolean
+    )
+
+    constructor(...args: any[]) {
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
+    }
+
+    initialize(...args: any[]): this {
+        const object = args[0]
+        const from = args[1]
+        const to = args[2]
+        const duration = args[3]
+        const easing = args[4]
+        const start = args[5]
+
         this.object = object
         const type = typeof easing
         const isFunction = type === 'function'

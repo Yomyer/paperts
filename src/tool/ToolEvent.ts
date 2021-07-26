@@ -17,13 +17,18 @@ export class ToolEvent extends Event {
     constructor(tool: Tool, type: ToolEventTypes, event: UIEvent)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: any[]): this {
         this.tool = args[0]
         this.type = args[1]
         this.event = args[2]
+
+        return this
     }
 
     /**

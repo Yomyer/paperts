@@ -95,7 +95,10 @@ export class CompoundPath extends PathItem {
     constructor(pathData: string)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {

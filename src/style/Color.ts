@@ -449,7 +449,10 @@ export class Color extends Base {
     constructor(type: ColorTypes, components: ColorType, alpha: number)
 
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {
@@ -922,7 +925,9 @@ export class Color extends Base {
         if (color) {
             if (color._owner && owner && color._owner !== owner) {
                 color = color.clone()
+                color._owner = undefined
             }
+
             if (!color._owner !== !owner) {
                 color._owner = owner || null
                 color._setter = setter || null
@@ -1001,8 +1006,6 @@ export class Color extends Base {
             this._components = this._convert(type)
             this._properties = Color.types[type]
             this._type = type
-
-            console.log(this._components, this._properties, this._type)
         }
         this._components[index] = this.parser(name, type)(value)
 

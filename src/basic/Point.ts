@@ -144,7 +144,9 @@ export class Point extends Base {
 
     constructor(...args: any[]) {
         super()
-        this.initialize(...args)
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {
@@ -1058,10 +1060,13 @@ export class LinkedPoint extends Point {
 
     constructor(x: number, y: number, owner: Base, setter: string)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === 'LinkedPoint') {
+            this.initialize(...args)
+        }
     }
 
-    initialize(x: number, y: number, owner: Base, setter: string): this {
+    initialize(x?: number, y?: number, owner?: Base, setter?: string): this {
         this._x = x
         this._y = y
         this._owner = owner

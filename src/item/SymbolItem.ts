@@ -66,7 +66,10 @@ export class SymbolItem extends Item {
      */
     constructor(props: Item | SymbolDefinition, point?: Point)
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {

@@ -1,13 +1,18 @@
 import { Base, Emitter, PaperScope } from '@paperts'
 
 export class PaperScopeItem extends Emitter {
+    protected _class = 'PaperScopeItem'
     protected _scope: PaperScope
     protected _list: string
     protected _reference: string
 
     constructor(activate?: boolean)
+
     constructor(...args: any[]) {
-        super(...args)
+        super()
+        if (this.constructor.name === this._class) {
+            this.initialize(...args)
+        }
     }
 
     initialize(...args: any[]): this {
