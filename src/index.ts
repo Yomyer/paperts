@@ -1,3 +1,5 @@
+export * from './utils/Decorators'
+
 export * from './core/Straps'
 export * from './core/Base'
 export * from './core/Emitter'
@@ -8,7 +10,6 @@ export * from './utils/CollisionDetection'
 export * from './utils/Formatter'
 export * from './utils/Numerical'
 export * from './utils/UID'
-export * from './utils/Decorators'
 
 export * from './basic/Point'
 export * from './basic/Size'
@@ -61,6 +62,9 @@ export * from './tool/ToolEvent'
 export * from './tool/Tool'
 
 export * from './anim/Tween'
+export * from './net/Http'
 
 export * from './canvas/CanvasProvider'
 export * from './canvas/BlendMode'
+
+export * from './core/PaperScript'

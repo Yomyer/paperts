@@ -1,12 +1,4 @@
-import {
-    Point,
-    Base,
-    Numerical,
-    Curve,
-    Segment,
-    Formatter,
-    Path
-} from '@paperts'
+import { Point, Base, Numerical, Curve, Segment, Formatter, Path } from '../'
 
 export class CurveLocation extends Base {
     protected _class = 'CurveLocation'
@@ -323,6 +315,10 @@ export class CurveLocation extends Base {
         return time != null && curve && curve.getTangentAt(time, true)
     }
 
+    get tangent() {
+        return this.getTangent()
+    }
+
     /**
      * The normal vector to the {@link #curve} at the given location.
      *
@@ -334,6 +330,10 @@ export class CurveLocation extends Base {
         const curve = this.getCurve()
         const time = this.getTime()
         return time != null && curve && curve.getNormalAt(time, true)
+    }
+
+    get normal() {
+        return this.getNormal()
     }
 
     /**
@@ -349,16 +349,28 @@ export class CurveLocation extends Base {
         return time != null && curve && curve.getCurvatureAt(time, true)
     }
 
+    get curvature() {
+        return this.getCurvature()
+    }
+
     getWeightedTangent() {
         const curve = this.getCurve()
         const time = this.getTime()
         return time != null && curve && curve.getWeightedTangentAt(time, true)
     }
 
+    get weightedTangent() {
+        return this.getWeightedTangent()
+    }
+
     getWeightedNormal() {
         const curve = this.getCurve()
         const time = this.getTime()
         return time != null && curve && curve.getWeightedNormalAt(time, true)
+    }
+
+    get weightedNormal() {
+        return this.getWeightedNormal()
     }
 
     getDistance(): number {

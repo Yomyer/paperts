@@ -1,4 +1,4 @@
-import { Key } from '@paperts'
+import { Key } from '../src'
 
 test('option', () => {
     Key.modifiers.alt = true

@@ -9,7 +9,7 @@ import {
     CompoundPath,
     Point,
     Exportable
-} from '@paperts'
+} from '../'
 
 import { Point as PointType } from '../basic/Types'
 import { Color as ColorType } from './Types'

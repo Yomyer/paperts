@@ -1,4 +1,4 @@
-import { Project, View } from '@paperts'
+import { Project, View } from '../src'
 
 test('number()', () => {
     /*

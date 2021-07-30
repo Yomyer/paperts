@@ -1,4 +1,4 @@
-import { Point, Numerical, Segment, SegmentSelection } from '@paperts'
+import { Point, Numerical, Segment, SegmentSelection } from '../'
 
 export class SegmentPoint extends Point {
     protected _class = 'SegmentPoint'
@@ -34,8 +34,12 @@ export class SegmentPoint extends Point {
         }
         this._x = x
         this._y = y
-        this._owner = owner
-        owner[key] = this
+
+        if (owner) {
+            this._owner = owner
+            owner[key] = this
+        }
+
         if (selected) this.setSelected(true)
 
         return this

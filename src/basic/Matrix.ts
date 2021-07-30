@@ -7,7 +7,7 @@ import {
     Formatter,
     Point,
     Rectangle
-} from '@paperts'
+} from '..'
 
 import { Point as PointType, Size as SizeType } from './Types'
 

@@ -11,7 +11,7 @@ import {
     HitResult,
     HitResultOptions,
     Path
-} from '@paperts'
+} from '../'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
 export type CompoundPathSerializeFields = {
@@ -76,7 +76,7 @@ export class CompoundPath extends PathItem {
      *     selected: true
      * });
      */
-    constructor(object: object)
+    constructor(object?: object)
 
     /**
      * Creates a new compound path item from SVG path-data and places it at the

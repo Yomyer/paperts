@@ -6,7 +6,7 @@
         "target": "es2018",
         "moduleResolution": "node",
         "sourceMap": true,
-        "esModuleInterop": true,
+        "esModuleInterop": false,
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noImplicitAny": true,

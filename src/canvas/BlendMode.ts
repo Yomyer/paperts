@@ -1,4 +1,4 @@
-import { CanvasProvider } from '@paperts'
+import { CanvasProvider } from '../'
 
 export type BlendModesKeys =
     | 'normal'

@@ -12,7 +12,7 @@ import {
     Numerical,
     CollisionDetection,
     Path
-} from '@paperts'
+} from '../'
 
 import { Point as PointType } from '../basic/Types'
 

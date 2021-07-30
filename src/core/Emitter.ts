@@ -1,7 +1,8 @@
-import { Base, Size } from '@paperts'
+import { Base, Size } from '../'
 
+export type EventFunc<T> = (event?: T, ...args: any) => void
 export type EventList = {
-    [type: string]: (event?: any, ...args: any) => void
+    [type: string]: EventFunc<any>
 }
 export type EmitterType = string | EventList
 
@@ -16,19 +17,40 @@ export type ResizeEvent = {
     delta: Size
 }
 
-export abstract class Emitter extends Base {
-    protected _eventTypes: {
-        [key: string]: {
-            install?: (event?: any, ...args: any) => void
-            uninstall?: (event?: any, ...args: any) => void
-        }
+export type EventTypeHooks = {
+    [key: string]: {
+        install?: EventFunc<any>
+        uninstall?: EventFunc<any>
     }
+}
+
+export type EventTypes =
+    | 'onMouseDown'
+    | 'onMouseUp'
+    | 'onMouseDrag'
+    | 'onClick'
+    | 'onDoubleClick'
+    | 'onMouseMove'
+    | 'onMouseEnter'
+    | 'onMouseLeave'
+    | 'onResize'
+    | 'onKeyDown'
+    | 'onKeyUp'
+
+export abstract class Emitter extends Base {
+    private _eventCache: { [key: string]: EventFunc<any> } = {}
+
+    constructor(..._args: any[]) {
+        super()
+    }
+
+    protected _eventTypes: EventTypeHooks
 
     protected _callbacks: {
-        [key: string]: [(event?: any, ...args: any) => void]
+        [key: string]: [EventFunc<any>]
     }
 
-    on(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
+    on(type: EmitterType, func?: EventFunc<any>): this {
         if (typeof type !== 'string') {
             Base.each(
                 type,
@@ -40,12 +62,12 @@ export abstract class Emitter extends Base {
         } else {
             const types = this._eventTypes
             const entry = types && types[type]
+
             let handlers: any = (this._callbacks = this._callbacks || {})
             handlers = handlers[type] = handlers[type] || []
 
             if (handlers.indexOf(func) === -1) {
                 handlers.push(func)
-
                 if (entry && entry.install && handlers.length === 1)
                     entry.install.call(this, type)
             }
@@ -53,7 +75,7 @@ export abstract class Emitter extends Base {
         return this
     }
 
-    off(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
+    off(type: EmitterType, func?: EventFunc<any>): this {
         if (typeof type !== 'string') {
             Base.each(
                 type,
@@ -86,7 +108,7 @@ export abstract class Emitter extends Base {
         return this
     }
 
-    once(type: EmitterType, func?: (event?: any, ...args: any) => void): this {
+    once(type: EmitterType, func?: EventFunc<any>): this {
         return this.on(type, function handler(this: any, ...args: any[]) {
             func(...args)
             this.off(type, handler)
@@ -135,5 +157,31 @@ export abstract class Emitter extends Base {
                 }
             }
         }
+    }
+
+    protected _injectEvents(events: EventTypeHooks) {
+        const types = {}
+
+        Base.each(events, function (entry, key) {
+            const isString = typeof entry === 'string'
+            const name = isString ? entry : key
+            const type = name.substring(2).toLowerCase()
+            types[type] = isString ? {} : entry
+        })
+
+        this._eventTypes = types
+    }
+
+    setEvent(name: string, func: EventFunc<any>) {
+        const type = name.substring(2).toLowerCase()
+
+        const prev = this._eventCache['_' + name]
+        if (prev) this.off(type, prev)
+        if (func) this.on(type, func)
+        this._eventCache['_' + name] = func
+    }
+
+    getEvent(name: string) {
+        return this._eventCache['_' + name]
     }
 }

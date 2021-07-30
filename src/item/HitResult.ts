@@ -7,7 +7,7 @@ import {
     Item,
     CurveLocation,
     Segment
-} from '@paperts'
+} from '../'
 
 export type HitResultTypes =
     | 'segment'
@@ -78,24 +78,22 @@ export class HitResult extends Base {
         if (args[2]) this.inject(args[2])
     }
 
-    static getOptions(args: HitResultOptions | any[]): HitResultOptions {
+    static getOptions(args?: HitResultOptions | any[]): HitResultOptions {
         const options = args && Base.read(args)
-        return new Base(
-            {
-                type: null,
-                tolerance: PaperScope.paper.settings.hitTolerance,
-                fill: !options,
-                stroke: !options,
-                segments: !options,
-                handles: false,
-                ends: false,
-                position: false,
-                center: false,
-                bounds: false,
-                guides: false,
-                selected: false
-            },
-            options
-        ) as unknown as HitResultOptions
+        return {
+            type: null,
+            tolerance: PaperScope.paper.settings.hitTolerance,
+            fill: !options,
+            stroke: !options,
+            segments: !options,
+            handles: false,
+            ends: false,
+            position: false,
+            center: false,
+            bounds: false,
+            guides: false,
+            selected: false,
+            ...options
+        }
     }
 }

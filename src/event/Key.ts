@@ -1,4 +1,4 @@
-import { Base, PaperScope, Injection, View, DomEvent } from '@paperts'
+import { Base, PaperScope, Runtime, View, DomEvent } from '../'
 
 export type ModifiersType = {
     shift?: boolean
@@ -11,7 +11,7 @@ export type ModifiersType = {
     space?: boolean
 }
 
-@Injection(() => {
+@Runtime(() => {
     Key.registerEvents()
 })
 export class Key {

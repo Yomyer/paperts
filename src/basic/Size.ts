@@ -5,7 +5,7 @@ import {
     ReadIndex,
     Formatter,
     Numerical
-} from '@paperts'
+} from '../'
 
 import { Size as SizeType } from './Types'
 
@@ -536,8 +536,6 @@ export class Size extends Base {
 export class LinkedSize extends Size {
     protected _owner: any
     protected _setter: string
-    protected _width: number
-    protected _height: number
 
     constructor(widthx: number, height: number, owner: Base, setter: string)
     constructor(...args: any[]) {

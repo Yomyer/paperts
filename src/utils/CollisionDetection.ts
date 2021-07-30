@@ -1,4 +1,4 @@
-import { Item, Curve } from '@paperts'
+import { Item, Curve } from '../'
 
 export class CollisionDetection {
     /**

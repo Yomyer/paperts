@@ -9,7 +9,7 @@ import {
     DrawOptions,
     ItemSerializeFields,
     SymbolDefinition
-} from '@paperts'
+} from '../'
 
 export type SymbolSerializeFields = ItemSerializeFields & {
     symbol: any
@@ -19,7 +19,6 @@ export class SymbolItem extends Item {
     protected _class = 'SymbolItem'
     protected _applyMatrix = false
     protected _canApplyMatrix = false
-    protected _definition: SymbolDefinition
     protected _boundsOptions = { stroke: true }
     protected _serializeFields: SymbolSerializeFields = {
         symbol: null

@@ -1,4 +1,4 @@
-import { Point, Base, Numerical, Path, Segment } from '@paperts'
+import { Point, Base, Numerical, Path, Segment } from '../'
 
 export class PathFitter extends Base {
     protected _class = 'PathFitter'

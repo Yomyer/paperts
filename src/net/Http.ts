@@ -1,4 +1,4 @@
-import { Base } from '@paperts'
+import { Base } from '../'
 
 type HttpOptions = {
     method?: 'get' | 'post' | 'put' | 'delete' | 'patch'
@@ -9,7 +9,7 @@ type HttpOptions = {
     onError?: (message: string, status: number) => void
 }
 
-export default class Http {
+export class Http {
     static request(options: HttpOptions) {
         const xhr = new self.XMLHttpRequest()
         xhr.open(

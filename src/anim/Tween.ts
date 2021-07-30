@@ -1,4 +1,4 @@
-import { Base, Item, Emitter } from '@paperts'
+import { Base, Item, Emitter } from '../'
 
 export type TweenOptions = {
     easing: string | Function
@@ -68,6 +68,10 @@ export class Tween extends Emitter {
         }
     })
 
+    protected _events: {
+        onUpdate: {}
+    }
+
     /**
      * Creates a new tween.
      *
@@ -96,6 +100,8 @@ export class Tween extends Emitter {
     }
 
     initialize(...args: any[]): this {
+        this._injectEvents(this._events)
+
         const object = args[0]
         const from = args[1]
         const to = args[2]
@@ -284,9 +290,6 @@ export class Tween extends Emitter {
      *     factorText.content = 'factor: ' + event.factor.toFixed(2);
      * });
      */
-    protected _events: {
-        onUpdate: {}
-    }
 
     protected _handleFrame(time: number) {
         const startTime = this._startTime

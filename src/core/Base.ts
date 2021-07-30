@@ -1,4 +1,4 @@
-import { Straps, Formatter, Change, ChangeFlag } from '@paperts'
+import { Straps, Formatter, Change, ChangeFlag } from '../'
 
 // import Item from '../item/Item'
 // import Layer from '../item/Layer'

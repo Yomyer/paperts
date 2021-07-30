@@ -1,4 +1,4 @@
-import { Base, Emitter, PaperScope } from '@paperts'
+import { Base, Emitter, PaperScope } from '../'
 
 export class PaperScopeItem extends Emitter {
     protected _class = 'PaperScopeItem'

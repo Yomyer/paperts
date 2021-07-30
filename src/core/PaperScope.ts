@@ -6,10 +6,9 @@ import {
     CanvasProvider,
     BlendMode,
     BlendModes
-} from '@paperts'
+} from '../'
 
 import { Size as SizeType } from '../basic/Types'
-
 import Options from '../options'
 
 export type OSPlatforms =
@@ -54,6 +53,11 @@ export type PapperAgent = {
     versionNumber?: number | 'jsdom'
 }
 
+export type PaperSupport = {
+    nativeDash: boolean
+    nativeBlendModes: BlendModes
+}
+
 export type PapperSettings = {
     applyMatrix: boolean
     insertItems: boolean
@@ -65,8 +69,8 @@ export class PaperScope extends Base {
     public _class = 'PaperScope'
     static _paper: PaperScope
 
-    agent: PapperAgent = {}
-    browser: PapperAgent
+    static proto: typeof PaperScope
+
     settings: PapperSettings
 
     /**
@@ -104,10 +108,10 @@ export class PaperScope extends Base {
     tool: Tool
 
     version = Options.version
-    support: {
-        nativeDash: boolean
-        nativeBlendModes: BlendModes
-    }
+
+    static agent: PapperAgent = {}
+    static browser: PapperAgent
+    static support: PaperSupport
 
     static _scopes: { [key: string]: PaperScope } = {}
 
@@ -135,10 +139,9 @@ export class PaperScope extends Base {
 
         PaperScope._scopes[this._id] = this
 
-        const proto = PaperScope.prototype
         if (!this.support) {
             const ctx = CanvasProvider.getContext(1, 1) || {}
-            proto.support = {
+            PaperScope.support = {
                 nativeDash: 'setLineDash' in ctx || 'mozDash' in ctx,
                 nativeBlendModes: BlendMode.nativeModes
             }
@@ -149,7 +152,7 @@ export class PaperScope extends Base {
             const os = (/(darwin|win|mac|linux|freebsd|sunos)/.exec(user) ||
                 [])[0]
             const platform = os === 'darwin' ? 'mac' : (os as OSPlatforms)
-            const agent = (proto.agent = proto.browser =
+            const agent = (PaperScope.agent = PaperScope.browser =
                 { platform }) as PapperAgent
             if (platform) agent[platform] = true
 
@@ -186,6 +189,18 @@ export class PaperScope extends Base {
         }
 
         return this
+    }
+
+    get agent(): PapperAgent {
+        return PaperScope.agent
+    }
+
+    get browser(): PapperAgent {
+        return PaperScope.browser
+    }
+
+    get support(): PaperSupport {
+        return PaperScope.support
     }
 
     static get paper() {

@@ -1,4 +1,4 @@
-import { Matrix, Point, Base, Curve, Path, Segment } from '@paperts'
+import { Matrix, Point, Base, Curve, Path, Segment } from '../'
 
 type PathFlattenerParts = {
     offset: number

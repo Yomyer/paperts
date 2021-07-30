@@ -1,4 +1,4 @@
-import { Color, Style } from '@paperts'
+import { Color, Style } from '../src'
 
 test('equals', function () {
     const style = new Style()

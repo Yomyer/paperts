@@ -32,8 +32,9 @@ import {
     StrokeCaps,
     StrokeJoins,
     PaperScope,
-    Rectangle
-} from '@paperts'
+    Rectangle,
+    Exportable
+} from '../'
 
 import {
     Point as PointType,
@@ -48,6 +49,7 @@ export type PathSerializeFields = {
 
 type SegmentType = Segment | Point | Number[]
 
+@Exportable()
 export class Path extends PathItem {
     protected _class = 'Path'
     protected _serializeFields: PathSerializeFields = {
@@ -65,10 +67,10 @@ export class Path extends PathItem {
 
     private static kappa = Numerical.KAPPA
     private static ellipseSegments: any = [
-        new Segment([-1, 0], [0, Path.kappa], [0, -Path.kappa]),
-        new Segment([0, -1], [-Path.kappa, 0], [Path.kappa, 0]),
-        new Segment([1, 0], [0, -Path.kappa], [0, Path.kappa]),
-        new Segment([0, 1], [Path.kappa, 0], [-Path.kappa, 0])
+        new Segment([-1, 0], [0, Numerical.KAPPA], [0, -Numerical.KAPPA]),
+        new Segment([0, -1], [-Numerical.KAPPA, 0], [Numerical.KAPPA, 0]),
+        new Segment([1, 0], [0, -Numerical.KAPPA], [0, Numerical.KAPPA]),
+        new Segment([0, 1], [Numerical.KAPPA, 0], [-Numerical.KAPPA, 0])
     ]
 
     /**
@@ -133,6 +135,8 @@ export class Path extends PathItem {
      * path.fillColor = 'red';
      */
     constructor(pathData: string)
+
+    constructor(...segments: PointType[])
 
     constructor(...args: any[]) {
         super()
@@ -897,11 +901,11 @@ export class Path extends PathItem {
      * @type Number
      */
     getArea() {
-        const area = this._area
-        if (area == null) {
+        let area = this._area
+        if (area === null || area === undefined) {
             const segments = this._segments
             const closed = this._closed
-            let area = 0
+            area = 0
             for (let i = 0, l = segments.length; i < l; i++) {
                 const last = i + 1 === l
                 area += Curve.getArea(

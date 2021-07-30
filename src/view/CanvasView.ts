@@ -7,7 +7,7 @@ import {
     Project,
     Exportable,
     View
-} from '@paperts'
+} from '../'
 
 @Exportable()
 export class CanvasView extends View {

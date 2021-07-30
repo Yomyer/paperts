@@ -1,4 +1,4 @@
-import { Base, Point, Numerical, Exportable } from '@paperts'
+import { Base, Point, Numerical, Exportable } from '../'
 import { Point as PointType } from './Types'
 
 @Exportable()

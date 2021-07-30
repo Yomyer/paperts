@@ -17,7 +17,7 @@ import {
     HitResult,
     HitResultOptions,
     Path
-} from '@paperts'
+} from '../'
 
 import {
     Size as SizeType,
@@ -132,7 +132,7 @@ export class Shape extends Item {
         }
     }
 
-    get size() {
+    get size(): Size {
         return this.getSize()
     }
 
@@ -210,7 +210,7 @@ export class Shape extends Item {
      *     this shape item
      * @see Path#toShape(insert)
      */
-    toPath(insert: boolean): Path {
+    toPath(insert?: boolean): Path {
         const paper = PaperScope.paper
         const path = new Path[Base.capitalize(this._type)]({
             center: new Point(),
@@ -464,11 +464,12 @@ export class Shape extends Item {
         radius: Size | number,
         args?: any
     ): Shape {
-        const item = Base.create(Shape.prototype) as Shape
+        const item = new Shape()
         item._type = type
         item._size = size
         item._radius = new Size(radius as Size)
         item._initialize(Base.getNamed(args), point)
+
         return item
     }
 

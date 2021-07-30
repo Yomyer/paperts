@@ -1,4 +1,4 @@
-import { Base, Key } from '@paperts'
+import { Base, Key } from '../'
 
 export class Event extends Base {
     protected _class = 'Event'

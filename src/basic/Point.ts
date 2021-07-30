@@ -8,7 +8,7 @@ import {
     Matrix,
     Rectangle,
     ItemSelection
-} from '@paperts'
+} from '../'
 
 import {
     Point as PointType,

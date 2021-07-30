@@ -5,7 +5,7 @@ import {
     UID,
     Color,
     GradientStop
-} from '@paperts'
+} from '../'
 
 import { GradientStop as GradientStopType } from './Types'
 

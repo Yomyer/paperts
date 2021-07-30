@@ -6,7 +6,7 @@ import {
     EventList,
     ToolEvent,
     ToolEventTypes
-} from '@paperts'
+} from '../'
 
 type ToolEventFunction = (_: ToolEvent) => void
 type ToolProps = {
@@ -66,6 +66,10 @@ export class Tool extends PaperScopeItem {
 
     get downPoint() {
         return this._downPoint
+    }
+
+    get events() {
+        return this._events
     }
 
     /**
@@ -195,7 +199,13 @@ export class Tool extends PaperScopeItem {
      *     });
      * }
      */
-    onMouseDown: ToolEventFunction
+    get onMouseDown() {
+        return this.getEvent('onMouseDown')
+    }
+
+    set onMouseDown(func: ToolEventFunction) {
+        this.setEvent('onMouseDown', func)
+    }
 
     /**
      * The function to be called when the mouse position changes while the mouse
@@ -219,7 +229,13 @@ export class Tool extends PaperScopeItem {
      *     path.add(event.point);
      * }
      */
-    onMouseDrag: ToolEventFunction
+    get onMouseDrag() {
+        return this.getEvent('onMouseDrag')
+    }
+
+    set onMouseDrag(func: ToolEventFunction) {
+        this.setEvent('onMouseDrag', func)
+    }
 
     /**
      * The function to be called the mouse moves within the project view. The
@@ -246,7 +262,13 @@ export class Tool extends PaperScopeItem {
      *     path.position = event.point;
      * }
      */
-    onMouseMove: ToolEventFunction
+    get onMouseMove() {
+        return this.getEvent('onMouseMove')
+    }
+
+    set onMouseMove(func: ToolEventFunction) {
+        this.setEvent('onMouseMove', func)
+    }
 
     /**
      * The function to be called when the mouse button is released. The function
@@ -269,7 +291,13 @@ export class Tool extends PaperScopeItem {
      *     });
      * }
      */
-    onMouseUp: ToolEventFunction
+    get onMouseUp() {
+        return this.getEvent('onMouseUp')
+    }
+
+    set onMouseUp(func: ToolEventFunction) {
+        this.setEvent('onMouseUp', func)
+    }
 
     /**
      * {@grouptitle Keyboard Event Handlers}
@@ -306,7 +334,13 @@ export class Tool extends PaperScopeItem {
      *     }
      * }
      */
-    onKeyDown: ToolEventFunction
+    get onKeyDown() {
+        return this.getEvent('onKeyDown')
+    }
+
+    set onKeyDown(func: ToolEventFunction) {
+        this.setEvent('onKeyDown', func)
+    }
 
     /**
      * The function to be called when the user releases a key on the keyboard.
@@ -328,9 +362,29 @@ export class Tool extends PaperScopeItem {
      *     }
      * }
      */
-    onKeyUp: ToolEventFunction
-    onActivate: ToolEventFunction
-    onDeactivate: ToolEventFunction
+    get onKeyUp() {
+        return this.getEvent('onKeyUp')
+    }
+
+    set onKeyUp(func: ToolEventFunction) {
+        this.setEvent('onKeyUp', func)
+    }
+
+    get onActivate() {
+        return this.getEvent('onActivate')
+    }
+
+    set onActivate(func: ToolEventFunction) {
+        this.setEvent('onActivate', func)
+    }
+
+    get onDeactivate() {
+        return this.getEvent('onDeactivate')
+    }
+
+    set onDeactivate(func: ToolEventFunction) {
+        this.setEvent('onDeactivate', func)
+    }
 
     /**
      * Private method to handle tool-events.

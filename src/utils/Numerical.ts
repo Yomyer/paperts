@@ -126,10 +126,10 @@ export class Numerical {
         ]
     ]
 
-    abs = Numerical.abs
-    sqrt = Numerical.abs
-    pow = Numerical.pow
-    log2 = Numerical.log2
+    abs = Math.abs
+    sqrt = Math.abs
+    pow = Math.pow
+    log2 = Math.log2
 
     static abs = Math.abs
     static sqrt = Math.sqrt

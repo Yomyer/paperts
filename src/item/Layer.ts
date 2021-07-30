@@ -1,4 +1,4 @@
-import { Group, Item, Project } from '@paperts'
+import { Group, Item, Project, HitResult } from '../'
 
 export class Layer extends Group {
     protected _class = 'Layer'
@@ -79,5 +79,9 @@ export class Layer extends Group {
      */
     activate() {
         this._project.activeLayer = this
+    }
+
+    protected _hitTestSelf(): HitResult {
+        return null
     }
 }

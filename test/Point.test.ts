@@ -1,4 +1,4 @@
-import { Base, Size, Point, Matrix } from '@paperts'
+import { Base, Size, Point, Matrix } from '../src'
 
 test('initialize one params', () => {
     const point = new Point(10)

@@ -1,29 +1,25 @@
-import logo from './logo.svg'
 import './App.css'
-import { Gradient, Point } from '@yomyer/paperts'
+
+import { PaperScope, Group, Path } from '@yomyer/paperts'
+import { useEffect, useRef } from 'react'
 
 function App() {
-    const gradient = new Gradient()
-    console.log(gradient.toJSON())
+    const canvasRef = useRef(null)
 
-    const point = new Point()
-    console.log(point)
+    // const a = new Path.Circle([50, 50], 40)
+
+    useEffect(() => {
+        const scope = new PaperScope()
+        scope.setup(canvasRef.current)
+
+        // new Path.Circle([50, 50], 40)
+        // console.log(scope.Path)
+    }, [])
+
     return (
         <div className='App'>
-            <header className='App-header'>
-                <img src={logo} className='App-logo' alt='logo' />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a
-                    className='App-link'
-                    href='https://reactjs.org'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                >
-                    Learn React
-                </a>
-            </header>
+            <h1>Canvas</h1>
+            <canvas ref={canvasRef}></canvas>
         </div>
     )
 }

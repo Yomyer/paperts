@@ -1,4 +1,4 @@
-import { Base, Dictionary, ExportJsonOptions, Change, Color } from '@paperts'
+import { Base, Dictionary, ExportJsonOptions, Change, Color } from '../'
 
 import { Color as ColorType, GradientStop as GradientStopType } from './Types'
 

@@ -1,4 +1,4 @@
-import { Point, Event, Item, Tool } from '@paperts'
+import { Point, Event, Item, Tool } from '../'
 
 export type ToolEventTypes = 'mousedown' | 'mouseup' | 'mousemove' | 'mousedrag'
 
@@ -11,7 +11,7 @@ export class ToolEvent extends Event {
     protected _middlePoint: Point
     protected _delta: Point
 
-    type: ToolEventTypes
+    declare type: ToolEventTypes
     tool: Tool
 
     constructor(tool: Tool, type: ToolEventTypes, event: UIEvent)

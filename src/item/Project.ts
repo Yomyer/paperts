@@ -19,7 +19,7 @@ import {
     SymbolDefinition,
     SymbolItem,
     ItemSelection
-} from '@paperts'
+} from '../'
 import { StyleProps } from 'style/Style'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
@@ -29,7 +29,7 @@ type RemoveSets = { [key: string]: { [key: string]: Item } }
 
 export class Project extends PaperScopeItem {
     protected _class = 'Project'
-    protected _compactSerialize: true
+    protected _compactSerialize = true
     protected _children: Item[]
     protected _namedChildren: any
     protected _activeLayer: any = null
@@ -505,10 +505,11 @@ export class Project extends PaperScopeItem {
         const point = Point.read(args)
         const options = HitResult.getOptions(args)
         const all: HitResult[] = []
-        this._hitTest(
-            point,
-            new Base({ all: all }, options) as unknown as HitResultOptions
-        )
+
+        this._hitTest(point, {
+            all: all,
+            ...options
+        })
         return all
     }
 
@@ -955,6 +956,7 @@ export class Project extends PaperScopeItem {
             offset: new Point(0, 0),
             pixelRatio: pixelRatio,
             viewMatrix: matrix.isIdentity() ? null : matrix,
+            matrices: [new Matrix()],
             updateMatrix: true
         }
 

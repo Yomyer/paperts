@@ -1,4 +1,4 @@
-import { Rectangle, Size } from '@paperts'
+import { Rectangle, Size } from '../'
 
 type Element =
     | HTMLElement

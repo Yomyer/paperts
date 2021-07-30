@@ -1,4 +1,4 @@
-import { Base } from '@paperts'
+import { Base } from '../'
 
 export const ReadIndex = () => {
     return (target: any) => {
@@ -13,7 +13,7 @@ export const Exportable = () => {
     }
 }
 
-export const Injection = <T>(callback: (target: T) => void) => {
+export const Runtime = <T>(callback: (target: T) => void) => {
     return (target: T) => {
         callback(target)
     }

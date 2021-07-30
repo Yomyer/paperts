@@ -10,7 +10,7 @@ import {
     Matrix,
     Point,
     Formatter
-} from '@paperts'
+} from '../'
 
 import { Point as PointType } from '../basic/Types'
 import { ColorOptions, ColorTypes, Color as ColorType } from './Types'

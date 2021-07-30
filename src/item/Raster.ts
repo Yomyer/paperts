@@ -1,3 +1,4 @@
+import { EventFunc } from 'core/Emitter'
 import {
     Base,
     PaperScope,
@@ -18,7 +19,7 @@ import {
     DomElement,
     Path,
     PathItem
-} from '@paperts'
+} from '../'
 
 import {
     Point as PointType,
@@ -162,6 +163,7 @@ export class Raster extends Item {
                     : type === 'object'
                     ? args[0]
                     : null
+
             if (object && object !== Item.NO_INSERT) {
                 if (object.getContext || object.naturalHeight != null) {
                     image = object
@@ -355,6 +357,7 @@ export class Raster extends Item {
         const emit = (event: Event) => {
             const view = this.getView()
             const type = (event && event.type) || 'load'
+
             if (view && this.responds(type)) {
                 PaperScope.setGlobalPaper(view.scope)
                 this.emit(type, new Event(event as unknown as string))
@@ -391,6 +394,7 @@ export class Raster extends Item {
      */
     _setImage(image: HTMLImageElement | HTMLCanvasElement) {
         if (this._canvas) CanvasProvider.release(this._canvas)
+
         if (image instanceof HTMLCanvasElement && image.getContext) {
             this._image = null
             this._canvas = image as HTMLCanvasElement
@@ -402,11 +406,9 @@ export class Raster extends Item {
         }
 
         this._size = new Size(
-            image instanceof HTMLImageElement
-                ? image.naturalWidth || image.width
-                : 0,
-            image instanceof HTMLImageElement
-                ? image.naturalHeight || image.height
+            image ? (image as HTMLImageElement).naturalWidth || image.width : 0,
+            image
+                ? (image as HTMLImageElement).naturalHeight || image.height
                 : 0
         )
         this._context = null
@@ -870,6 +872,7 @@ export class Raster extends Item {
     getImageData(...args: any[]): ImageData {
         let rect = Rectangle.read(args)
         if (rect.isEmpty()) rect = new Rectangle(this._size)
+
         return this.getContext().getImageData(
             rect.x,
             rect.y,
@@ -927,7 +930,13 @@ export class Raster extends Item {
      *     console.log('Now the image is definitely ready.');
      * });
      */
-    onLoad: (event?: Event, type?: string) => void
+    get onLoad() {
+        return this.getEvent('onLoad')
+    }
+
+    set onLoad(func: EventFunc<any>) {
+        this.setEvent('onLoad', func)
+    }
 
     /**
      *
@@ -938,7 +947,13 @@ export class Raster extends Item {
      * @property
      * @type ?Function
      */
-    onError: (event?: Event, type?: string) => void
+    get onError() {
+        return this.getEvent('onError')
+    }
+
+    set onError(func: EventFunc<any>) {
+        this.setEvent('onError', func)
+    }
 
     protected _getBounds(matrix: Matrix) {
         const rect = new Rectangle(this._size).setCenter(0, 0)

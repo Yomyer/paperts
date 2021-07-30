@@ -1,11 +1,11 @@
-import { Event } from '@paperts'
+import { Event } from '../'
 
 export type KeyEventTypes = 'keydown' | 'keyup'
 
 export class KeyEvent extends Event {
     protected _class = 'KeyEvent'
 
-    type: KeyEventTypes
+    declare type: KeyEventTypes
     key: string
     character: string
 

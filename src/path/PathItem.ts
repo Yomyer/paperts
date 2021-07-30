@@ -14,7 +14,7 @@ import {
     CurveLocation,
     SegmentPoint,
     Path
-} from '@paperts'
+} from '../'
 
 import { Point as PointType, Size as SizeType } from '../basic/Types'
 import Options from '../options'
@@ -66,7 +66,7 @@ export abstract class PathItem extends Item {
     protected _class = 'PathItem'
     protected _selectBounds = false
     protected _canScaleStroke = true
-    protected _children: Path[]
+    declare _children: Path[]
     protected _closed: boolean
 
     beans = true
@@ -151,6 +151,10 @@ export abstract class PathItem extends Item {
         return this._closed
     }
 
+    set closed(closed: boolean) {
+        this.setClosed(closed)
+    }
+
     /**
      * Specifies whether the path as a whole is oriented clock-wise, by looking
      * at the path's area.
@@ -172,6 +176,14 @@ export abstract class PathItem extends Item {
 
     setClockwise(clockwise: boolean) {
         if (this.isClockwise() !== (clockwise = !!clockwise)) this.reverse()
+    }
+
+    get clockwise() {
+        return this.isClockwise()
+    }
+
+    set clockwise(clockwise: boolean) {
+        this.setClockwise(clockwise)
     }
 
     get pathData() {
@@ -2663,3 +2675,5 @@ export abstract class PathItem extends Item {
         return point
     }
 }
+
+declare namespace PathItem {}

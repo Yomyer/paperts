@@ -19,13 +19,15 @@ import {
     Point,
     LinkedPoint,
     Exportable,
-    Injection,
+    Runtime,
     MouseEvent as PaperMouseEvent,
     MouseEventTypes,
     KeyEvent as PaperKeyEvent,
     KeyEventTypes,
-    ToolEventTypes
-} from '@paperts'
+    ToolEventTypes,
+    EventTypeHooks,
+    EventTypes
+} from '../'
 
 import Stats from '../utils/Stats'
 import { Size as SizeType, Point as PointType } from '../basic/Types'
@@ -35,12 +37,11 @@ type ViewMouseEventFunction = (_: PaperMouseEvent) => void
 type ViewResizeEventFunction = (_: ResizeEvent) => void
 
 @Exportable()
-@Injection((proto: typeof View) => {
+@Runtime((proto: typeof View) => {
     View.registerEvents(proto)
 })
 export class View extends Emitter {
     protected _class = 'View'
-    protected _viewEvents: EventList
     protected _windowEvents: EventList
     protected _stats: Stats
     protected _project: Project
@@ -62,33 +63,36 @@ export class View extends Emitter {
     protected _bounds: Rectangle
     protected _decomposed: MatrixDecompose
 
-    _handleMouseEvent: (
+    declare _viewEvents: EventList
+
+    declare _handleMouseEvent: (
         type: MouseEventTypes,
         event: MouseEvent,
         point?: Point
     ) => void
 
-    _handleKeyEvent: (
+    declare _handleKeyEvent: (
         type: KeyEventTypes,
         event: KeyboardEvent,
         key: string,
         character: string
     ) => void
 
-    _countItemEvent: (type: string, sign: number) => void
+    declare _countItemEvent: (type: string, sign: number) => void
 
     static updateFocus: () => void
     static _resetState: () => void
 
-    static _id: number
+    static _id: number = 0
     static _focused: View
     static _views: View[] = []
     static _viewsById: { [key: string]: View } = {}
 
-    protected _events = Base.each(
-        Item.itemHandlers.concat(['onResize', 'onKeyDown', 'onKeyUp']),
-        function (this: View, name) {
-            this[name] = {}
+    protected _events = Item.itemHandlers.reduce(
+        (event: EventTypeHooks, name: EventTypes) => {
+            event[name] = {}
+
+            return event
         },
         {
             onFrame: {
@@ -114,6 +118,8 @@ export class View extends Emitter {
     }
 
     initialize(project?: Project, element?: HTMLElement | Size): this {
+        this._injectEvents(this._events)
+
         function getSize(name: string) {
             return (
                 element[name] ||
@@ -954,7 +960,13 @@ export class View extends Emitter {
      *     path.rotate(3);
      * }
      */
-    onFrame: ViewFrameEventFunction
+    get onFrame() {
+        return this.getEvent('onFrame')
+    }
+
+    set onFrame(func: ViewFrameEventFunction) {
+        this.setEvent('onFrame', func)
+    }
 
     /**
      * Handler function that is called whenever a view is resized.
@@ -975,7 +987,13 @@ export class View extends Emitter {
      *     path.position = view.center;
      * }
      */
-    onResize: ViewResizeEventFunction
+    get onResize() {
+        return this.getEvent('onResize')
+    }
+
+    set onResize(func: ViewResizeEventFunction) {
+        this.setEvent('onResize', func)
+    }
 
     /**
      * The function to be called when the mouse button is pushed down on the
@@ -990,7 +1008,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onMouseDown
      */
-    onMouseDown: ViewMouseEventFunction
+    get onMouseDown() {
+        return this.getEvent('onMouseDown')
+    }
+
+    set onMouseDown(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseDown', func)
+    }
 
     /**
      * The function to be called when the mouse position changes while the mouse
@@ -1005,7 +1029,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onMouseDrag
      */
-    onMouseDrag: ViewMouseEventFunction
+    get onMouseDrag() {
+        return this.getEvent('onMouseDrag')
+    }
+
+    set onMouseDrag(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseDrag', func)
+    }
 
     /**
      * The function to be called when the mouse button is released over the item.
@@ -1017,7 +1047,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onMouseUp
      */
-    onMouseUp: ViewMouseEventFunction
+    get onMouseUp() {
+        return this.getEvent('onMouseUp')
+    }
+
+    set onMouseUp(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseUp', func)
+    }
 
     /**
      * The function to be called when the mouse clicks on the view. The function
@@ -1032,7 +1068,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onClick
      */
-    onClick: ViewMouseEventFunction
+    get onClick() {
+        return this.getEvent('onClick')
+    }
+
+    set onClick(func: ViewMouseEventFunction) {
+        this.setEvent('onClick', func)
+    }
 
     /**
      * The function to be called when the mouse double clicks on the view. The
@@ -1047,7 +1089,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onDoubleClick
      */
-    onDoubleClick: ViewMouseEventFunction
+    get onDoubleClick() {
+        return this.getEvent('onDoubleClick')
+    }
+
+    set onDoubleClick(func: ViewMouseEventFunction) {
+        this.setEvent('onDoubleClick', func)
+    }
 
     /**
      * The function to be called repeatedly while the mouse moves over the
@@ -1062,7 +1110,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onMouseMove
      */
-    onMouseMove: ViewMouseEventFunction
+    get onMouseMove() {
+        return this.getEvent('onMouseMove')
+    }
+
+    set onMouseMove(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseMove', func)
+    }
 
     /**
      * The function to be called when the mouse moves over the view. This
@@ -1078,7 +1132,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see Item#onMouseEnter
      */
-    onMouseEnter: ViewMouseEventFunction
+    get onMouseEnter() {
+        return this.getEvent('onMouseEnter')
+    }
+
+    set onMouseEnter(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseEnter', func)
+    }
 
     /**
      * The function to be called when the mouse moves out of the view.
@@ -1093,7 +1153,13 @@ export class View extends Emitter {
      * @type ?Function
      * @see View#onMouseLeave
      */
-    onMouseLeave: ViewMouseEventFunction
+    get onMouseLeave() {
+        return this.getEvent('onMouseLeave')
+    }
+
+    set onMouseLeave(func: ViewMouseEventFunction) {
+        this.setEvent('onMouseLeave', func)
+    }
 
     /**
      * {@grouptitle Event Handling}
@@ -1402,11 +1468,8 @@ export class View extends Emitter {
             let stopped = false
             let mouseEvent: PaperMouseEvent
 
-            // Returns true if the event was stopped, false otherwise.
             function emit(obj: Emitter, type: MouseEventTypes): boolean {
                 if (obj.responds(type)) {
-                    // Only produce the event object if we really need it, and then
-                    // reuse it if we're bubbling.
                     if (!mouseEvent) {
                         mouseEvent = new PaperMouseEvent(
                             type,
@@ -1419,7 +1482,6 @@ export class View extends Emitter {
                     if (obj.emit(type, mouseEvent)) {
                         called = true
                         if (mouseEvent.prevented) prevented = true
-                        // Bail out if propagation is stopped
                         if (mouseEvent.stopped) return (stopped = true)
                     }
                 } else {
@@ -1432,7 +1494,7 @@ export class View extends Emitter {
 
             while (obj && obj !== stopItem) {
                 if (emit(obj, type)) break
-                obj = (obj instanceof Item && obj.parent) || obj
+                obj = (obj instanceof Item && obj.parent) || null
             }
             return stopped
         }
@@ -1538,7 +1600,6 @@ export class View extends Emitter {
             const hitItem = (hit && hit.item) || null
             let handle = false
             const mouse = { drag: false, down: false, up: false, move: false }
-
             mouse[type.substr(5)] = true
 
             if (hitItems && hitItem !== overItem) {
@@ -1593,6 +1654,7 @@ export class View extends Emitter {
                 } else if (mouse.up) {
                     if (!prevented && hitItem === downItem) {
                         clickTime = Date.now()
+
                         emitMouseEvents(
                             this,
                             hitItem,
@@ -1657,6 +1719,7 @@ export class View extends Emitter {
         }
 
         view.prototype._countItemEvent = function (type: string, sign: number) {
+            console.log('count', type)
             const itemEvents = this._itemEvents
             const native = itemEvents.native
             const virtual = itemEvents.virtual

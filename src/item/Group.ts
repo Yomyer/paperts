@@ -8,7 +8,7 @@ import {
     BoundsOptions,
     DrawOptions,
     ItemSerializeFields
-} from '@paperts'
+} from '../'
 
 export type GroupSerializeFields = ItemSerializeFields & {
     children?: Item[]
@@ -169,6 +169,14 @@ export class Group extends Item {
     setClipped(clipped: boolean) {
         const child = this.getFirstChild()
         if (child) child.setClipMask(clipped)
+    }
+
+    get clipped() {
+        return !!this._getClipItem()
+    }
+
+    set clipped(clipped: boolean) {
+        this.setClipped(clipped)
     }
 
     protected _getBounds(matrix: Matrix, options: BoundsOptions) {

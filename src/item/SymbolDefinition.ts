@@ -12,7 +12,7 @@ import {
     BoundsCacheProps,
     Change,
     ChangeFlag
-} from '@paperts'
+} from '../'
 
 export class SymbolDefinition extends Base {
     protected _class = 'SymbolDefinition'

@@ -10,7 +10,7 @@ import {
     CurveLocation,
     BooleanWinding,
     Path
-} from '@paperts'
+} from '../'
 
 import { Point as PointType } from '../basic/Types'
 

@@ -9,7 +9,7 @@ import {
     ItemSelection,
     Exportable,
     ReadIndex
-} from '@paperts'
+} from '../'
 
 import {
     Point as PointType,
@@ -1111,10 +1111,6 @@ export class Rectangle extends Base {
 export class LinkedRectangle extends Rectangle {
     protected _owner: any
     protected _setter: string
-    protected _x: number
-    protected _y: number
-    protected _width: number
-    protected _height: number
     protected _dontNotify: boolean
 
     constructor(
@@ -1365,5 +1361,13 @@ export class LinkedRectangle extends Rectangle {
         if (owner._changeSelection) {
             owner._changeSelection(ItemSelection.BOUNDS, selected)
         }
+    }
+
+    get selected() {
+        return this.isSelected()
+    }
+
+    set selected(selected: boolean) {
+        this.setSelected(selected)
     }
 }

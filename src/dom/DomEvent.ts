@@ -1,16 +1,13 @@
-import { Point, EventList, DomElement } from '@paperts'
+import { Point, EventList, DomElement } from '../'
 
 type Element = HTMLElement | Document | Window
 
-export class DomEvent {
-    static nativeRequest = DomElement.getPrefixed(
-        window,
-        'requestAnimationFrame'
-    )
+const nativeRequest = DomElement.getPrefixed(window, 'requestAnimationFrame')
 
+export class DomEvent {
     static requested = false
     static callbacks: Array<() => void> = []
-    static timer: NodeJS.Timeout
+    static timer: any
 
     static add(el: Element, events: EventList) {
         if (el) {
@@ -25,6 +22,7 @@ export class DomEvent {
                         (name === 'touchstart' || name === 'touchmove')
                             ? { passive: false }
                             : false
+
                     el.addEventListener(name, func, options)
                 }
             }
@@ -72,26 +70,26 @@ export class DomEvent {
     }
 
     private static handleCallbacks() {
-        const functions = this.callbacks
-        this.callbacks = []
+        const functions = DomEvent.callbacks
+        DomEvent.callbacks = []
         for (let i = 0, l = functions.length; i < l; i++) {
             functions[i]()
         }
-        const requested = this.nativeRequest && this.callbacks.length
+        const requested = nativeRequest && DomEvent.callbacks.length
         if (requested) {
-            this.nativeRequest(this.handleCallbacks)
+            nativeRequest(DomEvent.handleCallbacks)
         }
     }
 
     static requestAnimationFrame(callback: () => void): void {
-        this.callbacks.push(callback)
-        if (this.nativeRequest) {
-            if (!this.requested) {
-                this.nativeRequest(this.handleCallbacks)
-                this.requested = true
+        DomEvent.callbacks.push(callback)
+        if (nativeRequest) {
+            if (!DomEvent.requested) {
+                nativeRequest(DomEvent.handleCallbacks)
+                DomEvent.requested = true
             }
-        } else if (!this.timer) {
-            this.timer = setInterval(this.handleCallbacks, 1000 / 60)
+        } else if (!DomEvent.timer) {
+            DomEvent.timer = setInterval(DomEvent.handleCallbacks, 1000 / 60)
         }
     }
 }

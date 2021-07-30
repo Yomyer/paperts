@@ -40,8 +40,10 @@ import {
     Tween,
     TweenOptions,
     Raster,
-    Path
-} from '@paperts'
+    Path,
+    EventTypes,
+    EventTypeHooks
+} from '../'
 
 import {
     Point as PointType,
@@ -65,16 +67,6 @@ export type ItemSerializeFields = {
     selected?: boolean
     data?: {}
 }
-
-type ItemEventTypes =
-    | 'onMouseDown'
-    | 'onMouseUp'
-    | 'onMouseDrag'
-    | 'onClick'
-    | 'onDoubleClick'
-    | 'onMouseMove'
-    | 'onMouseEnter'
-    | 'onMouseLeave'
 
 export type ItemProps = {
     internal?: boolean
@@ -206,7 +198,7 @@ export class Item extends Emitter {
     protected _parent: Item
     protected _project: Project
 
-    static itemHandlers = [
+    static itemHandlers: EventTypes[] = [
         'onMouseDown',
         'onMouseUp',
         'onMouseDrag',
@@ -219,18 +211,18 @@ export class Item extends Emitter {
 
     handlers = Item.itemHandlers
 
-    protected _events = Base.each(
-        Item.itemHandlers.concat(['onResize', 'onKeyDown', 'onKeyUp']),
-        function (this: Item, name) {
-            this[name] = {
-                install: (type: ItemEventTypes) => {
+    protected _events = Item.itemHandlers.reduce(
+        (event: EventTypeHooks, name: EventTypes) => {
+            event[name] = {
+                install: (type: string) => {
                     this.getView()._countItemEvent(type, 1)
                 },
 
-                uninstall: (type: ItemEventTypes) => {
+                uninstall: (type: string) => {
                     this.getView()._countItemEvent(type, -1)
                 }
             }
+            return event
         },
         {
             onFrame: {
@@ -243,7 +235,6 @@ export class Item extends Emitter {
                 }
             },
 
-            // Only for external sources, e.g. Raster
             onLoad: {},
             onError: {}
         }
@@ -273,6 +264,8 @@ export class Item extends Emitter {
      * or if none were provided}
      */
     protected _initialize(props?: ItemProps, point?: Point): boolean {
+        this._injectEvents(this._events)
+
         const paper = PaperScope.paper
 
         const hasProps = props && Base.isPlainObject(props)
@@ -830,6 +823,14 @@ export class Item extends Emitter {
         this._changeSelection(ItemSelection.ITEM, selected)
     }
 
+    get selected() {
+        return this.isSelected()
+    }
+
+    set selected(selected: boolean) {
+        this.setSelected(selected)
+    }
+
     isFullySelected() {
         const children = this._children
         const selected = !!(+this._selection & ItemSelection.ITEM)
@@ -978,11 +979,16 @@ export class Item extends Emitter {
      * // Move the circle 100 points to the right
      * circle.position.x += 100;
      */
-    getPosition(_dontLink?: boolean) {
+    getPosition(_dontLink?: boolean): LinkedPoint {
         const Ctor = _dontLink ? Point : LinkedPoint
         const position =
             this._position || (this._position = this._getPositionFromBounds())
-        return new Ctor(position.x, position.y, this, 'setPosition')
+        return new Ctor(
+            position.x,
+            position.y,
+            this,
+            'setPosition'
+        ) as LinkedPoint
     }
 
     setPosition(x: number, y: number): void
@@ -991,7 +997,7 @@ export class Item extends Emitter {
         this.translate(Point.read(args).subtract(this.getPosition(true)))
     }
 
-    get position() {
+    get position(): LinkedPoint {
         return this.getPosition()
     }
 
@@ -1068,10 +1074,14 @@ export class Item extends Emitter {
         return this.getBounds(matrix, { internal: true })
     }
 
+    get internalBounds() {
+        return this.getInternalBounds()
+    }
+
     getBounds(
         matrix?: Matrix | BoundsOptions,
         options?: BoundsOptions
-    ): Rectangle {
+    ): LinkedRectangle {
         const hasMatrix = options || matrix instanceof Matrix
         const opts = Base.set(
             {},
@@ -1088,16 +1098,18 @@ export class Item extends Emitter {
             opts
         ).rect
 
-        return !arguments.length
-            ? new LinkedRectangle(
-                  rect.x,
-                  rect.y,
-                  rect.width,
-                  rect.height,
-                  this,
-                  'setBounds'
-              )
-            : rect
+        return (
+            !arguments.length
+                ? new LinkedRectangle(
+                      rect.x,
+                      rect.y,
+                      rect.width,
+                      rect.height,
+                      this,
+                      'setBounds'
+                  )
+                : rect
+        ) as LinkedRectangle
     }
 
     setBounds(point: PointType, size: SizeType, epsilon?: number): void
@@ -1140,7 +1152,7 @@ export class Item extends Emitter {
         this.transform(matrix)
     }
 
-    get bounds() {
+    get bounds(): LinkedRectangle {
         return this.getBounds()
     }
 
@@ -1452,7 +1464,7 @@ export class Item extends Emitter {
         }
     }
 
-    get scaling() {
+    get scaling(): Point {
         return this.getScaling()
     }
 
@@ -2002,13 +2014,6 @@ export class Item extends Emitter {
     }
 
     /**
-     * @name Item#rasterize
-     * @function
-     * @param {Number} [resolution=view.resolution]
-     * @param {Boolean} [insert=true]
-     * @deprecated use {@link #rasterize(options)} instead.
-     */
-    /**
      * Rasterizes the item into a newly created Raster object. The item itself
      * is not removed after rasterization.
      *
@@ -2048,7 +2053,7 @@ export class Item extends Emitter {
      * raster.scale(5);
      */
     rasterize(resolution: number, inser?: boolean): Raster
-    rasterize(options: RasterOptions): Raster
+    rasterize(options?: RasterOptions): Raster
     rasterize(...args: any[]): Raster {
         let resolution, insert, raster
 
@@ -2314,18 +2319,16 @@ export class Item extends Emitter {
         const matrix = this._matrix
         const viewMatrix = parentViewMatrix
             ? parentViewMatrix.appended(matrix)
-            : // If this is the first one in the recursion, factor in the
-              // zoom of the view and the globalMatrix of the item.
-              this.getGlobalMatrix().prepend(this.getView().matrix)
+            : this.getGlobalMatrix().prepend(this.getView().matrix)
 
         const tolerance = Math.max(options.tolerance, Numerical.EPSILON)
 
         const tolerancePadding = (options._tolerancePadding = new Size(
             Path._getStrokePadding(tolerance, matrix.shiftless().invert())
         ))
-        // Transform point to local coordinates.
+
         point = matrix.inverseTransform(point)
-        // If the matrix is non-reversible, point will now be `null`:
+
         if (
             !point ||
             (!this._children &&
@@ -2335,13 +2338,13 @@ export class Item extends Emitter {
         ) {
             return null
         }
-
         const checkSelf = !(
             (options.guides && !this._guide) ||
             (options.selected && !this.isSelected()) ||
             (options.type && options.type !== Base.hyphenate(this._class)) ||
             (options.class && !(this instanceof options.class))
         )
+
         const match = options.match
         const that = this
         let bounds: Rectangle
@@ -2403,8 +2406,6 @@ export class Item extends Emitter {
         if (!res) {
             res =
                 this._hitTestChildren(point, options, viewMatrix) ||
-                // NOTE: We don't call match on _hitTestChildren() because
-                // it is already called internally.
                 (checkSelf &&
                     filter(
                         this._hitTestSelf(
@@ -2869,7 +2870,7 @@ export class Item extends Emitter {
     }
 
     insertItem(index: number, item: Item, _?: boolean): Item {
-        return this.insertItem(index, item)
+        return this._insertItem(index, item)
     }
 
     /**
@@ -4275,7 +4276,13 @@ export class Item extends Emitter {
      *     this.rotate(3);
      * }
      */
-    onFrame: ItemFrameEventFunction
+    get onFrame() {
+        return this.getEvent('onFrame')
+    }
+
+    set onFrame(func: ItemFrameEventFunction) {
+        this.setEvent('onFrame', func)
+    }
 
     /**
      * The function to be called when the mouse button is pushed down on the
@@ -4326,7 +4333,13 @@ export class Item extends Emitter {
      *     }
      * }
      */
-    onMouseDown: ItemMouseEventFunction
+    get onMouseDown() {
+        return this.getEvent('onMouseDown')
+    }
+
+    set onMouseDown(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseDown', func)
+    }
 
     /**
      * The function to be called when the mouse position changes while the mouse
@@ -4356,7 +4369,13 @@ export class Item extends Emitter {
      *     path.position += event.delta;
      * }
      */
-    onMouseDrag: ItemMouseEventFunction
+    get onMouseDrag() {
+        return this.getEvent('onMouseDrag')
+    }
+
+    set onMouseDrag(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseDrag', func)
+    }
 
     /**
      * The function to be called when the mouse button is released over the item.
@@ -4387,7 +4406,13 @@ export class Item extends Emitter {
      *     this.fillColor = 'red';
      * }
      */
-    onMouseUp: ItemMouseEventFunction
+    get onMouseUp() {
+        return this.getEvent('onMouseUp')
+    }
+
+    set onMouseUp(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseUp', func)
+    }
 
     /**
      * The function to be called when the mouse clicks on the item. The function
@@ -4438,7 +4463,13 @@ export class Item extends Emitter {
      *     }
      * }
      */
-    onClick: ItemMouseEventFunction
+    get onClick() {
+        return this.getEvent('onClick')
+    }
+
+    set onClick(func: ItemMouseEventFunction) {
+        this.setEvent('onClick', func)
+    }
 
     /**
      * The function to be called when the mouse double clicks on the item. The
@@ -4489,7 +4520,13 @@ export class Item extends Emitter {
      *     }
      * }
      */
-    onDoubleClick: ItemMouseEventFunction
+    get onDoubleClick() {
+        return this.getEvent('onDoubleClick')
+    }
+
+    set onDoubleClick(func: ItemMouseEventFunction) {
+        this.setEvent('onDoubleClick', func)
+    }
 
     /**
      * The function to be called repeatedly while the mouse moves over the item.
@@ -4520,7 +4557,13 @@ export class Item extends Emitter {
      *     this.opacity = Math.random();
      * }
      */
-    onMouseMove: ItemMouseEventFunction
+    get onMouseMove() {
+        return this.getEvent('onMouseMove')
+    }
+
+    set onMouseMove(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseMove', func)
+    }
 
     /**
      * The function to be called when the mouse moves over the item. This
@@ -4584,7 +4627,13 @@ export class Item extends Emitter {
      *     path.onMouseLeave = leave;
      * }
      */
-    onMouseEnter: ItemMouseEventFunction
+    get onMouseEnter() {
+        return this.getEvent('onMouseEnter')
+    }
+
+    set onMouseEnter(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseEnter', func)
+    }
 
     /**
      * The function to be called when the mouse moves out of the item.
@@ -4615,7 +4664,13 @@ export class Item extends Emitter {
      *     this.fillColor = 'red';
      * }
      */
-    onMouseLeave: ItemMouseEventFunction
+    get onMouseLeave() {
+        return this.getEvent('onMouseLeave')
+    }
+
+    set onMouseLeave(func: ItemMouseEventFunction) {
+        this.setEvent('onMouseLeave', func)
+    }
 
     /**
      * {@grouptitle Event Handling}
