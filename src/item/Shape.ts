@@ -38,6 +38,7 @@ export class Shape extends Item {
     protected _applyMatrix = false
     protected _canApplyMatrix = false
     protected _canScaleStroke = true
+
     protected _serializeFields: ShapeSerializFields = {
         type: null,
         size: null,

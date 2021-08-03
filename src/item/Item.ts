@@ -178,7 +178,8 @@ export class Item extends Emitter {
     protected _namedChildren: { [key: string]: Item[] }
     protected _updateVersion: number
 
-    protected _serializeFields: ItemSerializeFields = {
+    protected _serializeFields: ItemSerializeFields
+    private _serializeItemFields: ItemSerializeFields = {
         name: null,
         applyMatrix: null,
         matrix: new Matrix(),
@@ -333,7 +334,10 @@ export class Item extends Emitter {
             }
         }
 
-        serialize(this._serializeFields as ItemSerializeFields)
+        serialize({
+            ...this._serializeItemFields,
+            ...this._serializeFields
+        } as ItemSerializeFields)
         if (!(this instanceof Group)) serialize(this._style.defaults)
 
         return [this._class, props]
@@ -4949,7 +4953,6 @@ export class Item extends Emitter {
             if (pixelRatio !== 1) ctx.scale(pixelRatio, pixelRatio)
         }
         ctx.save()
-
         const strokeMatrix = parentStrokeMatrix
             ? parentStrokeMatrix.appended(matrix)
             : this._canScaleStroke && !this.getStrokeScaling(true) && viewMatrix
@@ -4978,6 +4981,7 @@ export class Item extends Emitter {
             const offset = param.offset
             if (offset) ctx.translate(-offset.x, -offset.y)
         }
+
         this._draw(ctx, param, viewMatrix, strokeMatrix)
         ctx.restore()
         matrices.pop()

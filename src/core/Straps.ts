@@ -71,14 +71,41 @@ export class Straps {
         for (let i = 0, l = args.length; i < l; i++) {
             const src = args[i]
             if (src) {
-                this._inject(this, src, src.enumerable, src.beans, src.preserve)
+                Straps._inject(
+                    this,
+                    src,
+                    src.enumerable,
+                    src.beans,
+                    src.preserve
+                )
             }
         }
         return this
     }
 
-    private _inject(
-        dest: Straps,
+    static inject(src: any, ...args: any[]) {
+        if (src) {
+            const statics = src.statics === true ? src : src.statics
+            const beans = src.beans
+            const preserve = src.preserve
+            if (statics !== src)
+                Straps._inject(
+                    this.prototype,
+                    src,
+                    src.enumerable,
+                    beans,
+                    preserve
+                )
+
+            Straps._inject(this, statics, null, beans, preserve)
+        }
+
+        for (let i = 1, l = arguments.length; i < l; i++) this.inject(args[i])
+        return this
+    }
+
+    private static _inject(
+        dest: any,
         src: any,
         enumerable: any,
         beans: any,

@@ -1,10 +1,35 @@
-import { Runtime, DomEvent, Base, PaperScope, Http, Tool, Point } from '../'
+import {
+    Runtime,
+    DomEvent,
+    Base,
+    PaperScope,
+    Http,
+    Tool,
+    Point,
+    Size,
+    Color
+} from '../'
 import * as acron from 'acorn'
 
 @Runtime(() => {
     PaperScript.load()
 })
 export class PaperScript {
+    static binaryOperators = {
+        '+': '__add',
+        '-': '__subtract',
+        '*': '__multiply',
+        '/': '__divide',
+        '%': '__modulo',
+        '==': '__equals',
+        '!=': '__equals'
+    }
+
+    static unaryOperators = {
+        '-': '__negate',
+        '+': '__self'
+    }
+
     static loadScript(script: HTMLScriptElement): PaperScope {
         if (
             /^text\/(?:x-|)paperscript$/.test(script.type) &&
@@ -51,6 +76,42 @@ export class PaperScript {
         return null
     }
 
+    static __$__(left: any, operator: string, right: any) {
+        const handler = PaperScript.binaryOperators[operator]
+        if (left && left[handler]) {
+            const res = left[handler](right)
+            return operator === '!=' ? !res : res
+        }
+        switch (operator) {
+            case '+':
+                return left + right
+            case '-':
+                return left - right
+            case '*':
+                return left * right
+            case '/':
+                return left / right
+            case '%':
+                return left % right
+            case '==':
+                return left === right
+            case '!=':
+                return left !== right
+        }
+    }
+
+    // Unary Operator Handler
+    static $__(operator: string, value: any) {
+        const handler = PaperScript.unaryOperators[operator]
+        if (value && value[handler]) return value[handler]()
+        switch (operator) {
+            case '+':
+                return +value
+            case '-':
+                return -value
+        }
+    }
+
     static execute(code: string, scope: PaperScope, options: string) {
         PaperScope.setGlobalPaper(scope)
         const paper = scope
@@ -71,7 +132,7 @@ export class PaperScript {
             typeof code === 'object' ? code : PaperScript.compile(code, options)
         code = compiled.code
 
-        function expose(scope: PaperScope, hidden?: boolean) {
+        function expose(scope: any, hidden?: boolean) {
             for (const key in scope) {
                 if (
                     (hidden || !/^_/.test(key)) &&
@@ -84,7 +145,15 @@ export class PaperScript {
                 }
             }
         }
-        // expose({ __$__: __$__, $__: $__, paper: scope, tool: tool }, true)
+        expose(
+            {
+                __$__: PaperScript.__$__,
+                $__: PaperScript.$__,
+                paper: scope,
+                tool: tool
+            },
+            true
+        )
         expose(scope)
 
         code = 'var module = { exports: {} }; ' + code
@@ -161,7 +230,7 @@ export class PaperScript {
         if (!code) return ''
         options = options || {}
 
-        const insertions: number[] = []
+        const insertions: number[][] = []
 
         function getOffset(offset: number) {
             for (let i = 0, l = insertions.length; i < l; i++) {
@@ -179,14 +248,12 @@ export class PaperScript {
             )
         }
 
-        /*
         function getBetween(left: any, right: any) {
             return code.substring(
                 getOffset(left.range[1]),
                 getOffset(right.range[0])
             )
         }
-        */
 
         function replaceCode(node: any, str: string) {
             const start = getOffset(node.range[0])
@@ -199,16 +266,15 @@ export class PaperScript {
                     break
                 }
             }
-            insertions.splice(insert, 0, ...[start, str.length - end + start])
+            insertions.splice(insert, 0, [start, str.length - end + start])
             code = code.substring(0, start) + str + code.substring(end)
         }
 
-        /*
         function handleOverloading(node: any, parent: any) {
             switch (node.type) {
                 case 'UnaryExpression': // -a
                     if (
-                        node.operator in unaryOperators &&
+                        node.operator in PaperScript.unaryOperators &&
                         node.argument.type !== 'Literal'
                     ) {
                         const arg = getCode(node.argument)
@@ -220,21 +286,18 @@ export class PaperScript {
                     break
                 case 'BinaryExpression': // a + b, a - b, a / b, a * b, a == b, ...
                     if (
-                        node.operator in binaryOperators &&
+                        node.operator in PaperScript.binaryOperators &&
                         node.left.type !== 'Literal'
                     ) {
-                        var left = getCode(node.left),
-                            right = getCode(node.right),
-                            between = getBetween(node.left, node.right),
-                            operator = node.operator
+                        const left = getCode(node.left)
+                        const right = getCode(node.right)
+                        const between = getBetween(node.left, node.right)
+                        const operator = node.operator
                         replaceCode(
                             node,
                             '__$__(' +
                                 left +
                                 ',' +
-                                // To preserve line-breaks, get the code in between
-                                // left & right, and replace the occurrence of the
-                                // operator with its string counterpart:
                                 between.replace(
                                     new RegExp('\\' + operator),
                                     '"' + operator + '"'
@@ -247,75 +310,54 @@ export class PaperScript {
                     break
                 case 'UpdateExpression': // a++, a--, ++a, --a
                 case 'AssignmentExpression': /// a += b, a -= b
-                    var parentType = parent && parent.type
+                    const parentType = parent && parent.type
                     if (
                         !(
-                            // Filter out for statements to allow loop increments
-                            // to perform well
-                            (
-                                parentType === 'ForStatement' ||
-                                // We need to filter out parents that are comparison
-                                // operators, e.g. for situations like `if (++i < 1)`,
-                                // as we can't replace that with
-                                // `if (__$__(i, "+", 1) < 1)`
-                                // Match any operator beginning with =, !, < and >.
-                                (parentType === 'BinaryExpression' &&
-                                    /^[=!<>]/.test(parent.operator)) ||
-                                // array[i++] is a MemberExpression with computed = true
-                                // We can't replace that with array[__$__(i, "+", 1)].
-                                (parentType === 'MemberExpression' &&
-                                    parent.computed)
-                            )
+                            parentType === 'ForStatement' ||
+                            (parentType === 'BinaryExpression' &&
+                                /^[=!<>]/.test(parent.operator)) ||
+                            (parentType === 'MemberExpression' &&
+                                parent.computed)
                         )
                     ) {
                         if (node.type === 'UpdateExpression') {
-                            var arg = getCode(node.argument),
-                                exp =
-                                    '__$__(' +
-                                    arg +
-                                    ', "' +
-                                    node.operator[0] +
-                                    '", 1)',
-                                str = arg + ' = ' + exp
+                            const arg = getCode(node.argument)
+                            const exp =
+                                '__$__(' +
+                                arg +
+                                ', "' +
+                                node.operator[0] +
+                                '", 1)'
+                            let str = arg + ' = ' + exp
                             if (node.prefix) {
-                                // A prefixed update expression (++a / --a),
-                                // wrap expression in paranthesis. See #1611
                                 str = '(' + str + ')'
                             } else if (
-                                // A suffixed update expression (a++, a--),
-                                // assign the old value before updating it.
-                                // See #691, #1450
                                 parentType === 'AssignmentExpression' ||
                                 parentType === 'VariableDeclarator' ||
                                 parentType === 'BinaryExpression'
                             ) {
-                                // Handle special case where the old value is
-                                // assigned to itself, and the expression is just
-                                // executed after, e.g.: `var x = ***; x = x++;`
                                 if (getCode(parent.left || parent.id) === arg)
                                     str = exp
                                 str = arg + '; ' + str
                             }
                             replaceCode(node, str)
                         } else {
-                            // AssignmentExpression
                             if (
                                 /^.=$/.test(node.operator) &&
                                 node.left.type !== 'Literal'
                             ) {
-                                var left = getCode(node.left),
-                                    right = getCode(node.right),
-                                    exp =
-                                        left +
-                                        ' = __$__(' +
-                                        left +
-                                        ', "' +
-                                        node.operator[0] +
-                                        '", ' +
-                                        right +
-                                        ')'
-                                // If the original expression is wrapped in
-                                // parenthesis, do the same with the replacement:
+                                const left = getCode(node.left)
+                                const right = getCode(node.right)
+                                const exp =
+                                    left +
+                                    ' = __$__(' +
+                                    left +
+                                    ', "' +
+                                    node.operator[0] +
+                                    '", ' +
+                                    right +
+                                    ')'
+
                                 replaceCode(
                                     node,
                                     /^\(.*\)$/.test(getCode(node))
@@ -328,7 +370,6 @@ export class PaperScript {
                     break
             }
         }
-        */
 
         function handleExports(node: any) {
             switch (node.type) {
@@ -398,11 +439,11 @@ export class PaperScript {
                         }
                     }
                 }
-                /*
+
                 if (paperFeatures.operatorOverloading !== false) {
                     handleOverloading(node, parent)
                 }
-                */
+
                 if (paperFeatures.moduleExports !== false) {
                     handleExports(node)
                 }
@@ -506,6 +547,48 @@ export class PaperScript {
     }
 
     static loadAll() {
+        const paperts = (window as any).paperts || (window as any).paper
+        if (paperts) {
+            Object.assign(window, paperts)
+
+            Object.defineProperty(window, 'view', {
+                get: function view() {
+                    return PaperScope.paper.getView()
+                }
+            })
+
+            Object.defineProperty(window, 'project', {
+                get: function view() {
+                    return PaperScope.paper.project
+                }
+            })
+
+            const fields = Base.each(
+                [
+                    'add',
+                    'subtract',
+                    'multiply',
+                    'divide',
+                    'modulo',
+                    'equals',
+                    'negate'
+                ],
+                function (this: any, name) {
+                    this['__' + name] = '#' + name
+                },
+                {
+                    // Needed for '+' unary operator:
+                    __self: function () {
+                        return this
+                    }
+                }
+            )
+
+            Point.inject(fields)
+            Size.inject(fields)
+            Color.inject(fields)
+        }
+
         Base.each(
             document && document.getElementsByTagName('script'),
             PaperScript.loadScript

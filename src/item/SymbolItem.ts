@@ -8,13 +8,15 @@ import {
     BoundsOptions,
     DrawOptions,
     ItemSerializeFields,
-    SymbolDefinition
+    SymbolDefinition,
+    Exportable
 } from '../'
 
 export type SymbolSerializeFields = ItemSerializeFields & {
     symbol: any
 }
 
+@Exportable()
 export class SymbolItem extends Item {
     protected _class = 'SymbolItem'
     protected _applyMatrix = false

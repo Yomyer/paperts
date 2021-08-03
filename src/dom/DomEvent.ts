@@ -83,6 +83,7 @@ export class DomEvent {
 
     static requestAnimationFrame(callback: () => void): void {
         DomEvent.callbacks.push(callback)
+
         if (nativeRequest) {
             if (!DomEvent.requested) {
                 nativeRequest(DomEvent.handleCallbacks)
@@ -93,3 +94,106 @@ export class DomEvent {
         }
     }
 }
+
+/*
+import { Point, EventList, DomElement } from '../'
+
+type Element = HTMLElement | Document | Window
+
+export class DomEvent {
+    static add(el: Element, events: EventList) {
+        if (el) {
+            for (const type in events) {
+                const func = events[type]
+                const parts = type.split(/[\s,]+/g)
+                for (let i = 0, l = parts.length; i < l; i++) {
+                    const name = parts[i]
+
+                    const options =
+                        el === document &&
+                        (name === 'touchstart' || name === 'touchmove')
+                            ? { passive: false }
+                            : false
+
+                    el.addEventListener(name, func, options)
+                }
+            }
+        }
+    }
+
+    static remove(el: Element, events: EventList) {
+        if (el) {
+            for (const type in events) {
+                const func = events[type]
+                const parts = type.split(/[\s,]+/g)
+                for (let i = 0, l = parts.length; i < l; i++)
+                    el.removeEventListener(parts[i], func, false)
+            }
+        }
+    }
+
+    static getPoint(event: MouseEvent | TouchEvent) {
+        const pos = (
+            event instanceof TouchEvent && event.targetTouches
+                ? event.targetTouches.length
+                    ? event.targetTouches[0]
+                    : event.changedTouches[0]
+                : event
+        ) as Touch
+
+        return new Point(
+            pos.pageX || pos.clientX + document.documentElement.scrollLeft,
+            pos.pageY || pos.clientY + document.documentElement.scrollTop
+        )
+    }
+
+    static getTarget(event: MouseEvent | TouchEvent): HTMLElement {
+        return (event.target || event.srcElement) as HTMLElement
+    }
+
+    static getRelatedTarget(event: MouseEvent): HTMLElement {
+        return event.relatedTarget || (event as any).toElement
+    }
+
+    static getOffset(event: MouseEvent | TouchEvent, target: HTMLElement) {
+        return DomEvent.getPoint(event).subtract(
+            DomElement.getOffset(target || DomEvent.getTarget(event))
+        )
+    }
+
+    declare static requestAnimationFrame: (callback: any) => void
+}
+
+DomEvent.requestAnimationFrame = (function () {
+    const nativeRequest = DomElement.getPrefixed(
+        window,
+        'requestAnimationFrame'
+    )
+    let requested = false
+    let callbacks: (() => void)[] = []
+    let timer: any
+
+    function handleCallbacks() {
+        const functions = callbacks
+        callbacks = []
+        for (let i = 0, l = functions.length; i < l; i++) functions[i]()
+        requested = !!(nativeRequest && callbacks.length)
+        if (requested) nativeRequest(handleCallbacks)
+    }
+
+    return function (callback: () => void) {
+        callbacks.push(callback)
+
+        if (nativeRequest) {
+            if (!requested) {
+                console.log('what')
+                nativeRequest(handleCallbacks)
+                requested = true
+            }
+        } else if (!timer) {
+            console.log('a')
+            timer = setInterval(handleCallbacks, 1000 / 60)
+        }
+    }
+})()
+*/

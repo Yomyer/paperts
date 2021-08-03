@@ -6,14 +6,15 @@
     "license": "MIT",
     "repository": "https://github.com/Yomyer/yomper.git",
     "main": "dist/index.js",
+    "unpkg": "dist/index.js",
     "module": "dist/index.modern.js",
     "source": "src/index.ts",
     "engines": {
         "node": ">=10"
     },
     "scripts": {
-        "build": "microbundle --no-compress --format modern,cjs",
-        "start": "microbundle watch --no-compress --format modern",
+        "build": "microbundle --no-compress --name paper --format umd,modern",
+        "start": "microbundle watch --no-compress --format umd,modern",
         "prepare": "run-s build",
         "test": "run-s test:unit test:lint",
         "test:lint": "eslint ./src/**/*.ts",

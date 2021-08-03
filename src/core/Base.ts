@@ -206,9 +206,7 @@ export class Base extends Straps {
                     }
                 }
 
-                obj.set(...args)
-                // new ctor(args)
-                // ;(useTarget ? obj.set : ctor).apply(obj, args)
+                ;(useTarget ? obj.set : ctor).apply(obj, args)
 
                 if (useTarget) target = null
                 return obj
@@ -309,7 +307,6 @@ export class Base extends Straps {
             if (json.length === 1 && /^#/.test(Type)) {
                 return _data.dictionary[Type]
             }
-
             Type = Base.exports[Type]
             res = []
 

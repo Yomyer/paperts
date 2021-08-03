@@ -4,36 +4,27 @@
         <meta charset="UTF-8" />
         <title>Simplify</title>
         <link rel="stylesheet" href="../css/style.css" />
-        <script>
-            var exports = {}
-        </script>
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var topLeft = new Point_1(200, 200);
-            var size = new Size_1(150, 100);
-            var rectangle = new Rectangle_1(topLeft, size);
-            var path = new Path_1.Ellipse(rectangle);
+            var topLeft = new Point(200, 200);
+            var size = new Size(150, 100);
+            var rectangle = new Rectangle(topLeft, size);
+            var path = new Path.Ellipse(rectangle);
             path.fillColor = 'black';
 
-            path.onClick = function(){
-                console.log('xD')
-            }
-            console.log(path)
-
-            var topLeft = new Point_1(5, 400);
-            var size = new Size_1(100, 50);
-            var rectangle = new Rectangle_1(topLeft, size);
-            var path = new Path_1.Ellipse(rectangle);
+            var topLeft = new Point(5, 400);
+            var size = new Size(100, 50);
+            var rectangle = new Rectangle(topLeft, size);
+            var path = new Path.Ellipse(rectangle);
             path.fillColor = 'yellow';
 
-            var path = new Path_1.Circle(new Point_1(50, 50), 25);
+            var path = new Path.Circle(new Point(50, 50), 25);
             path.fillColor = 'red';
             window._json = project.exportJSON();
             console.log(window._json);
         </script>
         <script type="text/paperscript" canvas="canvas2">
-            // console.log(project)
-            // project.importJSON(window._json);
+            project.importJSON(window._json);
         </script>
     </head>
     <body>

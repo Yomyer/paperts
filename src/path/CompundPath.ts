@@ -1,3 +1,4 @@
+import { Exportable } from 'utils/Decorators'
 import {
     Matrix,
     Base,
@@ -18,6 +19,7 @@ export type CompoundPathSerializeFields = {
     children: Path[]
 } & ItemSerializeFields
 
+@Exportable()
 export class CompoundPath extends PathItem {
     protected _class = 'CompoundPath'
     protected _serializeFields: CompoundPathSerializeFields = {

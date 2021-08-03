@@ -1,5 +1,6 @@
-import { Group, Item, Project, HitResult } from '../'
+import { Group, Item, Project, HitResult, Exportable } from '../'
 
+@Exportable()
 export class Layer extends Group {
     protected _class = 'Layer'
 

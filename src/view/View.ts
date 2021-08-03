@@ -318,7 +318,6 @@ export class View extends Emitter {
                 if (this._animate) {
                     this.requestUpdate()
                     const element = this._element as HTMLElement
-
                     if (
                         (!DomElement.getPrefixed(document, 'hidden') ||
                             PaperScope.getAttribute(element, 'keepalive') ===
@@ -328,7 +327,9 @@ export class View extends Emitter {
                         this._handleFrame()
                     }
                 }
-                if (this._autoUpdate) this.update()
+                if (this._autoUpdate) {
+                    this.update()
+                }
             })
             this._requested = true
         }
@@ -359,14 +360,11 @@ export class View extends Emitter {
         const delta = this._last ? now - this._last : 0
         this._last = now
 
-        this.emit(
-            'frame',
-            new Base({
-                delta: delta,
-                time: (this._time += delta),
-                count: this._count++
-            }) as FrameEvent & Base
-        )
+        this.emit('frame', {
+            delta: delta,
+            time: (this._time += delta),
+            count: this._count++
+        })
         if (this._stats) this._stats.update()
     }
 
@@ -1719,7 +1717,6 @@ export class View extends Emitter {
         }
 
         view.prototype._countItemEvent = function (type: string, sign: number) {
-            console.log('count', type)
             const itemEvents = this._itemEvents
             const native = itemEvents.native
             const virtual = itemEvents.virtual

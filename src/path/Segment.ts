@@ -9,7 +9,8 @@ import {
     SegmentSelection,
     CurveLocation,
     BooleanWinding,
-    Path
+    Path,
+    Exportable
 } from '../'
 
 import { Point as PointType } from '../basic/Types'
@@ -19,6 +20,7 @@ export type SegmentSmoothOptions = {
     factor: number
 }
 
+@Exportable()
 export class Segment extends Base {
     protected _class = 'Segment'
     protected _selection = false
