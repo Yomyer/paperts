@@ -1144,6 +1144,10 @@ export class LinkedRectangle extends Rectangle {
         return this
     }
 
+    set(...args: any[]): this {
+        return super.initialize(...args)
+    }
+
     protected _set(
         x: number,
         y: number,

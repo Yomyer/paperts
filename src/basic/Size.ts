@@ -559,6 +559,10 @@ export class LinkedSize extends Size {
         return this
     }
 
+    set(...args: any[]): this {
+        return super.initialize(...args)
+    }
+
     protected _set(width: number, height: number, _dontNotify?: boolean) {
         this._width = width
         this._height = height

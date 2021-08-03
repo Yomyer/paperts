@@ -1075,6 +1075,10 @@ export class LinkedPoint extends Point {
         return this
     }
 
+    set(...args: any[]): this {
+        return super.initialize(...args)
+    }
+
     protected _set(x: number, y: number, _dontNotify?: boolean) {
         this._x = x
         this._y = y
@@ -1091,14 +1095,6 @@ export class LinkedPoint extends Point {
         this._owner[this._setter](this)
     }
 
-    get x() {
-        return this.getX()
-    }
-
-    set x(x: number) {
-        this.setX(x)
-    }
-
     getY() {
         return this._y
     }
@@ -1106,14 +1102,6 @@ export class LinkedPoint extends Point {
     setY(y: number) {
         this._y = y
         this._owner[this._setter](this)
-    }
-
-    get y() {
-        return this.getY()
-    }
-
-    set y(y: number) {
-        this.setY(y)
     }
 
     isSelected() {

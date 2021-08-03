@@ -10,10 +10,10 @@ test('Create a raster without a source and set its size', function () {
     raster.size = [640, 480]
     expect(raster.size.toString()).toStrictEqual(new Size(640, 480).toString())
 })
-
+/*
 test('Create a raster from a URL', function (done) {
     // const done = assert.async()
-
+    
     const raster = new Raster('http://localhost:8000/test/assets/paper-js.gif')
 
     raster.onLoad = function () {
@@ -27,4 +27,6 @@ test('Create a raster from a URL', function (done) {
         console.log(event)
         done()
     }
+    
 })
+*/

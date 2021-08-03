@@ -485,12 +485,12 @@ export class View extends Emitter {
         }
     }
 
-    get viewSize() {
-        return this.getViewSize()
+    get viewSize(): Size {
+        return this._viewSize
     }
 
-    set viewSize(size: SizeType) {
-        this.setViewSize(size)
+    set viewSize(size: Size) {
+        this._viewSize = size
     }
 
     /**

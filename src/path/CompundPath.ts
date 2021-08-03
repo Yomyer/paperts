@@ -1,4 +1,3 @@
-import { Exportable } from 'utils/Decorators'
 import {
     Matrix,
     Base,
@@ -11,6 +10,7 @@ import {
     Point,
     HitResult,
     HitResultOptions,
+    Exportable,
     Path
 } from '../'
 

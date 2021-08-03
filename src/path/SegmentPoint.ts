@@ -61,14 +61,6 @@ export class SegmentPoint extends Point {
         this._owner.changed(this)
     }
 
-    get x() {
-        return this.getX()
-    }
-
-    set x(x: number) {
-        this.setX(x)
-    }
-
     getY() {
         return this._y
     }
@@ -76,14 +68,6 @@ export class SegmentPoint extends Point {
     setY(y: number) {
         this._y = y
         this._owner.changed(this)
-    }
-
-    get y() {
-        return this.getY()
-    }
-
-    set y(y: number) {
-        this.setY(y)
     }
 
     isZero() {

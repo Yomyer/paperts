@@ -2,29 +2,38 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Raster</title>
+        <title>Rotation Raster</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas">
-            // Load from Server:
-            var raster = new Raster('http://assets.paperjs.org/images/marilyn.jpg');
-            // Load from DOM image:
-            // var raster = new Raster('marilyn');
-            raster.onLoad = function() {
-                console.log('Successfully loaded image!');
-            };
-            var lastScale = 1;
-            var center = view.center;
+            var raster = new Raster('marilyn');
+            var size = new Size(50, 50);
+            var colSize = raster.size / size * 1.5;
+            var fullSize = size * colSize;
 
-            function onFrame(event) {
-                var scale = (Math.sin(event.time * 2) + 1) / 2;
-                raster.scale(scale / lastScale);
-                lastScale = scale;
-                raster.position = center + [
-                    Math.sin(event.time * 3) * 256,
-                    Math.sin(event.time * 2.5) * 256
-                ];
-                raster.rotate(event.delta * 120);
+            raster.visible = false;
+            raster.size = size;
+            for (var x = 0; x < size.width; x++) {
+                for (var y = 0; y < size.height; y++) {
+                    var color = raster.getPixel(x, y);
+                    var gray = (1 - color.gray) * 0.9;
+                    if (gray > 0.1) {
+                        var pos = new Point(x, y) * colSize + colSize / 2;
+                        var rectSize = gray * colSize.width;
+                        var path = new Path.Rectangle({
+                            size: [rectSize, rectSize],
+                            position: pos,
+                            fillColor: 'black'
+                        });
+                        path.rotate(gray * 180);
+                    }
+                }
+            }
+            project.activeLayer.position = view.center;
+
+            // Reposition the paths whenever the window is resized:
+            function onResize(event) {
+                project.activeLayer.position = view.center;
             }
         </script>
     </head>

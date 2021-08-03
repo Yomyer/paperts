@@ -65,6 +65,14 @@ export class ToolEvent extends Event {
         this._point = point
     }
 
+    get point() {
+        return this.getPoint()
+    }
+
+    set point(point: Point) {
+        this.setPoint(point)
+    }
+
     /**
      * The position of the mouse in project coordinates when the previous
      * event was fired.
@@ -80,6 +88,14 @@ export class ToolEvent extends Event {
         this._lastPoint = lastPoint
     }
 
+    get lastPoint() {
+        return this.getLastPoint()
+    }
+
+    set lastPoint(point: Point) {
+        this.setLastPoint(point)
+    }
+
     /**
      * The position of the mouse in project coordinates when the mouse button
      * was last clicked.
@@ -93,6 +109,14 @@ export class ToolEvent extends Event {
 
     setDownPoint(downPoint: Point) {
         this._downPoint = downPoint
+    }
+
+    get downPoint() {
+        return this.getDownPoint()
+    }
+
+    set downPoint(point: Point) {
+        this.setDownPoint(point)
     }
 
     /**
@@ -117,6 +141,14 @@ export class ToolEvent extends Event {
         this._middlePoint = middlePoint
     }
 
+    get middlePoint() {
+        return this.getMiddlePoint()
+    }
+
+    set middlePoint(point: Point) {
+        this.setMiddlePoint(point)
+    }
+
     /**
      * The difference between the current position and the last position of the
      * mouse when the event was fired. In case of the mouseup event, the
@@ -133,6 +165,14 @@ export class ToolEvent extends Event {
 
     setDelta(delta: Point) {
         this._delta = delta
+    }
+
+    get delta() {
+        return this.getDelta()
+    }
+
+    set delta(point: Point) {
+        this.setDelta(point)
     }
 
     /**
@@ -152,6 +192,14 @@ export class ToolEvent extends Event {
     setCount(count: number) {
         this.tool[/^mouse(down|up)$/.test(this.type) ? 'downCount' : 'count'] =
             count
+    }
+
+    get count() {
+        return this.getCount()
+    }
+
+    set count(count: number) {
+        this.setCount(count)
     }
 
     /**
@@ -182,6 +230,14 @@ export class ToolEvent extends Event {
 
     setItem(item: Item) {
         this._item = item
+    }
+
+    get item() {
+        return this.getItem()
+    }
+
+    set item(item: Item) {
+        this.setItem(item)
     }
 
     /**

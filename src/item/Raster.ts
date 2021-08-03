@@ -1,4 +1,3 @@
-import { EventFunc } from 'core/Emitter'
 import {
     Base,
     PaperScope,
@@ -18,7 +17,9 @@ import {
     Numerical,
     DomElement,
     Path,
-    PathItem
+    PathItem,
+    Exportable,
+    EventFunc
 } from '../'
 
 import {
@@ -34,6 +35,9 @@ export type RasterSerializeFields = ItemSerializeFields & {
     source?: string
 }
 
+export type SmoothingTypes = 'off' | 'low' | 'medium' | 'high'
+
+@Exportable()
 export class Raster extends Item {
     protected _class = 'Raster'
     protected _applyMatrix = false
@@ -45,7 +49,7 @@ export class Raster extends Item {
     }
 
     protected _prioritize = ['crossOrigin']
-    protected _smoothing = 'low'
+    protected _smoothing: SmoothingTypes = 'low'
     protected _size: Size
     protected _loaded: boolean
     protected _image: HTMLImageElement | HTMLCanvasElement
@@ -594,7 +598,7 @@ export class Raster extends Item {
         return this._smoothing
     }
 
-    setSmoothing(smoothing: string) {
+    setSmoothing(smoothing: SmoothingTypes) {
         this._smoothing =
             typeof smoothing === 'string'
                 ? smoothing
@@ -602,6 +606,14 @@ export class Raster extends Item {
                 ? 'low'
                 : 'off'
         this._changed(Change.ATTRIBUTE)
+    }
+
+    get smoothing() {
+        return this.getSmoothing()
+    }
+
+    set smoothing(smoothing: SmoothingTypes) {
+        this.setSmoothing(smoothing)
     }
 
     getElement() {

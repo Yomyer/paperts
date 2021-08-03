@@ -1711,8 +1711,8 @@ export class Item extends Emitter {
         return this._parent
     }
 
-    setParent(item: Item) {
-        return item.addChild(this)
+    setParent(parent: Item) {
+        return parent.addChild(this)
     }
 
     get parent() {
@@ -1720,7 +1720,7 @@ export class Item extends Emitter {
     }
 
     set parent(parent: Item) {
-        this._parent = parent
+        this.setParent(parent)
     }
 
     protected _getOwner(): Item | Project {
@@ -3795,7 +3795,6 @@ export class Item extends Emitter {
         const rotate = key === 'rotate'
         const value = (rotate ? Base : Point).read(args)
         const center = Point.read(args, 0, { readNull: true })
-
         return this.transform(
             new Matrix()[key](value, center || this.getPosition(true))
         )
@@ -4060,8 +4059,6 @@ export class Item extends Emitter {
 
         const decomp = transformMatrix && bounds && matrix.decompose()
         if (decomp && decomp.skewing.isZero() && decomp.rotation % 90 === 0) {
-            // Transform the old bound by looping through all the cached
-            // bounds in _bounds and transform each.
             for (const key in bounds) {
                 const cache = bounds[key]
 
@@ -4076,6 +4073,7 @@ export class Item extends Emitter {
 
             const cached =
                 bounds[this._getBoundsCacheKey(this._boundsOptions || {})]
+
             if (cached) {
                 this._position = this._getPositionFromBounds(cached.rect)
             }

@@ -146,7 +146,7 @@ export class Matrix extends Base {
         this._d = d
         this._tx = tx
         this._ty = ty
-        if (!_dontNotify) this.changed()
+        if (!_dontNotify) this._changed()
         return this
     }
 
@@ -226,7 +226,7 @@ export class Matrix extends Base {
     reset(_dontNotify?: boolean) {
         this._a = this._d = 1
         this._b = this._c = this._tx = this._ty = 0
-        if (!_dontNotify) this.changed()
+        if (!_dontNotify) this._changed()
         return this
     }
 
@@ -275,7 +275,7 @@ export class Matrix extends Base {
         const y = point.y
         this._tx += x * this._a + y * this._c
         this._ty += x * this._b + y * this._d
-        this.changed()
+        this._changed()
         return this
     }
 
@@ -312,7 +312,7 @@ export class Matrix extends Base {
         this._c *= scale.y
         this._d *= scale.y
         if (center) this.translate(center.negate())
-        this.changed()
+        this._changed()
         return this
     }
 
@@ -364,7 +364,7 @@ export class Matrix extends Base {
         this._d = -sin * b + cos * d
         this._tx += tx * a + ty * c
         this._ty += tx * b + ty * d
-        this.changed()
+        this._changed()
         return this
     }
 
@@ -400,7 +400,7 @@ export class Matrix extends Base {
         this._c += shear.x * a
         this._d += shear.x * b
         if (center) this.translate(center.negate())
-        this.changed()
+        this._changed()
         return this
     }
 
@@ -461,7 +461,7 @@ export class Matrix extends Base {
             this._d = b2 * b1 + d2 * d1
             this._tx += tx2 * a1 + ty2 * c1
             this._ty += tx2 * b1 + ty2 * d1
-            if (!_dontNotify) this.changed()
+            if (!_dontNotify) this._changed()
         }
         return this
     }
@@ -493,7 +493,7 @@ export class Matrix extends Base {
             this._d = c2 * c1 + d2 * d1
             this._tx = a2 * tx1 + b2 * ty1 + tx2
             this._ty = c2 * tx1 + d2 * ty1 + ty2
-            if (!_dontNotify) this.changed()
+            if (!_dontNotify) this._changed()
         }
         return this
     }
@@ -885,7 +885,7 @@ export class Matrix extends Base {
 
     set a(value: number) {
         this._a = value
-        this.changed()
+        this._changed()
     }
 
     get b(): number {
@@ -894,7 +894,7 @@ export class Matrix extends Base {
 
     set b(value: number) {
         this._b = value
-        this.changed()
+        this._changed()
     }
 
     get c(): number {
@@ -903,7 +903,7 @@ export class Matrix extends Base {
 
     set c(value: number) {
         this._c = value
-        this.changed()
+        this._changed()
     }
 
     get d(): number {
@@ -912,7 +912,7 @@ export class Matrix extends Base {
 
     set d(value: number) {
         this._d = value
-        this.changed()
+        this._changed()
     }
 
     get tx(): number {
@@ -921,7 +921,7 @@ export class Matrix extends Base {
 
     set tx(value: number) {
         this._tx = value
-        this.changed()
+        this._changed()
     }
 
     get ty(): number {
@@ -930,7 +930,7 @@ export class Matrix extends Base {
 
     set ty(value: number) {
         this._ty = value
-        this.changed()
+        this._changed()
     }
 
     get owner() {

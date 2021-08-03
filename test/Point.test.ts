@@ -380,4 +380,5 @@ test('importJSON()', () => {
 
     expect(Base.importJSON('["Point",10,23]')).toMatchObject({ x: 10, y: 23 })
     expect(Point.importJSON('["Point",10,23]')).toMatchObject({ x: 10, y: 23 })
-})
+})import { SegmentPoint } from '../src/path/SegmentPoint';
+
