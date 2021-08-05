@@ -113,11 +113,27 @@ export class SymbolItem extends Item {
     }
 
     get definition() {
-        return this.getDefinition()
+        return this._definition
     }
 
     set definition(definition: SymbolDefinition) {
-        this.setDefinition(definition)
+        this._definition = definition
+    }
+
+    getSymbol() {
+        return this.getDefinition()
+    }
+
+    setSymbol(definition: SymbolDefinition) {
+        return this.setDefinition(definition)
+    }
+
+    get symbol() {
+        return this.definition
+    }
+
+    set symbol(symbol: SymbolDefinition) {
+        this.definition = symbol
     }
 
     isEmpty() {

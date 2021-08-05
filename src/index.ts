@@ -41,6 +41,7 @@ export * from './path/PathFitter'
 export * from './path/SegmentSelection'
 
 export * from './text/TextItem'
+export * from './text/PointText'
 
 export * from './style/Color'
 export * from './style/Gradient'

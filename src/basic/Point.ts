@@ -865,7 +865,9 @@ export class Point extends Base {
      * // around which it is transformed:
      * path.position.selected = true;
      */
-    selected: boolean
+    get selected(): boolean {
+        return false
+    }
 
     /**
      * {@grouptitle Math Functions}
@@ -1110,6 +1112,14 @@ export class LinkedPoint extends Point {
 
     setSelected(selected: boolean) {
         this._owner._changeSelection(this._getSelection(), selected)
+    }
+
+    get selected(): boolean {
+        return this.isSelected()
+    }
+
+    set selected(selected: boolean) {
+        this.setSelected(selected)
     }
 
     protected _getSelection() {

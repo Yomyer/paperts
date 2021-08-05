@@ -11,7 +11,8 @@ import {
     CurveLocation,
     Numerical,
     CollisionDetection,
-    Path
+    Path,
+    Exportable
 } from '../'
 
 import { Point as PointType } from '../basic/Types'
@@ -37,6 +38,7 @@ export type CurveObject = Partial<
       }
 >
 
+@Exportable()
 export class Curve extends Base {
     protected _class = 'Curve'
     protected _path: Path

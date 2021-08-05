@@ -2,25 +2,20 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Gradients</title>
+        <title>Rectangle Testing</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var path = new Path.Circle({
-                center: view.center,
-                radius: view.bounds.height * 0.4
-            });
-            path.fillColor = {
-                stops: ['yellow', 'red', 'black'],
-                radial: true,
-                origin: path.position,
-                destination: path.bounds.rightCenter
-            }
+            var path = new Path.Rectangle(new Point(50, 50), new Size(100, 50));
+            path.style = {
+                fillColor: 'white',
+                strokeColor: 'black'
+            };
+            var copy = path.clone();
+            copy.strokeColor = 'red';
+            copy.rotate(-45);
+            copy.scale(0.5);
 
-            /*
-            var symbol = new SymbolDefinition(path);
-            symbol.place(view.center);
-            */
             window._json = project.exportJSON();
             console.log(window._json);
         </script>

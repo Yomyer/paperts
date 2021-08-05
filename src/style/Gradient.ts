@@ -4,11 +4,13 @@ import {
     ExportJsonOptions,
     UID,
     Color,
-    GradientStop
+    GradientStop,
+    Exportable
 } from '../'
 
 import { GradientStop as GradientStopType } from './Types'
 
+@Exportable()
 export class Gradient extends Base {
     protected _class = 'Gradient'
 

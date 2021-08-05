@@ -825,7 +825,7 @@ export class Style extends Base {
         return this.getParam('fontFamily', _dontMerge)
     }
 
-    setFontFamilty(family: string): this {
+    setFontFamily(family: string): this {
         this.setParam('fontFamily', family)
         return this
     }
@@ -835,7 +835,7 @@ export class Style extends Base {
     }
 
     set fontFamily(family: string) {
-        this.setFontFamilty(family)
+        this.setFontFamily(family)
     }
 
     /**

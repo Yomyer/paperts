@@ -2,25 +2,22 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Gradients</title>
+        <title>Transform Testing</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var path = new Path.Circle({
-                center: view.center,
-                radius: view.bounds.height * 0.4
-            });
-            path.fillColor = {
-                stops: ['yellow', 'red', 'black'],
-                radial: true,
-                origin: path.position,
-                destination: path.bounds.rightCenter
-            }
+            var circlePath = new Path.Circle(new Point(280, 100), 25);
+            circlePath.strokeColor = 'black';
+            circlePath.fillColor = 'white';
 
-            /*
-            var symbol = new SymbolDefinition(path);
-            symbol.place(view.center);
-            */
+            var clones = 30;
+            var angle = 360 / clones;
+
+            for (var i = 0; i < clones; i++) {
+                var clonedPath = circlePath.clone();
+                clonedPath.rotate(angle * i, circlePath.bounds.topLeft);
+            };
+
             window._json = project.exportJSON();
             console.log(window._json);
         </script>

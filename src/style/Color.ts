@@ -457,8 +457,8 @@ export class Color extends Base {
 
     initialize(...args: any[]): this {
         const reading = this.__read
+        let arg = args[0]
         let read = 0
-        let arg
         let type
         let components: any
         let alpha
@@ -466,9 +466,11 @@ export class Color extends Base {
 
         this.initComponents()
 
-        if (Array.isArray(args)) {
+        if (Array.isArray(arg)) {
+            args = arg
             arg = args[0]
         }
+
         let argType = arg != null && typeof arg
 
         if (argType === 'string' && arg in Color.types) {

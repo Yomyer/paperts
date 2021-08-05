@@ -75,12 +75,20 @@ export class SegmentPoint extends Point {
         return isZero(this._x) && isZero(this._y)
     }
 
-    isSelected() {
+    isSelected(): boolean {
         return !!(+this._owner.selection & this._getSelection())
     }
 
     setSelected(selected: boolean) {
         this._owner._changeSelection(this._getSelection(), selected)
+    }
+
+    get selected(): boolean {
+        return this.isSelected()
+    }
+
+    set selected(selected: boolean) {
+        this.setSelected(selected)
     }
 
     _getSelection() {

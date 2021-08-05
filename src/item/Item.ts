@@ -146,7 +146,7 @@ export type BoundsCache = {
 }
 
 export class Item extends Emitter {
-    static NO_INSERT: { insert: false }
+    static NO_INSERT = { insert: false }
 
     protected _class = 'Item'
     protected _name: string = null
@@ -160,7 +160,7 @@ export class Item extends Emitter {
     protected _locked = false
     protected _guide = false
     protected _clipMask = false
-    protected _selection = false
+    protected _selection = 0
     protected _selectBounds = true
     protected _selectChildren = false
     protected _matrix: Matrix
@@ -266,7 +266,6 @@ export class Item extends Emitter {
      */
     protected _initialize(props?: ItemProps, point?: Point): boolean {
         this._injectEvents(this._events)
-
         const paper = PaperScope.paper
 
         const hasProps = props && Base.isPlainObject(props)
@@ -759,7 +758,7 @@ export class Item extends Emitter {
         return this._selection
     }
 
-    setSelection(selection: boolean) {
+    setSelection(selection: number) {
         if (selection !== this._selection) {
             this._selection = selection
             const project = this._project
@@ -774,13 +773,13 @@ export class Item extends Emitter {
         return this.getSelection()
     }
 
-    set selection(selection: boolean) {
+    set selection(selection: number) {
         this.setSelection(selection)
     }
 
     protected _changeSelection(flag: ChangeFlag | Change, selected: boolean) {
         const selection = +this._selection
-        this.setSelection(!!(selected ? selection | flag : selection & ~flag))
+        this.setSelection(selected ? selection | flag : selection & ~flag)
     }
 
     /**
@@ -815,7 +814,7 @@ export class Item extends Emitter {
             for (let i = 0, l = children.length; i < l; i++)
                 if (children[i].isSelected()) return true
         }
-        return !!(+this._selection & ItemSelection.ITEM)
+        return !!(this._selection & ItemSelection.ITEM)
     }
 
     setSelected(selected: boolean) {
@@ -827,7 +826,7 @@ export class Item extends Emitter {
         this._changeSelection(ItemSelection.ITEM, selected)
     }
 
-    get selected() {
+    get selected(): boolean {
         return this.isSelected()
     }
 

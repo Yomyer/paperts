@@ -23,7 +23,7 @@ export type SegmentSmoothOptions = {
 @Exportable()
 export class Segment extends Base {
     protected _class = 'Segment'
-    protected _selection = false
+    protected _selection = 0
     protected _point: SegmentPoint
     protected _handleIn: SegmentPoint
     protected _handleOut: SegmentPoint
@@ -180,7 +180,7 @@ export class Segment extends Base {
             selection || this.hasHandles()
                 ? [point, this._handleIn, this._handleOut]
                 : point
-        ) as (SegmentPoint | boolean)[]
+        ) as (SegmentPoint | number)[]
 
         if (selection) obj.push(selection)
         return Base.serialize(obj, options, true, dictionary)
@@ -373,11 +373,11 @@ export class Segment extends Base {
         return this._selection
     }
 
-    setSelection(selection: boolean) {
+    setSelection(selection: number) {
         const oldSelection = this._selection
         const path = this._path
 
-        this._selection = selection = selection || false
+        this._selection = selection = selection || 0
 
         if (path && selection !== oldSelection) {
             path._updateSelection(this, oldSelection, selection)
@@ -386,16 +386,16 @@ export class Segment extends Base {
     }
 
     get selection() {
-        return this.getSelection()
+        return this._selection
     }
 
-    set selection(selection: boolean) {
-        this.setSelection(selection)
+    set selection(selection: number) {
+        this._selection = selection
     }
 
     _changeSelection(flag: SegmentSelection, selected: boolean) {
         const selection = this._selection
-        this.setSelection(!!(selected ? +selection | flag : +selection & ~flag))
+        this.setSelection(selected ? selection | flag : selection & ~flag)
     }
 
     /**
@@ -419,6 +419,14 @@ export class Segment extends Base {
 
     setSelected(selected: boolean) {
         this._changeSelection(SegmentSelection.ALL, selected)
+    }
+
+    get selected() {
+        return this.isSelected()
+    }
+
+    set selected(selected: boolean) {
+        this.setSelected(selected)
     }
 
     /**

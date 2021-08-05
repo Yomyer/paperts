@@ -141,7 +141,7 @@ test('fontFamily', function () {
     style.fontFamily = 'Arial'
     expect(style.getFontFamily()).toStrictEqual('Arial')
 
-    style.setFontFamilty('Verdana')
+    style.setFontFamily('Verdana')
     expect(style.fontFamily).toStrictEqual('Verdana')
 })
 

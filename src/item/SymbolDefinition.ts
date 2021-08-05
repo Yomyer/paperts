@@ -11,9 +11,11 @@ import {
     Project,
     BoundsCacheProps,
     Change,
-    ChangeFlag
+    ChangeFlag,
+    Exportable
 } from '../'
 
+@Exportable()
 export class SymbolDefinition extends Base {
     protected _class = 'SymbolDefinition'
 
@@ -114,11 +116,27 @@ export class SymbolDefinition extends Base {
     }
 
     get item() {
-        return this.getItem()
+        return this._item
     }
 
     set item(item: Item) {
-        this.setItem(item)
+        this._item = item
+    }
+
+    getDefinition() {
+        return this.getDefinition
+    }
+
+    setDefinition(item: Item, _dontCenter?: boolean) {
+        this.setDefinition(item, _dontCenter)
+    }
+
+    get definition() {
+        return this.item
+    }
+
+    set definition(definition: Item) {
+        this.item = definition
     }
 
     /**

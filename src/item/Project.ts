@@ -279,7 +279,7 @@ export class Project extends PaperScopeItem {
     }
 
     get activeLayer() {
-        return this._activeLayer
+        return this.getActiveLayer()
     }
 
     set activeLayer(layer: Layer) {

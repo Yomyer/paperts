@@ -1,4 +1,4 @@
-import { Straps, Formatter, Change, ChangeFlag } from '../'
+import { Straps, Formatter, Change, ChangeFlag, Item, Layer } from '../'
 
 // import Item from '../item/Item'
 // import Layer from '../item/Layer'
@@ -184,17 +184,17 @@ export class Base extends Straps {
         return Base.deserialize(
             typeof json === 'string' ? JSON.parse(json) : json,
 
-            function (ctor: any, args: any, isRoot: boolean) {
+            function (Ctor: any, args: any, isRoot: boolean) {
                 const useTarget =
-                    isRoot && target && target.constructor === ctor
+                    isRoot && target && target.constructor === Ctor
 
-                const obj = useTarget ? target : Base.create(ctor.prototype)
+                const obj = useTarget ? target : Base.create(Ctor.prototype)
 
                 // Todo usar Item y Layer
                 if (
                     args.length === 1 &&
-                    obj instanceof Base &&
-                    (useTarget || !(obj instanceof Base))
+                    obj instanceof Item &&
+                    (useTarget || !(obj instanceof Layer))
                 ) {
                     const arg = args[0]
                     if (Base.isPlainObject(arg)) {
@@ -206,10 +206,8 @@ export class Base extends Straps {
                     }
                 }
 
-                ;(useTarget ? obj.set : ctor).apply(obj, args)
-
                 if (useTarget) target = null
-                return obj
+                return useTarget ? obj.set(...args) : new Ctor(...args)
             }
         ) as InstanceType<T>
     }

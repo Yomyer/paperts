@@ -2,25 +2,28 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Gradients</title>
+        <title>Text Testing</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var path = new Path.Circle({
-                center: view.center,
-                radius: view.bounds.height * 0.4
-            });
-            path.fillColor = {
-                stops: ['yellow', 'red', 'black'],
-                radial: true,
-                origin: path.position,
-                destination: path.bounds.rightCenter
-            }
+            var text = new PointText(new Point(50, 100));
+            text.fillColor = 'black';
+            text.content = 'This is a test';
 
+            var text = new PointText(new Point(100, 150));
+            text.fillColor = 'red';
+            text.strokeWidth = '4';
+            text.content = 'This is also a test';
             /*
-            var symbol = new SymbolDefinition(path);
-            symbol.place(view.center);
+            text.scale(5);
+            text.translate(15, 15);
+            text.rotate(20);
+            text.shear(20, 5);
             */
+            text.rotate(45);
+            text.shear(.85, .15);
+            text.scale(.85, 2);
+
             window._json = project.exportJSON();
             console.log(window._json);
         </script>

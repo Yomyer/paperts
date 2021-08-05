@@ -2,25 +2,18 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Gradients</title>
+        <title>Group Transform</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var path = new Path.Circle({
-                center: view.center,
-                radius: view.bounds.height * 0.4
-            });
-            path.fillColor = {
-                stops: ['yellow', 'red', 'black'],
-                radial: true,
-                origin: path.position,
-                destination: path.bounds.rightCenter
-            }
-
-            /*
-            var symbol = new SymbolDefinition(path);
-            symbol.place(view.center);
-            */
+            var circle1 = new Path.Circle(new Point(100, 100), 50);
+            circle1.fillColor = 'red';
+            var circle2 = new Path.Circle(new Point(200, 100), 50);
+            circle2.fillColor = 'blue';
+            var group = new Group(circle1, circle2);
+            group.translate([100, 100]);
+            group.scale(0.5);
+            group.rotate(10);
             window._json = project.exportJSON();
             console.log(window._json);
         </script>

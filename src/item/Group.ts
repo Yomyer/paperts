@@ -7,13 +7,15 @@ import {
     Item,
     BoundsOptions,
     DrawOptions,
-    ItemSerializeFields
+    ItemSerializeFields,
+    Exportable
 } from '../'
 
 export type GroupSerializeFields = ItemSerializeFields & {
     children?: Item[]
 }
 
+@Exportable()
 export class Group extends Item {
     protected _class = 'Group'
     protected _selectBounds = false

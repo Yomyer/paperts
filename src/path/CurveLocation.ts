@@ -1,5 +1,15 @@
-import { Point, Base, Numerical, Curve, Segment, Formatter, Path } from '../'
+import {
+    Point,
+    Base,
+    Numerical,
+    Curve,
+    Segment,
+    Formatter,
+    Path,
+    Exportable
+} from '../'
 
+@Exportable()
 export class CurveLocation extends Base {
     protected _class = 'CurveLocation'
     protected _time: number

@@ -1,7 +1,15 @@
-import { Base, Dictionary, ExportJsonOptions, Change, Color } from '../'
+import {
+    Base,
+    Dictionary,
+    ExportJsonOptions,
+    Change,
+    Color,
+    Exportable
+} from '../'
 
 import { Color as ColorType, GradientStop as GradientStopType } from './Types'
 
+@Exportable()
 export class GradientStop extends Base {
     protected _class = 'GradientStop'
 
@@ -28,7 +36,6 @@ export class GradientStop extends Base {
     }
 
     initialize(...args: any[]) {
-        // (color, offset)
         let color = args[0]
         let offset = args[1]
         if (typeof args[0] === 'object' && args[1] === undefined) {
@@ -40,13 +47,12 @@ export class GradientStop extends Base {
                 'offset' in args[0] ||
                 'rampPoint' in args[0]
             ) {
-                // (stop)
                 color = args[0].color
                 offset = args[0].offset || args[0].rampPoint || 0
             }
         }
-        this.color = color
-        this.offset = offset
+        this.setColor(color)
+        this.setOffset(offset)
     }
 
     // TODO: Do we really need to also clone the color here?
@@ -114,13 +120,21 @@ export class GradientStop extends Base {
      *     redStop.offset = Math.sin(event.time * 3) * 0.1 + 0.3;
      * }
      */
+    getOffset() {
+        return this._offset
+    }
+
+    setOffset(offset: number) {
+        this._offset = offset
+        this.changed()
+    }
+
     get offset() {
         return this._offset
     }
 
     set offset(offset: number) {
         this._offset = offset
-        this.changed()
     }
 
     /**
@@ -178,14 +192,24 @@ export class GradientStop extends Base {
      *     redStop.offset = Math.sin(event.time * 3) * 0.1 + 0.3;
      * }
      */
+
+    getColor() {
+        return this._color
+    }
+
+    setColor(color: ColorType): void
+    setColor(...args: any[]) {
+        Color._setOwner(this._color, null)
+        this._color = Color._setOwner(Color.read(args, 0), this, 'setColor')
+        this._changed()
+    }
+
     get color() {
         return this._color
     }
 
     set color(color: ColorType) {
-        Color._setOwner(this._color, null)
-        this._color = Color._setOwner(Color.read([color], 0), this, 'setColor')
-        this.changed()
+        this._color = color
     }
 
     get owner() {

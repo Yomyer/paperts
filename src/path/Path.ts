@@ -478,7 +478,7 @@ export class Path extends PathItem {
             segment.index = index + i
 
             if (segment.selection)
-                this._updateSelection(segment, false, segment.selection)
+                this._updateSelection(segment, 0, segment.selection)
         }
 
         if (append) {
@@ -819,7 +819,7 @@ export class Path extends PathItem {
         for (let i = 0; i < amount; i++) {
             const segment = removed[i]
             if (segment.selection)
-                this._updateSelection(segment, segment.selection, false)
+                this._updateSelection(segment, segment.selection, 0)
 
             segment.index = segment.path = null
         }
@@ -1023,7 +1023,7 @@ export class Path extends PathItem {
         this.setSelected(selected)
     }
 
-    setSelection(selection: boolean) {
+    setSelection(selection: number) {
         if (!(+selection & ItemSelection.ITEM)) this._selectSegments(false)
         super.setSelection(selection)
     }
@@ -1034,13 +1034,13 @@ export class Path extends PathItem {
         const selection = selected ? SegmentSelection.ALL : 0
         this._segmentSelection = selection * length
 
-        for (let i = 0; i < length; i++) segments[i].selection = !!selection
+        for (let i = 0; i < length; i++) segments[i].selection = selection
     }
 
     _updateSelection(
         segment: Segment,
-        oldSelection: boolean,
-        newSelection: boolean
+        oldSelection: number,
+        newSelection: number
     ) {
         segment.selection = newSelection
         const selection = (this._segmentSelection +=

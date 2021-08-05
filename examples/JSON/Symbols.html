@@ -2,25 +2,20 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Gradients</title>
+        <title>Symbols</title>
         <link rel="stylesheet" href="../css/style.css" />
         <script type="text/javascript" src="../../dist/index.js"></script>
         <script type="text/paperscript" canvas="canvas1">
-            var path = new Path.Circle({
-                center: view.center,
-                radius: view.bounds.height * 0.4
+            var ellipse = new Path.Ellipse({
+                from: [0, 0],
+                to: [200, 100],
+                fillColor: 'red'
             });
-            path.fillColor = {
-                stops: ['yellow', 'red', 'black'],
-                radial: true,
-                origin: path.position,
-                destination: path.bounds.rightCenter
-            }
-
-            /*
-            var symbol = new SymbolDefinition(path);
-            symbol.place(view.center);
-            */
+            var symbol = new SymbolDefinition(ellipse);
+            var p1 = symbol.place([100, 100]);
+            p1.rotate(45);
+            var p2 = symbol.place([300, 200]);
+            p2.rotate(-30);
             window._json = project.exportJSON();
             console.log(window._json);
         </script>

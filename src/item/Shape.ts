@@ -16,7 +16,8 @@ import {
     Change,
     HitResult,
     HitResultOptions,
-    Path
+    Path,
+    Exportable
 } from '../'
 
 import {
@@ -33,6 +34,7 @@ export type ShapeSerializFields = ItemSerializeFields & {
     radius?: Size
 }
 
+@Exportable()
 export class Shape extends Item {
     protected _class = 'Shape'
     protected _applyMatrix = false
@@ -47,7 +49,7 @@ export class Shape extends Item {
 
     protected _type: ShapeTypes
     protected _size: Size
-    protected _radius: Size
+    protected _radius: Size | number
 
     constructor(...args: any[]) {
         super()
@@ -151,10 +153,10 @@ export class Shape extends Item {
     getRadius(): number | Size {
         const rad = this._radius
         return this._type === 'circle'
-            ? rad.width
+            ? rad
             : (new LinkedSize(
-                  rad.width,
-                  rad.height,
+                  (rad as Size).width,
+                  (rad as Size).height,
                   this,
                   'setRadius'
               ) as unknown as Size)
@@ -165,16 +167,16 @@ export class Shape extends Item {
     setRadius(...args: any[]): void {
         let radius = args[0]
         const type = this._type
-        if (type === 'circle' && radius instanceof Size) {
+        if (type === 'circle') {
             if (radius === this._radius) return
-            const size = +radius * 2
+            const size = radius * 2
             this._radius = radius
             this._size.set(size, size)
         } else {
             radius = Size.read(args)
             if (!this._radius) {
                 this._radius = radius.clone()
-            } else {
+            } else if (this._radius instanceof Size) {
                 if (this._radius.equals(radius)) return
                 this._radius.set(radius)
                 if (type === 'rectangle') {
@@ -253,8 +255,8 @@ export class Shape extends Item {
             if (untransformed && isCircle) {
                 ctx.arc(0, 0, +radius, 0, Math.PI * 2, true)
             } else {
-                const rx = isCircle ? radius : radius.width
-                const ry = isCircle ? radius : radius.height
+                const rx = isCircle ? radius : (radius as Size).width
+                const ry = isCircle ? radius : (radius as Size).height
                 const size = this._size
                 const width = size.width
                 const height = size.height
@@ -360,7 +362,7 @@ export class Shape extends Item {
         expand?: number | Size
     ): { point: Point; quadrant: number } {
         const radius = this._radius
-        if (!radius.isZero()) {
+        if (!(radius as Size).isZero()) {
             const halfSize = this._size.divide(2)
             for (let q = 1; q <= 4; q++) {
                 // Calculate the bounding boxes of the four quarter ellipses
@@ -465,11 +467,11 @@ export class Shape extends Item {
         radius: Size | number,
         args?: any
     ): Shape {
-        const item = new Shape()
+        const item = new Shape(Base.getNamed(args), point)
+
         item._type = type
         item._size = size
-        item._radius = new Size(radius as Size)
-        item._initialize(Base.getNamed(args), point)
+        item._radius = radius
 
         return item
     }
@@ -512,16 +514,30 @@ export class Shape extends Item {
     } {
         return function (...args: any[]) {
             const center = Point.readNamed(args, 'center')
-            const radius = Base.readNamed(args, 'radius')
+            const radius = +Base.readNamed(args, 'radius')
 
             return Shape.createShape(
                 'circle',
                 center,
-                new Size(+radius * 2),
-                +radius,
+                new Size(radius * 2),
+                radius,
                 args
             )
         } as any
+        /*
+        return function (...args: any[]) {
+            const ellipse = Shape._readEllipse(args)
+            const radius = ellipse.radius
+
+            return Shape.createShape(
+                'ellipse',
+                ellipse.center,
+                radius.multiply(2),
+                radius,
+                args
+            )
+        } as any
+        */
     }
 
     /**

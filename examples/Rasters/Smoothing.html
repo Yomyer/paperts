@@ -14,15 +14,14 @@
                     clone.scale(scale);
                     clone.smoothing = value;
                     clone.bounds.topLeft = position + [400 * index, 0];
-                    /*new PointText({
+                    new PointText({
                         point: clone.bounds.topLeft + [0, -10],
                         content: value
-                    });*/
+                    });
                 });
             }
 
             raster.onLoad = function () {
-                console.log('dasdasda')
                 showRasters(raster, new Point(50, 50), 4);
                 showRasters(raster, new Point(50, 600), 0.75);
                 raster.remove();
