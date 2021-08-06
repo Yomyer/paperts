@@ -11,7 +11,7 @@ import {
     CompoundPath,
     Shape,
     Color
-} from '../src'
+} from '../../src'
 
 test('Hit-testing options', function () {
     const paper = PaperScope.clearGlobalPaper()

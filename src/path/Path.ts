@@ -245,7 +245,7 @@ export class Path extends PathItem {
     }
 
     set segments(segments: Segment[]) {
-        this.setSegments(segments)
+        this._segments = segments
     }
 
     /**
@@ -443,6 +443,10 @@ export class Path extends PathItem {
 
     get pathData() {
         return this.getPathData()
+    }
+
+    set pathData(data: string) {
+        this.setPathData(data)
     }
 
     isEmpty() {

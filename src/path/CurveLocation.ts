@@ -121,7 +121,7 @@ export class CurveLocation extends Base {
     }
 
     get segment() {
-        return this.getSegment()
+        return this._segment
     }
 
     /**
@@ -156,7 +156,7 @@ export class CurveLocation extends Base {
     }
 
     get curve() {
-        return this.getCurve()
+        return this._curve
     }
 
     /**
@@ -171,7 +171,7 @@ export class CurveLocation extends Base {
     }
 
     get path() {
-        return this.getPath()
+        return this._path
     }
 
     get previous() {
@@ -215,7 +215,7 @@ export class CurveLocation extends Base {
     }
 
     get time() {
-        return this.getTime()
+        return this._time
     }
 
     set time(time: number) {
@@ -261,7 +261,7 @@ export class CurveLocation extends Base {
     }
 
     get offset() {
-        return this.getOffset()
+        return this._offset
     }
 
     /**
@@ -283,7 +283,7 @@ export class CurveLocation extends Base {
     }
 
     get curveOffset() {
-        return this.getCurveOffset()
+        return this._curveOffset
     }
 
     /**

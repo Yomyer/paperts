@@ -1,4 +1,4 @@
-import { Color, GradientStop } from '../src'
+import { Color, GradientStop } from '../../src'
 
 test('Gradient', function () {
     const stop1 = new GradientStop({ offset: 0.5 })
@@ -60,8 +60,8 @@ test('exportJSON', function () {
     const gradientStop = new GradientStop()
     expect(gradientStop.exportJSON()).toStrictEqual(`["GradientStop",[0,0,0]]`)
 
-    gradientStop.color = '#314'
+    gradientStop.color = '[0.2,0.06667,0.26667]'
     expect(gradientStop.exportJSON()).toStrictEqual(
-        `["GradientStop",[0.2,0.06667,0.26667]]`
+        `["GradientStop","[0.2,0.06667,0.26667]"]`
     )
 })

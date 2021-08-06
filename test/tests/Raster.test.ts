@@ -1,4 +1,4 @@
-import { Raster, Size } from '../src'
+import { Raster, Size } from '../../src'
 
 test('Create a raster without a source and check its size', function () {
     const raster = new Raster()

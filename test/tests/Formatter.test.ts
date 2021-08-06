@@ -1,4 +1,4 @@
-import { Formatter } from '../src'
+import { Formatter } from '../../src'
 
 test('number()', () => {
     const formatter = new Formatter(2)

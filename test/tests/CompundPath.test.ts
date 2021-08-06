@@ -1,4 +1,4 @@
-import { CompoundPath, Point, Path } from '../src'
+import { CompoundPath, Point, Path } from '../../src'
 
 test('moveTo() / lineTo()', function () {
     const path = new CompoundPath()

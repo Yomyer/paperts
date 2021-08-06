@@ -65,7 +65,7 @@ export type ItemSerializeFields = {
     guide?: boolean
     clipMask?: boolean
     selected?: boolean
-    data?: {}
+    data?: object
 }
 
 export type ItemProps = {
@@ -171,7 +171,7 @@ export class Item extends Emitter {
     protected _globalMatrix: Matrix
     protected _symbol: SymbolDefinition
     protected _definition: SymbolDefinition
-    protected _data: {}
+    protected _data = {}
     protected _boundsOptions: BoundsOptions = {}
     protected _bounds: { [key: string]: BoundsCache }
     protected _boundsCache: BoundsCacheProps

@@ -1,4 +1,4 @@
-import { Curve, Path, Point } from '../src'
+import { Curve, Path, Point } from '../../src'
 
 function testClassify(
     curve: Curve,

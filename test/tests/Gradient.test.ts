@@ -1,4 +1,4 @@
-import { Gradient } from '../src'
+import { Gradient } from '../../src'
 
 test('Gradients with applyMatrix', function () {
     expect(1).toStrictEqual(1)

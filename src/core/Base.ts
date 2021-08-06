@@ -142,11 +142,11 @@ export class Base extends Straps {
      * @return {String} the exported JSON data
      */
 
-    exportJSON(options?: ExportJsonOptions): string {
+    exportJSON(options?: ExportJsonOptions): string | any {
         return Base.exportJSON(this, options)
     }
 
-    toJSON() {
+    toJSON(): any {
         return Base.serialize(this)
     }
 
@@ -169,7 +169,7 @@ export class Base extends Straps {
     // Statics
     static exports: { [key: string]: typeof Base } = {}
 
-    static exportJSON(obj: Base, options?: ExportJsonOptions): string {
+    static exportJSON(obj: Base, options?: ExportJsonOptions): string | any {
         const json = Base.serialize(obj, options)
         return options && options.asString === false
             ? json
@@ -217,7 +217,7 @@ export class Base extends Straps {
         options?: ExportJsonOptions,
         compact?: boolean,
         dictionary?: Dictionary
-    ): string {
+    ): any {
         options = options || {}
 
         const isRoot = !dictionary

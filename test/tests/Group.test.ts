@@ -1,4 +1,4 @@
-import { Group, PaperScope, Path, Rectangle, Point } from '../src'
+import { Group, PaperScope, Path, Rectangle, Point } from '../../src'
 
 test('new Group()', function () {
     const paper = PaperScope.clearGlobalPaper()

@@ -1,4 +1,4 @@
-import { Color, Group, Path } from '../src'
+import { Color, Group, Path } from '../../src'
 
 test('Creating Colors', function () {
     expect(new Color()).toStrictEqual(new Color(0, 0, 0))

@@ -30,6 +30,6 @@
             "@paperts": ["./"]
         }
     },
-    "include": ["src"],
+    "include": ["src", "test/Test.ts"],
     "exclude": ["node_modules", "dist", "example"]
 }

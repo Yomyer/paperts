@@ -1,4 +1,4 @@
-import { Item } from '../src'
+import { Item } from '../../src'
 
 test('emit()', () => {
     const emitter = new Item()

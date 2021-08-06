@@ -1,4 +1,4 @@
-import { Project, View } from '../src'
+import { Project, View } from '../../src'
 
 test('number()', () => {
     /*

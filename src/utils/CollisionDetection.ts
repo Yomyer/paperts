@@ -88,6 +88,7 @@ export class CollisionDetection {
         const bounds1 = getBounds(curves1)
         const bounds2 =
             !curves2 || curves2 === curves1 ? bounds1 : getBounds(curves2)
+
         if (bothAxis) {
             const hor = CollisionDetection.findBoundsCollisions(
                 bounds1,

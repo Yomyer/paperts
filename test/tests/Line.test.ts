@@ -1,4 +1,4 @@
-import { Line, Point } from '../src'
+import { Line, Point } from '../../src'
 
 test('getPoint()', () => {
     const line = new Line(new Point([10, 10]), new Point([30, 30]))

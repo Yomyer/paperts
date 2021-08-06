@@ -1,4 +1,4 @@
-import { Base, Point, Rectangle, Size } from '../src'
+import { Base, Point, Rectangle, Size } from '../../src'
 
 test('initialize one params', () => {
     const rect = new Rectangle(10, 10, 100, 100)

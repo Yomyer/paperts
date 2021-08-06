@@ -1432,7 +1432,6 @@ export abstract class PathItem extends Item {
 
         const _path1 = this.preparePath(path1, true)
         const _path2 = path2 && path1 !== path2 && this.preparePath(path2, true)
-
         const operator = this.operators[operation]
 
         operator[operation] = true
@@ -1450,6 +1449,7 @@ export abstract class PathItem extends Item {
         )
         const paths1 = this.getPaths(_path1)
         const paths2 = _path2 && this.getPaths(_path2)
+
         const segments: Segment[] = []
         const curves: Curve[] = []
         let paths: Path[] | CompoundPath[]
@@ -2213,7 +2213,7 @@ export abstract class PathItem extends Item {
             let seg = segments[i]
             let valid = isValid(seg)
             let path: Path = null
-            const finished = false
+            let finished = false
             let closed = true
             const branches: BooleanBranch[] = []
             let branch: BooleanBranch
@@ -2235,7 +2235,7 @@ export abstract class PathItem extends Item {
                 const first = !path
                 const crossings = getCrossingSegments(seg, first)
                 const other = crossings.shift()
-                const finished = !first && (isStart(seg) || isStart(other))
+                finished = !first && (isStart(seg) || isStart(other))
                 const cross = !finished && other
                 if (first) {
                     path = new Path(Item.NO_INSERT)

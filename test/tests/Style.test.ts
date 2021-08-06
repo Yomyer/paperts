@@ -1,4 +1,4 @@
-import { Color, Style } from '../src'
+import { Color, Style } from '../../src'
 
 test('equals', function () {
     const style = new Style()

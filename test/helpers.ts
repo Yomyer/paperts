@@ -1,5 +1,68 @@
-import { Item, Group, RasterOptions, Shape } from '../'
+import {
+    Item,
+    Group,
+    RasterOptions,
+    Shape,
+    PathItem,
+    Path,
+    CompoundPath
+} from '../src'
 import resemble from 'resemblejs'
+
+export const compareBoolean = function (actual: any, expected: any) {
+    expected =
+        typeof expected === 'string' ? PathItem.create(expected) : expected
+    if (typeof actual === 'function') {
+        actual = actual()
+    }
+
+    let parent
+    let index
+    const style = {
+        strokeColor: 'black',
+        fillColor:
+            (expected &&
+                (expected.closed ||
+                    (expected.firstChild &&
+                        expected.firstChild.closed &&
+                        'yellow'))) ||
+            null
+    }
+    if (actual) {
+        parent = actual.parent
+        index = actual.index
+        if (parent && parent instanceof CompoundPath) {
+            actual.remove()
+        } else {
+            parent = null
+        }
+        actual.style = style
+    }
+    if (expected) {
+        expected.style = style
+    }
+    const actualSegments = getSegments(actual)
+    const expectedSegments = getSegments(expected)
+
+    expect(actualSegments).toStrictEqual(expectedSegments)
+    if (parent) {
+        parent.insertChild(index, actual)
+    }
+}
+
+export const getSegments = function (path: Path) {
+    const paths = path.toJSON()[1].children
+        ? path.toJSON()[1].children
+        : [path.toJSON()]
+
+    let segments: any[] = []
+    paths.forEach((path) => {
+        segments =
+            (path[1].segments && segments.concat(path[1].segments.sort())) ||
+            segments
+    })
+    return segments.sort()
+}
 
 /**
  * Compare 2 image data with resemble.js library.
