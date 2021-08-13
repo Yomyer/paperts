@@ -200,8 +200,8 @@ export class Segment extends Base {
                     index > 0
                         ? curves[index - 1]
                         : path.closed
-                        ? curves[curves.length - 1]
-                        : null)
+                            ? curves[curves.length - 1]
+                            : null)
             )
                 curve.changed()
 
@@ -528,6 +528,10 @@ export class Segment extends Base {
         )
     }
 
+    get next() {
+        return this.getNext()
+    }
+
     /**
      * Smooths the bezier curves that pass through this segment by taking into
      * account the segment's position and distance to the neighboring segments
@@ -592,9 +596,9 @@ export class Segment extends Base {
                 this.setHandleIn(
                     N !== 0
                         ? new Point(
-                              (d22a * p0.x + A * p1.x - d12a * p2.x) / N - p1.x,
-                              (d22a * p0.y + A * p1.y - d12a * p2.y) / N - p1.y
-                          )
+                            (d22a * p0.x + A * p1.x - d12a * p2.x) / N - p1.x,
+                            (d22a * p0.y + A * p1.y - d12a * p2.y) / N - p1.y
+                        )
                         : new Point()
                 )
             }
@@ -604,9 +608,9 @@ export class Segment extends Base {
                 this.setHandleOut(
                     N !== 0
                         ? new Point(
-                              (d12a * p2.x + A * p1.x - d22a * p0.x) / N - p1.x,
-                              (d12a * p2.y + A * p1.y - d22a * p0.y) / N - p1.y
-                          )
+                            (d12a * p2.x + A * p1.x - d22a * p0.x) / N - p1.x,
+                            (d12a * p2.y + A * p1.y - d22a * p0.y) / N - p1.y
+                        )
                         : new Point()
                 )
             }
@@ -640,6 +644,10 @@ export class Segment extends Base {
                     (this._path.closed && segments[segments.length - 1]))) ||
             null
         )
+    }
+
+    get previous() {
+        return this.getPrevious()
     }
 
     /**
@@ -772,10 +780,10 @@ export class Segment extends Base {
     }
 
     _transformCoordinates(matrix: Matrix, coords: number[], change?: boolean) {
-        const point = this._point
-        const handleIn =
+        const point: any = this._point
+        const handleIn: any =
             !change || !this._handleIn.isZero() ? this._handleIn : null
-        const handleOut =
+        const handleOut: any =
             !change || !this._handleOut.isZero() ? this._handleOut : null
         let x = point.x
         let y = point.y
@@ -799,16 +807,16 @@ export class Segment extends Base {
             x = coords[0]
             y = coords[1]
             if (change) {
-                point.x = x
-                point.y = y
+                point._x = x
+                point._y = y
                 i = 2
                 if (handleIn) {
-                    handleIn.x = coords[i++] - x
-                    handleIn.y = coords[i++] - y
+                    handleIn._x = coords[i++] - x
+                    handleIn._y = coords[i++] - y
                 }
                 if (handleOut) {
-                    handleOut.x = coords[i++] - x
-                    handleOut.y = coords[i++] - y
+                    handleOut._x = coords[i++] - x
+                    handleOut._y = coords[i++] - y
                 }
             } else {
                 if (!handleIn) {

@@ -202,20 +202,36 @@ export class Point extends Base {
         return this
     }
 
-    get x() {
-        return this._x
+    getX() {
+        return this._x;
     }
 
-    set x(x: number) {
+    setX(x: number) {
         this._x = x
     }
 
+    get x() {
+        return this.getX()
+    }
+
+    set x(x: number) {
+        this.setX(x)
+    }
+
+    getY() {
+        return this._y;
+    }
+
+    setY(y: number) {
+        this._y = y
+    }
+
     get y() {
-        return this._y
+        return this.getY()
     }
 
     set y(y: number) {
-        this._y = y
+        this.setY(y)
     }
 
     /**
@@ -1038,7 +1054,7 @@ export class Point extends Base {
         return (
             Math.abs(x1 * y2 - y1 * x2) <=
             Math.sqrt((x1 * x1 + y1 * y1) * (x2 * x2 + y2 * y2)) *
-                Numerical.TRIGONOMETRIC_EPSILON
+            Numerical.TRIGONOMETRIC_EPSILON
         )
     }
 
@@ -1051,7 +1067,7 @@ export class Point extends Base {
         return (
             Math.abs(x1 * x2 + y1 * y2) <=
             Math.sqrt((x1 * x1 + y1 * y1) * (x2 * x2 + y2 * y2)) *
-                Numerical.TRIGONOMETRIC_EPSILON
+            Numerical.TRIGONOMETRIC_EPSILON
         )
     }
 }

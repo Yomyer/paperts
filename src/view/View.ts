@@ -321,7 +321,7 @@ export class View extends Emitter {
                     if (
                         (!DomElement.getPrefixed(document, 'hidden') ||
                             PaperScope.getAttribute(element, 'keepalive') ===
-                                'true') &&
+                            'true') &&
                         DomElement.isInView(element)
                     ) {
                         this._handleFrame()
@@ -397,10 +397,11 @@ export class View extends Emitter {
             const entry = this._frameItems[i]
             entry.item.emit(
                 'frame',
-                new Base(event, {
+                {
+                    ...event,
                     time: (entry.time += event.delta),
                     count: entry.count++
-                })
+                }
             )
         }
     }
@@ -1741,7 +1742,7 @@ export class View extends Emitter {
                 clickItem =
                 clickTime =
                 dblClick =
-                    null
+                null
         }
     }
 }

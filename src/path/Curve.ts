@@ -33,9 +33,9 @@ export type CurveClassify = {
 export type CurveObject = Partial<
     | Curve
     | {
-          segment1: Segment | number[]
-          segment2: Segment | number[]
-      }
+        segment1: Segment | number[]
+        segment2: Segment | number[]
+    }
 >
 
 @Exportable()
@@ -168,11 +168,11 @@ export class Curve extends Base {
         return Base.serialize(
             this.hasHandles()
                 ? [
-                      this.getPoint1(),
-                      this.getHandle1(),
-                      this.getHandle2(),
-                      this.getPoint2()
-                  ]
+                    this.getPoint1(),
+                    this.getHandle1(),
+                    this.getHandle2(),
+                    this.getPoint2()
+                ]
                 : [this.getPoint1(), this.getPoint2()],
             options,
             true,
@@ -425,7 +425,7 @@ export class Curve extends Base {
         )
     }
 
-    next(): Curve {
+    get next(): Curve {
         return this.getNext()
     }
 
@@ -446,7 +446,7 @@ export class Curve extends Base {
         )
     }
 
-    previous(): Curve {
+    get previous(): Curve {
         return this.getPrevious()
     }
 
@@ -850,8 +850,8 @@ export class Curve extends Base {
         const t = point.isClose(p0, epsilon)
             ? 0
             : point.isClose(p3, epsilon)
-            ? 1
-            : null
+                ? 1
+                : null
 
         if (t === null) {
             const coords = [point.x, point.y]
@@ -869,8 +869,8 @@ export class Curve extends Base {
         return point.isClose(p0, geomEpsilon)
             ? 0
             : point.isClose(p3, geomEpsilon)
-            ? 1
-            : null
+                ? 1
+                : null
     }
 
     static getNearestTime(v: number[], point: Point) {
@@ -889,8 +889,8 @@ export class Curve extends Base {
             return u < Numerical.EPSILON
                 ? 0
                 : u > 1 - Numerical.EPSILON
-                ? 1
-                : Curve.getTimeOf(v, new Point(x0 + u * vx, y0 + u * vy))
+                    ? 1
+                    : Curve.getTimeOf(v, new Point(x0 + u * vx, y0 + u * vy))
         }
 
         const count = 100
@@ -1060,9 +1060,9 @@ export class Curve extends Base {
                     if (tMin <= t && t <= tMax)
                         add(
                             u * u * u * v0 +
-                                3 * u * u * t * v1 +
-                                3 * u * t * t * v2 +
-                                t * t * t * v3,
+                            3 * u * u * t * v1 +
+                            3 * u * t * t * v2 +
+                            t * t * t * v3,
                             padding
                         )
                 }
@@ -1284,7 +1284,7 @@ export class Curve extends Base {
         return (
             this.isStraight() &&
             Math.abs(this.getTangentAtTime(0.5).y) <
-                Numerical.TRIGONOMETRIC_EPSILON
+            Numerical.TRIGONOMETRIC_EPSILON
         )
     }
 
@@ -1297,7 +1297,7 @@ export class Curve extends Base {
         return (
             this.isStraight() &&
             Math.abs(this.getTangentAtTime(0.5).x) <
-                Numerical.TRIGONOMETRIC_EPSILON
+            Numerical.TRIGONOMETRIC_EPSILON
         )
     }
 
@@ -2030,7 +2030,7 @@ export class Curve extends Base {
                 dp2 === 0 &&
                 dp3 === 0) ||
             (tMinClip = Curve.clipConvexHull(top, bottom, dMin, dMax)) ==
-                null ||
+            null ||
             (tMaxClip = Curve.clipConvexHull(
                 top.reverse(),
                 bottom.reverse(),
@@ -2198,8 +2198,8 @@ export class Curve extends Base {
                 distRatio >= 2
                     ? [p0, p1, p3]
                     : distRatio <= 0.5
-                    ? [p0, p2, p3]
-                    : [p0, p1, p2, p3],
+                        ? [p0, p2, p3]
+                        : [p0, p1, p2, p3],
                 [p0, p3]
             ]
         }
@@ -2367,13 +2367,13 @@ export class Curve extends Base {
 
         if (
             max(v1[0], v1[2], v1[4], v1[6]) + epsilon >
-                min(v2[0], v2[2], v2[4], v2[6]) &&
+            min(v2[0], v2[2], v2[4], v2[6]) &&
             min(v1[0], v1[2], v1[4], v1[6]) - epsilon <
-                max(v2[0], v2[2], v2[4], v2[6]) &&
+            max(v2[0], v2[2], v2[4], v2[6]) &&
             max(v1[1], v1[3], v1[5], v1[7]) + epsilon >
-                min(v2[1], v2[3], v2[5], v2[7]) &&
+            min(v2[1], v2[3], v2[5], v2[7]) &&
             min(v1[1], v1[3], v1[5], v1[7]) - epsilon <
-                max(v2[1], v2[3], v2[5], v2[7])
+            max(v2[1], v2[3], v2[5], v2[7])
         ) {
             const overlaps = Curve.getOverlaps(v1, v2)
             if (overlaps) {
@@ -2396,25 +2396,25 @@ export class Curve extends Base {
                 const flip = straight1 && !straight2
                 const before = locations.length
 
-                ;(straight
-                    ? Curve.addLineIntersection
-                    : straight1 || straight2
-                    ? Curve.addCurveLineIntersections
-                    : Curve.addCurveIntersections)(
-                    flip ? v2 : v1,
-                    flip ? v1 : v2,
-                    flip ? c2 : c1,
-                    flip ? c1 : c2,
-                    locations,
-                    include,
-                    flip,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                    1
-                )
+                    ; (straight
+                        ? Curve.addLineIntersection
+                        : straight1 || straight2
+                            ? Curve.addCurveLineIntersections
+                            : Curve.addCurveIntersections)(
+                                flip ? v2 : v1,
+                                flip ? v1 : v2,
+                                flip ? c2 : c1,
+                                flip ? c1 : c2,
+                                locations,
+                                include,
+                                flip,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0,
+                                1
+                            )
 
                 if (!straight || locations.length === before) {
                     for (let i = 0; i < 4; i++) {

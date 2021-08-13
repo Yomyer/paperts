@@ -121,7 +121,7 @@ export class CurveLocation extends Base {
     }
 
     get segment() {
-        return this._segment
+        return this.getSegment()
     }
 
     /**
@@ -156,7 +156,7 @@ export class CurveLocation extends Base {
     }
 
     get curve() {
-        return this._curve
+        return this.getCurve()
     }
 
     /**
@@ -561,9 +561,9 @@ export class CurveLocation extends Base {
 
         return !!(t1Inside
             ? +isInRange(a1, a3, a4) ^ +isInRange(a2, a3, a4) &&
-              +isInRange(a1, a4, a3) ^ +isInRange(a2, a4, a3)
+            +isInRange(a1, a4, a3) ^ +isInRange(a2, a4, a3)
             : +isInRange(a3, a1, a2) ^ +isInRange(a4, a1, a2) &&
-              +isInRange(a3, a2, a1) ^ +isInRange(a4, a2, a1))
+            +isInRange(a3, a2, a1) ^ +isInRange(a4, a2, a1))
     }
 
     /**
@@ -633,8 +633,8 @@ export class CurveLocation extends Base {
                 path1 !== path2
                     ? +path1.id - +path2.id
                     : loc.getIndex() +
-                      loc.getTime() -
-                      (loc2.getIndex() + loc2.getTime())
+                    loc.getTime() -
+                    (loc2.getIndex() + loc2.getTime())
             if (diff < 0) {
                 r = m - 1
             } else {

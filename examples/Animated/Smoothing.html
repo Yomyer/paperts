@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Smoothing</title>
-        <link rel="stylesheet" href="../css/style.css" />
-        <script type="text/javascript" src="../../dist/index.js"></script>
-        <script type="text/paperscript" canvas="canvas">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Smoothing</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script type="text/javascript" src="../../dist/index.js"></script>
+    <script type="text/paperscript" canvas="canvas">
             var width, height, center;
             var points = 10;
             var smooth = true;
@@ -36,7 +37,7 @@
                     var sinSeed = event.count + (i + i % 10) * 100;
                     var sinHeight = Math.sin(sinSeed / 200) * pathHeight;
                     var yPos = Math.sin(sinSeed / 100) * sinHeight + height;
-                    path.segments[i].point.y = yPos;
+                    path.segments[i].point.y = yPos;         
                 }
                 if (smooth)
                     path.smooth({ type: 'continuous' });
@@ -63,8 +64,10 @@
                 initializePath();
             }
         </script>
-    </head>
-    <body>
-        <canvas id="canvas" resize></canvas>
-    </body>
+</head>
+
+<body>
+    <canvas id="canvas" resize></canvas>
+</body>
+
 </html>

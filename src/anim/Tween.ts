@@ -22,7 +22,7 @@ export class Tween extends Emitter {
     protected _then: Function
     protected _parsedKeys: { [key: string]: string }
 
-    static easings = new Base({
+    static easings = {
         linear: function (t: number) {
             return t
         },
@@ -66,7 +66,7 @@ export class Tween extends Emitter {
                 ? 16 * t * t * t * t * t
                 : 1 + 16 * --t * t * t * t * t
         }
-    })
+    }
 
     protected _events: {
         onUpdate: {}
@@ -116,8 +116,8 @@ export class Tween extends Emitter {
         this.type = isFunction
             ? type
             : type === 'string'
-            ? (easing as string)
-            : 'linear'
+                ? (easing as string)
+                : 'linear'
         this.easing = isFunction ? easing : Tween.easings[this.type]
         this.duration = duration
         this.running = false
@@ -239,10 +239,10 @@ export class Tween extends Emitter {
             if (this.responds('update')) {
                 this.emit(
                     'update',
-                    new Base({
+                    {
                         progress: progress,
                         factor: factor
-                    })
+                    }
                 )
             }
             if (!this.running && this._then) {

@@ -1,4 +1,5 @@
 import { Base, PaperScope, Runtime, View, DomEvent } from '../'
+import { KeyModifiers } from './KeyModifiers'
 
 export type ModifiersType = {
     shift?: boolean
@@ -37,36 +38,17 @@ export class Key {
     static metaFixMap: { [key: string]: string }
     static downKey: (event?: any, ...args: any) => void
 
-    static modifiers = new Base({
-        shift: false,
-        control: false,
-        alt: false, // WAS: option
-        meta: false, // WAS: command
-        capsLock: false,
-        space: false
-    }).inject({
-        option: {
-            get: function (): boolean {
-                return this.alt
-            }
-        } as ModifiersType,
-        command: {
-            get: function (): boolean {
-                const agent = PaperScope.paper && PaperScope.paper.agent
-                return agent && agent.mac ? this.meta : this.control
-            }
-        } as ModifiersType
-    }) as ModifiersType & Base
+    static modifiers = new KeyModifiers()
 
     static getKey(event: KeyboardEvent) {
         let key = event.key || (event as any).keyIdentifier
         key = /^U\+/.test(key)
             ? String.fromCharCode(parseInt(key.substr(2), 16))
             : /^Arrow[A-Z]/.test(key)
-            ? key.substr(5)
-            : key === 'Unidentified' || key === undefined
-            ? String.fromCharCode(event.keyCode)
-            : key
+                ? key.substr(5)
+                : key === 'Unidentified' || key === undefined
+                    ? String.fromCharCode(event.keyCode)
+                    : key
         return (
             Key.keyLookup[key] ||
             (key.length > 1 ? Base.hyphenate(key) : key.toLowerCase())
@@ -154,8 +136,8 @@ export class Key {
                         code >= 32
                             ? String.fromCharCode(code)
                             : key.length > 1
-                            ? ''
-                            : key
+                                ? ''
+                                : key
                     if (key !== Key.downKey) {
                         key = character.toLowerCase()
                     }

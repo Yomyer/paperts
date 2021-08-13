@@ -64,6 +64,10 @@ export class Event extends Base {
         return this.event.timeStamp
     }
 
+    get timeStamp() {
+        return this.getTimeStamp()
+    }
+
     /**
      * The current state of the keyboard modifiers.
      *
@@ -73,5 +77,9 @@ export class Event extends Base {
      */
     getModifiers() {
         return Key.modifiers
+    }
+
+    get modifiers() {
+        return this.getModifiers()
     }
 }

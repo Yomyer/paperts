@@ -109,7 +109,7 @@ export class PaperScope extends Base {
 
     version = Options.version
 
-    static agent: PapperAgent = {}
+    static agent: PapperAgent
     static browser: PapperAgent
     static support: PaperSupport
 
@@ -147,11 +147,13 @@ export class PaperScope extends Base {
             }
             CanvasProvider.release(ctx)
         }
+
         if (!this.agent) {
             const user = self.navigator.userAgent.toLowerCase()
             const os = (/(darwin|win|mac|linux|freebsd|sunos)/.exec(user) ||
                 [])[0]
             const platform = os === 'darwin' ? 'mac' : (os as OSPlatforms)
+
             const agent = (PaperScope.agent = PaperScope.browser =
                 { platform }) as PapperAgent
             if (platform) agent[platform] = true
@@ -170,13 +172,13 @@ export class PaperScope extends Base {
                             n === 'opera'
                                 ? v2
                                 : /^(node|trident)$/.test(n)
-                                ? rv
-                                : v1
+                                    ? rv
+                                    : v1
                         agent.version = v
                         agent.versionNumber = parseFloat(v)
                         n =
                             ({ trident: 'msie', jsdom: 'node' } as unknown)[
-                                n
+                            n
                             ] || n
                         agent.name = n
                         agent[n] = true
