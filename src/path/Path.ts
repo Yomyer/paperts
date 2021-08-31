@@ -155,10 +155,10 @@ export class Path extends PathItem {
                 ? args[0]
                 : args
             : args[0] &&
-                args[0].size === undefined &&
-                (args[0].x !== undefined || args[0].point !== undefined)
-                ? args
-                : null
+              args[0].size === undefined &&
+              (args[0].x !== undefined || args[0].point !== undefined)
+            ? args
+            : null
         if (segments && segments.length > 0) {
             this.setSegments(segments)
         } else {
@@ -409,18 +409,18 @@ export class Path extends PathItem {
                             dx === 0
                                 ? 'v' + f.number(dy)
                                 : dy === 0
-                                    ? 'h' + f.number(dx)
-                                    : 'l' + f.pair(dx, dy)
+                                ? 'h' + f.number(dx)
+                                : 'l' + f.pair(dx, dy)
                         )
                     }
                 } else {
                     parts.push(
                         'c' +
-                        f.pair(outX - prevX, outY - prevY) +
-                        ' ' +
-                        f.pair(inX - prevX, inY - prevY) +
-                        ' ' +
-                        f.pair(curX - prevX, curY - prevY)
+                            f.pair(outX - prevX, outY - prevY) +
+                            ' ' +
+                            f.pair(inX - prevX, inY - prevY) +
+                            ' ' +
+                            f.pair(curX - prevX, curY - prevY)
                     )
                 }
             }
@@ -534,7 +534,7 @@ export class Path extends PathItem {
         if (
             (curve =
                 curves[
-                this._closed && !start ? segments.length - 1 : start - 1
+                    this._closed && !start ? segments.length - 1 : start - 1
                 ])
         ) {
             curve.segment2 = segments[start] || segments[0]
@@ -1362,12 +1362,12 @@ export class Path extends PathItem {
                 if (path && path !== that)
                     throw new Error(
                         value.class +
-                        ' ' +
-                        index +
-                        ' of ' +
-                        path +
-                        ' is not part of ' +
-                        that
+                            ' ' +
+                            index +
+                            ' of ' +
+                            path +
+                            ' is not part of ' +
+                            that
                     )
 
                 if (_default && value instanceof Curve) index++
@@ -1379,8 +1379,8 @@ export class Path extends PathItem {
                 index < 0 && closed
                     ? index % length
                     : index < 0
-                        ? index + length
-                        : index,
+                    ? index + length
+                    : index,
                 length - 1
             )
         }
@@ -1543,11 +1543,11 @@ export class Path extends PathItem {
                     corner &&
                     Numerical.isZero(
                         handle1.getLength() / corner.subtract(pt1).getLength() -
-                        kappa
+                            kappa
                     ) &&
                     Numerical.isZero(
                         handle2.getLength() / corner.subtract(pt2).getLength() -
-                        kappa
+                            kappa
                     )
                 )
             }
@@ -1713,8 +1713,8 @@ export class Path extends PathItem {
         const strokeRadius = hitStroke
             ? style.getStrokeWidth() / 2
             : (hitFill && options.tolerance > 0) || hitCurves
-                ? 0
-                : null
+            ? 0
+            : null
 
         if (strokeRadius !== null) {
             if (strokeRadius > 0) {
@@ -1840,7 +1840,7 @@ export class Path extends PathItem {
                     const segment = segments[i]
                     if (
                         point.getDistance(segment.point) <=
-                        miterLimit * strokeRadius &&
+                            miterLimit * strokeRadius &&
                         checkSegmentStroke(segment)
                     ) {
                         loc = segment.getLocation()
@@ -1854,11 +1854,11 @@ export class Path extends PathItem {
             (loc && !hitStroke && !hitCurves)
             ? new HitResult('fill', this)
             : loc
-                ? new HitResult(hitStroke ? 'stroke' : 'curve', this, {
-                    location: loc,
-                    point: loc.getPoint()
-                })
-                : null
+            ? new HitResult(hitStroke ? 'stroke' : 'curve', this, {
+                  location: loc,
+                  point: loc.getPoint()
+              })
+            : null
     }
 
     /**
@@ -2765,8 +2765,8 @@ export class Path extends PathItem {
         const method = options.handle
             ? 'getHandleBounds'
             : options.stroke
-                ? 'getStrokeBounds'
-                : 'getBounds'
+            ? 'getStrokeBounds'
+            : 'getBounds'
         return Path[method](this._segments, this._closed, this, matrix, options)
     }
 
@@ -3113,9 +3113,9 @@ export class Path extends PathItem {
         (fromX: number, fromY: number, toX: number, toY: number): Path
         (from: PointType, to: PointType): Path
         (object?: object): Path
-        new(fromX: number, fromY: number, toX: number, toY: number): Path
-        new(from: PointType, to: PointType): Path
-        new(object?: object): Path
+        new (fromX: number, fromY: number, toX: number, toY: number): Path
+        new (from: PointType, to: PointType): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             return Path.createPath(
@@ -3161,9 +3161,9 @@ export class Path extends PathItem {
         (centerX: number, centerY: number, radius: number): Path
         (center: PointType, radius: number): Path
         (object?: object): Path
-        new(centerX: number, centerY: number, radius: number): Path
-        new(center: PointType, radius: number): Path
-        new(object?: object): Path
+        new (centerX: number, centerY: number, radius: number): Path
+        new (center: PointType, radius: number): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const center = Point.readNamed(args, 'center')
@@ -3268,10 +3268,10 @@ export class Path extends PathItem {
         (point: PointType, size: SizeType): Path
         (fromt: PointType, to: PointType): Path
         (object?: object): Path
-        new(rectangle: RectangleType, radius: SizeType): Path
-        new(point: PointType, size: SizeType): Path
-        new(fromt: PointType, to: PointType): Path
-        new(object?: object): Path
+        new (rectangle: RectangleType, radius: SizeType): Path
+        new (point: PointType, size: SizeType): Path
+        new (fromt: PointType, to: PointType): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const rect = Rectangle.readNamed(args, 'rectangle')
@@ -3349,10 +3349,10 @@ export class Path extends PathItem {
         (point: PointType, size: SizeType): Path
         (fromt: PointType, to: PointType): Path
         (object?: object): Path
-        new(rectangle: RectangleType, radius: SizeType): Path
-        new(point: PointType, size: SizeType): Path
-        new(fromt: PointType, to: PointType): Path
-        new(object?: object): Path
+        new (rectangle: RectangleType, radius: SizeType): Path
+        new (point: PointType, size: SizeType): Path
+        new (fromt: PointType, to: PointType): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const ellipse = Shape._readEllipse(args)
@@ -3405,7 +3405,7 @@ export class Path extends PathItem {
         ): Path
         (from: PointType, through: PointType, to: PointType): Path
         (object?: object): Path
-        new(
+        new (
             fromX: PointType,
             fromY: PointType,
             throughX: PointType,
@@ -3413,8 +3413,8 @@ export class Path extends PathItem {
             toX: PointType,
             toY: PointType
         ): Path
-        new(from: PointType, through: PointType, to: PointType): Path
-        new(object?: object): Path
+        new (from: PointType, through: PointType, to: PointType): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const from = Point.readNamed(args, 'from')
@@ -3468,14 +3468,14 @@ export class Path extends PathItem {
         (center: PointType, sides: number, radis: number): Path
         (centerX: number, centerY: number, sides: number, radis: number): Path
         (object?: object): Path
-        new(center: PointType, sides: number, radis: number): Path
-        new(
+        new (center: PointType, sides: number, radis: number): Path
+        new (
             centerX: number,
             centerY: number,
             sides: number,
             radis: number
         ): Path
-        new(object?: object): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const center = Point.readNamed(args, 'center')
@@ -3549,20 +3549,20 @@ export class Path extends PathItem {
             radius2: number
         ): Path
         (object?: object): Path
-        new(
+        new (
             center: PointType,
             points: number,
             radius1: number,
             radius2: number
         ): Path
-        new(
+        new (
             centerX: number,
             centerY: number,
             points: number,
             radius1: number,
             radius2: number
         ): Path
-        new(object?: object): Path
+        new (object?: object): Path
     } {
         return function (...args: any[]) {
             const center = Point.readNamed(args, 'center')

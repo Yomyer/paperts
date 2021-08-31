@@ -100,9 +100,9 @@ export class SegmentPoint extends Point {
         return this === owner.point
             ? SegmentSelection.POINT
             : this === owner.handleIn
-                ? SegmentSelection.HANDLE_IN
-                : this === owner.handleOut
-                    ? SegmentSelection.HANDLE_OUT
-                    : 0
+            ? SegmentSelection.HANDLE_IN
+            : this === owner.handleOut
+            ? SegmentSelection.HANDLE_OUT
+            : 0
     }
 }

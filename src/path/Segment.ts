@@ -200,8 +200,8 @@ export class Segment extends Base {
                     index > 0
                         ? curves[index - 1]
                         : path.closed
-                            ? curves[curves.length - 1]
-                            : null)
+                        ? curves[curves.length - 1]
+                        : null)
             )
                 curve.changed()
 
@@ -596,9 +596,9 @@ export class Segment extends Base {
                 this.setHandleIn(
                     N !== 0
                         ? new Point(
-                            (d22a * p0.x + A * p1.x - d12a * p2.x) / N - p1.x,
-                            (d22a * p0.y + A * p1.y - d12a * p2.y) / N - p1.y
-                        )
+                              (d22a * p0.x + A * p1.x - d12a * p2.x) / N - p1.x,
+                              (d22a * p0.y + A * p1.y - d12a * p2.y) / N - p1.y
+                          )
                         : new Point()
                 )
             }
@@ -608,9 +608,9 @@ export class Segment extends Base {
                 this.setHandleOut(
                     N !== 0
                         ? new Point(
-                            (d12a * p2.x + A * p1.x - d22a * p0.x) / N - p1.x,
-                            (d12a * p2.y + A * p1.y - d22a * p0.y) / N - p1.y
-                        )
+                              (d12a * p2.x + A * p1.x - d22a * p0.x) / N - p1.x,
+                              (d12a * p2.y + A * p1.y - d22a * p0.y) / N - p1.y
+                          )
                         : new Point()
                 )
             }
