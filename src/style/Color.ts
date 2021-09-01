@@ -194,18 +194,15 @@ const converters = {
 
     'gray-hsl': (g: number) => {
         return [0, 0, g]
-    }
+    },
 
-    /*
-    'gradient-rgb' => () {
+    'gradient-rgb': (..._arg: any[]): [] => {
         return []
     },
 
-    'rgb-gradient': function () {
-        // TODO: Implement
+    'rgb-gradient': (..._arg: any[]): [] => {
         return []
     }
-    */
 }
 
 @ReadIndex()
@@ -1022,100 +1019,196 @@ export class Color extends Base {
         this.setAlpha(alpha)
     }
 
-    get red() {
+    getRed() {
         return this.getParam('rgb', 'red')
     }
 
-    set red(value: number) {
+    setRed(value: number) {
         this.setParam('rgb', 'red', value)
     }
 
-    get green() {
+    get red() {
+        return this.getRed()
+    }
+
+    set red(value: number) {
+        this.setRed(value)
+    }
+
+    getGreen() {
         return this.getParam('rgb', 'green')
     }
 
-    set green(value: number) {
+    setGreen(value: number) {
         this.setParam('rgb', 'green', value)
     }
 
-    get blue() {
+    get green() {
+        return this.getGreen()
+    }
+
+    set green(value: number) {
+        this.setGreen(value)
+    }
+
+    getBlue() {
         return this.getParam('rgb', 'blue')
     }
 
-    set blue(value: number) {
+    setBlue(value: number) {
         this.setParam('rgb', 'blue', value)
     }
 
-    get gray() {
+    get blue() {
+        return this.getBlue()
+    }
+
+    set blue(value: number) {
+        this.setBlue(value)
+    }
+
+    getGray() {
         return this.getParam('gray', 'gray')
     }
 
-    set gray(value: number) {
+    setGray(value: number) {
         this.setParam('gray', 'gray', value)
     }
 
-    get hue() {
+    get gray() {
+        return this.getGray()
+    }
+
+    set gray(value: number) {
+        this.setGray(value)
+    }
+
+    getHue() {
         return this.getParam('hsb', 'hue')
     }
 
-    set hue(value: number) {
+    setHue(value: number) {
         this.setParam('hsb', 'hue', value)
     }
 
-    get saturation() {
+    get hue() {
+        return this.getHue()
+    }
+
+    set hue(value: number) {
+        this.setHue(value)
+    }
+
+    getSaturation() {
         return this.getParam('hsb', 'saturation')
     }
 
-    set saturation(value: number) {
+    setSaturation(value: number) {
         this.setParam('hsb', 'saturation', value)
     }
 
-    get brightness() {
+    get saturation() {
+        return this.getSaturation()
+    }
+
+    set saturation(value: number) {
+        this.setSaturation(value)
+    }
+
+    getBrightness() {
         return this.getParam('hsb', 'brightness')
     }
 
-    set brightness(value: number) {
+    setBrightness(value: number) {
         this.setParam('hsb', 'brightness', value)
     }
 
-    get lightness() {
+    get brightness() {
+        return this.getBrightness()
+    }
+
+    set brightness(value: number) {
+        this.setBrightness(value)
+    }
+
+    getLightness() {
         return this.getParam('hsl', 'lightness')
     }
 
-    set lightness(value: number) {
+    setLightness(value: number) {
         this.setParam('hsl', 'lightness', value)
     }
 
-    get gradient() {
+    get lightness() {
+        return this.getLightness()
+    }
+
+    set lightness(value: number) {
+        this.setLightness(value)
+    }
+
+    getGradient(): Gradient {
         return this.getParam('gradient', 'gradient')
     }
 
-    set gradient(value: Gradient) {
+    setGradient(value: Gradient) {
         this.setParam('gradient', 'gradient', value)
     }
 
-    get origin() {
+    get gradient() {
+        return this.getGradient()
+    }
+
+    set gradient(value: Gradient) {
+        this.setGradient(value)
+    }
+
+    getOrigin() {
         return this.getParam('gradient', 'origin')
     }
 
-    set origin(value: PointType) {
+    setOrigin(value: PointType) {
         this.setParam('gradient', 'origin', value)
     }
 
-    get destination() {
+    get origin() {
+        return this.getOrigin()
+    }
+
+    set origin(value: PointType) {
+        this.setOrigin(value)
+    }
+
+    getDestination() {
         return this.getParam('gradient', 'destination')
     }
 
-    set destination(value: PointType) {
+    setDestination(value: PointType) {
         this.setParam('gradient', 'destination', value)
     }
 
-    get highlight() {
+    get destination() {
+        return this.getDestination()
+    }
+
+    set destination(value: PointType) {
+        this.setDestination(value)
+    }
+
+    getHighlight() {
         return this.getParam('gradient', 'highlight')
     }
 
-    set highlight(value: PointType) {
+    setHighlight(value: PointType) {
         this.setParam('gradient', 'highlight', value)
+    }
+
+    get highlight() {
+        return this.getHighlight()
+    }
+
+    set highlight(value: PointType) {
+        this.setHighlight(value)
     }
 
     private applyOperator(

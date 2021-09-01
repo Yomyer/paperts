@@ -42,7 +42,10 @@ import {
     Raster,
     Path,
     EventTypes,
-    EventTypeHooks
+    EventTypeHooks,
+    SvgImport,
+    SvgExportOptions,
+    SvgExport
 } from '../'
 
 import {
@@ -2719,7 +2722,13 @@ export class Item extends Emitter {
      * @return {SVGElement|String} the item converted to an SVG node or a
      * `String` depending on `option.asString` value
      */
-    exportSVG(_: any): void {}
+    exportSVG(options: SvgExportOptions): SVGElement | string {
+        options = SvgExport.setOptions(options)
+        return SvgExport.exportDefinitions(
+            SvgExport.exportSVG(this, options, true),
+            options
+        )
+    }
 
     /**
      * Converts the provided SVG content into Paper.js items and adds them to
@@ -2770,15 +2779,11 @@ export class Item extends Emitter {
      *     SVG content
      */
     importSVG(node: SVGElement | string, onLoad?: Function): Item
-    importSVG(_node: SVGElement | string, _options?: Function | any): Item {
-        return null
-        /*
-        return SvgImport.importSVG(
-            node as unknown as HTMLElement,
-            options,
-            this
-        )
-        */
+    importSVG(
+        node: SVGElement | string | HTMLElement,
+        options?: Function | any
+    ): Item {
+        return SvgImport.importSVG(node as HTMLElement, options, this)
     }
 
     /**

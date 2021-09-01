@@ -4,6 +4,7 @@ import {
     ExportJsonOptions,
     Matrix,
     Point,
+    Rectangle,
     CanvasProvider,
     PaperScope,
     PaperScopeItem,
@@ -18,7 +19,12 @@ import {
     HitResultOptions,
     SymbolDefinition,
     SymbolItem,
-    ItemSelection
+    ItemSelection,
+    SvgImport,
+    SvgElement,
+    SvgExportOptions,
+    SvgExportAttributes,
+    SvgExport
 } from '../'
 import { StyleProps } from 'style/Style'
 
@@ -857,7 +863,47 @@ export class Project extends PaperScopeItem {
      * @return {SVGElement|String} the item converted to an SVG node or a
      * `String` depending on `option.asString` value
      */
-    exportSVG(_: any): void {}
+    exportSVG(options: SvgExportOptions): SVGElement | string {
+        options = SvgExport.setOptions(options)
+        const children = this._children
+        const view = this.getView()
+        const bounds = Base.pick(options.bounds, 'view')
+        const mx = options.matrix || (bounds === 'view' && view.matrix)
+        const matrix = mx && Matrix.read([mx])
+        const rect =
+            bounds === 'view'
+                ? new Rectangle([0, 0], view.getViewSize())
+                : bounds === 'content'
+                ? Item._getBounds(children, matrix, { stroke: true }).rect
+                : Rectangle.read([bounds], 0, { readNull: true })
+        const attrs: SvgExportAttributes = {
+            version: '1.1',
+            xmlns: SvgElement.svg,
+            'xmlns:xlink': SvgElement.xlink
+        }
+        if (rect) {
+            attrs.width = rect.width
+            attrs.height = rect.height
+            if (rect.x || rect.x === 0 || rect.y || rect.y === 0)
+                attrs.viewBox = SvgExport.formatter.rectangle(rect)
+        }
+        const node = SvgElement.create('svg', attrs, SvgExport.formatter)
+        let parent = node
+
+        if (matrix && !matrix.isIdentity()) {
+            parent = node.appendChild(
+                SvgElement.create(
+                    'g',
+                    SvgExport.getTransform(matrix),
+                    SvgExport.formatter
+                )
+            )
+        }
+        for (let i = 0, l = children.length; i < l; i++) {
+            parent.appendChild(SvgExport.exportSVG(children[i], options, true))
+        }
+        return SvgExport.exportDefinitions(node, options)
+    }
 
     /**
      * Converts the provided SVG content into Paper.js items and adds them to
@@ -908,15 +954,11 @@ export class Project extends PaperScopeItem {
      *     SVG content
      */
     importSVG(node: SVGElement | string, onLoad?: Function): Item
-    importSVG(_node: SVGElement | string, _options?: Function | any): Item {
-        return null
-        /*
-        return SvgImport.importSVG(
-            node as unknown as HTMLElement,
-            options,
-            this
-        )
-        */
+    importSVG(
+        node: SVGElement | string | HTMLElement,
+        options?: Function | any
+    ): Item {
+        return SvgImport.importSVG(node as HTMLElement, options, this)
     }
 
     removeOn(type: string) {

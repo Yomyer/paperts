@@ -1,16 +1,12 @@
-import Base from '../core/Base'
-import Item from '../item/Item'
-import PathItem from '../item/PathItem'
-import Shape from '../item/Shape'
-import TextItem from '../text/TextItem'
+import { Base, Item, PathItem, Shape, TextItem } from '../'
 
-type SvgStyleEntry = {
+export type SvgStyleEntry = {
     type: string
     property: string
     attribute: string
     toSVG: { [key: string]: string | boolean }
     fromSVG: { [key: string]: string | boolean }
-    exportFilter: () => void
+    exportFilter: (item: Item, value: boolean | string | number) => void
     get: string
     set: string
 }
@@ -34,7 +30,7 @@ type SvgStyleProps = {
     blendMode: SvgStyleEntry
 }
 
-const SvgStyles = Base.each(
+export const SvgStyles: SvgStyleProps = Base.each(
     {
         fillColor: ['fill', 'color'],
         fillRule: ['fill-rule', 'string'],
@@ -102,5 +98,3 @@ const SvgStyles = Base.each(
     },
     {}
 )
-
-export default SvgStyles as SvgStyleProps

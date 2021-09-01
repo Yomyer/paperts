@@ -441,14 +441,6 @@ export class Path extends PathItem {
         return parts.join('')
     }
 
-    get pathData() {
-        return this.getPathData()
-    }
-
-    set pathData(data: string) {
-        this.setPathData(data)
-    }
-
     isEmpty() {
         return !this._segments.length
     }
@@ -1055,8 +1047,9 @@ export class Path extends PathItem {
         newSelection: number
     ) {
         segment.selection = newSelection
+
         const selection = (this._segmentSelection +=
-            +newSelection - +oldSelection)
+            newSelection - oldSelection)
 
         if (selection > 0) this.setSelected(true)
     }

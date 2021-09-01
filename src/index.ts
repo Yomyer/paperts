@@ -68,4 +68,9 @@ export * from './net/Http'
 export * from './canvas/CanvasProvider'
 export * from './canvas/BlendMode'
 
+export * from './svg/SvgElement'
+export * from './svg/SvgStyles'
+export * from './svg/SvgExport'
+export * from './svg/SvgImport'
+
 export * from './core/PaperScript'

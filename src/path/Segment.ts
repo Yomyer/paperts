@@ -374,9 +374,8 @@ export class Segment extends Base {
     }
 
     setSelection(selection: number) {
-        const oldSelection = this._selection
+        const oldSelection = this._selection || 0
         const path = this._path
-
         this._selection = selection = selection || 0
 
         if (path && selection !== oldSelection) {
@@ -414,7 +413,7 @@ export class Segment extends Base {
      * path.segments[2].selected = true;
      */
     isSelected() {
-        return !!(+this._selection & SegmentSelection.ALL)
+        return !!(this._selection || 0 & SegmentSelection.ALL)
     }
 
     setSelected(selected: boolean) {

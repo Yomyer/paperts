@@ -13,7 +13,7 @@ import { Color as ColorType, GradientStop as GradientStopType } from './Types'
 export class GradientStop extends Base {
     protected _class = 'GradientStop'
 
-    protected _color: any
+    protected _color: Color
     protected _offset: any
     protected _owner: Base
 
@@ -204,12 +204,12 @@ export class GradientStop extends Base {
         this._changed()
     }
 
-    get color() {
+    get color(): Color {
         return this._color
     }
 
     set color(color: ColorType) {
-        this._color = color
+        this.setColor(color)
     }
 
     get owner() {

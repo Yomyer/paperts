@@ -1,5 +1,13 @@
-import { FontWeights, Justifications } from 'style/Style'
-import { Item, Exportable, ItemSerializeFields, Base, Point, Change } from '../'
+import {
+    Item,
+    Exportable,
+    ItemSerializeFields,
+    Base,
+    Point,
+    Change,
+    FontWeights,
+    Justifications
+} from '../'
 
 export type TextItemSerializeFields = {
     content: string
@@ -117,11 +125,11 @@ export class TextItem extends Item {
         return this
     }
 
-    get fontFamilty(): string {
+    get fontFamily(): string {
         return this.getFontFamily()
     }
 
-    set fontFamilty(font: string) {
+    set fontFamily(font: string) {
         this.setFontFamily(font)
     }
 

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Tiger</title>
+        <link rel="stylesheet" href="../css/style.css" />
+        <!-- IE 9: display inline SVG -->
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <script type="text/javascript" src="../../dist/index.js"></script>
+        <script type="text/paperscript" canvas="canvas">
+            var start = Date.now();
+            project.importJSON('[["Layer",{"children":[["CompoundPath",{"pathData":"M353,491.911c0,56.885 -46.114,103 -103,103c-56.885,0 -103,-46.115 -103,-103c0,-56.885 46.115,-103 103,-103c56.886,0 103,46.115 103,103z M250,409.512c-45.508,0 -82.4,36.892 -82.4,82.399c0,45.507 36.893,82.4 82.4,82.4c45.509,0 82.399,-36.894 82.399,-82.4c0.001,-45.508 -36.89,-82.399 -82.399,-82.399z","fillColor":[0,1,0.11765],"strokeColor":[1,0,0],"strokeWidth":10,"leading":14.4}]]}]]');
+            console.log('Load JSON', Date.now() - start);
+            var start = Date.now();
+        </script>
+    </head>
+    <body>
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </body>
+</html>

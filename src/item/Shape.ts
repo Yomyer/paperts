@@ -26,7 +26,7 @@ import {
     Rectangle as RectangleType
 } from '../basic/Types'
 
-export type ShapeTypes = 'rectangle' | 'circle' | 'ellipse'
+export type ShapeTypes = 'rectangle' | 'circle' | 'ellipse' | 'rect'
 
 export type ShapeSerializFields = ItemSerializeFields & {
     type?: ShapeTypes
@@ -190,8 +190,8 @@ export class Shape extends Item {
         this._changed(Change.GEOMETRY)
     }
 
-    get radius() {
-        return this.getRadius()
+    get radius(): Size {
+        return this.getRadius() as Size
     }
 
     set radius(radius: SizeType) {

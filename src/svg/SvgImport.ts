@@ -1,18 +1,27 @@
-import { Matrix, Rectangle } from '../basic'
-import Point from '../basic/Point'
-import Size from '../basic/Size'
-import { Base } from '../core'
-import { Item } from '../item'
-import Group from '../item/Group'
-import PathItem from '../path/PathItem'
-import SymbolDefinition from '../item/SymbolDefinition'
-import { Color, Gradient, GradientStop } from '../style'
-import SvgElement from './SvgElement'
-import SvgStyles from './SvgStyles'
-import DomElement from '../dom/DomElement'
-import PaperScope from '../core/PaperScope'
-import Http from '../net/Http'
-import Project from '../item/Project'
+import {
+    Matrix,
+    Rectangle,
+    Point,
+    Size,
+    Base,
+    Shape,
+    Raster,
+    PointText,
+    Item,
+    Group,
+    Path,
+    PathItem,
+    SymbolDefinition,
+    Color,
+    Gradient,
+    GradientStop,
+    SvgElement,
+    SvgStyles,
+    DomElement,
+    PaperScope,
+    Http,
+    Project
+} from '../'
 
 export type SvgImportOptions = {
     expandShapes?: boolean
@@ -29,18 +38,18 @@ export type SvgImportOptions = {
     ) => Item
 }
 
-export default class SvgImport {
+export class SvgImport {
     static definitions = {}
     static rootSize: Size
 
-    static getValue<T extends HTMLElement>(
-        node: T,
+    static getValue<T>(
+        node: HTMLElement,
         name: string,
         isString?: boolean,
         allowNull?: boolean,
         allowPercent?: boolean,
         defaultValue?: string
-    ) {
+    ): T {
         const value = SvgElement.get(node, name) || defaultValue
         const res =
             value == null
@@ -53,16 +62,14 @@ export default class SvgImport {
                 ? value
                 : parseFloat(value)
 
-        return /%\s*$/.test(value)
-            ? (
-                  (+res / 100) *
-                  (allowPercent
-                      ? 1
-                      : SvgImport.rootSize[
-                            /x|^width/.test(name) ? 'width' : 'height'
-                        ])
-              ).toString()
-            : res.toString()
+        return (/%\s*$/.test(value)
+            ? (+res / 100) *
+              (allowPercent
+                  ? 1
+                  : SvgImport.rootSize[
+                        /x|^width/.test(name) ? 'width' : 'height'
+                    ])
+            : res) as unknown as T
     }
 
     static getPoint<T extends HTMLElement>(
@@ -74,7 +81,7 @@ export default class SvgImport {
         defaultX?: string,
         defaultY?: string
     ) {
-        x = SvgImport.getValue(
+        x = SvgImport.getValue<string>(
             node,
             x || 'x',
             false,
@@ -82,7 +89,7 @@ export default class SvgImport {
             allowPercent,
             defaultX
         )
-        y = SvgImport.getValue(
+        y = SvgImport.getValue<string>(
             node,
             y || 'y',
             false,
@@ -147,12 +154,12 @@ export default class SvgImport {
         const isClip = type === 'clippath'
         const isDefs = type === 'defs'
         let item = new Group()
-        const project = item.project
-        const currentStyle = project.currentStyle
+        const project = item.project as any
+        const currentStyle = project._currentStyle
         const children = []
         if (!isClip && !isDefs) {
             item = SvgImport.applyAttributes(item, node, isRoot)
-            project.currentStyle = item.style.clone()
+            project._currentStyle = item.style.clone()
         }
         if (isRoot) {
             const defs = node.querySelectorAll('defs')
@@ -176,11 +183,9 @@ export default class SvgImport {
 
         if (isClip)
             item = SvgImport.applyAttributes(item.reduce(), node, isRoot)
-        // Restore currentStyle
-        project.currentStyle = currentStyle
+
+        project._currentStyle = currentStyle
         if (isClip || isDefs) {
-            // We don't want the defs in the DOM. But we might want to use
-            // Symbols for them to save memory?
             item.remove()
             item = null
         }
@@ -206,10 +211,13 @@ export default class SvgImport {
     }
 
     static importGradient(node: HTMLElement, type: string) {
-        const id = (SvgImport.getValue(node, 'href', true) || '').substring(1)
+        const id = (
+            SvgImport.getValue<string>(node, 'href', true) || ''
+        ).substring(1)
         const radial = type === 'radialgradient'
         let gradient
         if (id) {
+            console.log(id, SvgImport.definitions)
             gradient = SvgImport.definitions[id].getGradient()
 
             if (gradient._radial ^ +radial) {
@@ -218,7 +226,7 @@ export default class SvgImport {
             }
         } else {
             const nodes = node.childNodes as unknown as HTMLElement[]
-            const stops = []
+            const stops: GradientStop[] = []
             for (let i = 0, l = nodes.length; i < l; i++) {
                 const child = nodes[i]
                 if (child.nodeType === 1)
@@ -289,7 +297,8 @@ export default class SvgImport {
             new Color(gradient, origin, destination, highlight),
             node
         )
-        color._scaleToBounds = scaleToBounds
+
+        ;(color as any)._scaleToBounds = scaleToBounds
     }
 
     static importers = {
@@ -338,9 +347,10 @@ export default class SvgImport {
         },
         defs: SvgImport.importGroup,
         use: function (node: HTMLElement) {
-            const id = (SvgImport.getValue(node, 'href', true) || '').substring(
-                1
-            )
+            const id = (
+                SvgImport.getValue<string>(node, 'href', true) || ''
+            ).substring(1)
+
             const definition = SvgImport.definitions[id]
             const point = SvgImport.getPoint(node)
             return definition
@@ -352,7 +362,7 @@ export default class SvgImport {
         circle: function (node: HTMLElement) {
             return new Shape.Circle(
                 SvgImport.getPoint(node, 'cx', 'cy'),
-                SvgImport.getValue(node, 'r')
+                +SvgImport.getValue(node, 'r')
             )
         },
         ellipse: function (node: HTMLElement) {
@@ -510,15 +520,15 @@ export default class SvgImport {
                 if (item.setVisible) item.setVisible(value !== null)
             },
 
-            'stop-color': function (item: Item, value: string) {
+            'stop-color': function (item: GradientStop, value: string) {
                 if (item.setColor) item.setColor(value)
             },
 
-            'stop-opacity': function (item: Item, value: string) {
+            'stop-opacity': function (item: GradientStop, value: string) {
                 if (item.color) item.color.setAlpha(parseFloat(value))
             },
 
-            offset: function (item: Item, value: string) {
+            offset: function (item: GradientStop, value: string) {
                 // https://www.w3.org/TR/SVG/pservers.html#StopElementOffsetAttribute
                 if (item.setOffset) {
                     const percent = value.match(/(.*)%$/)
@@ -590,11 +600,7 @@ export default class SvgImport {
      * @param {HTMLElement} node an SVG node to read style and attributes from
      * @param {Item} item the item to apply the style and attributes to
      */
-    static applyAttributes<T>(
-        item: T,
-        node: HTMLElement,
-        isRoot?: boolean
-    ): Item
+    static applyAttributes<T>(item: T, node: HTMLElement, isRoot?: boolean): T
 
     static applyAttributes<T extends HTMLElement>(
         item: Item,
@@ -752,6 +758,7 @@ export default class SvgImport {
             if (onError) {
                 onError(message, status)
             } else {
+                console.log(message)
                 throw new Error(message as string)
             }
         }
@@ -780,7 +787,7 @@ export default class SvgImport {
             reader.onerror = function () {
                 onError(reader.error)
             }
-            return reader.readAsText(source)
+            return reader.readAsText(source) as unknown as Item
         } else {
             onLoad(source as string)
         }

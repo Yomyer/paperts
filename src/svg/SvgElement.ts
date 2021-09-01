@@ -1,4 +1,4 @@
-import Formatter from '../utils/Formatter'
+import { Formatter } from '../'
 
 export type AttributeNamespace = {
     href: string
@@ -9,7 +9,7 @@ export type AttributeNamespace = {
 
 export type AttributeNamespaceKeys = keyof AttributeNamespace
 
-export default class SvgElement {
+export class SvgElement {
     static svg = 'http://www.w3.org/2000/svg'
     static xmlns = 'http://www.w3.org/2000/xmlns'
     static xlink = 'http://www.w3.org/1999/xlink'
@@ -27,7 +27,7 @@ export default class SvgElement {
         formatter?: Formatter
     ) {
         return SvgElement.set(
-            document.createElementNS(SvgElement.svg, tag),
+            document.createElementNS(SvgElement.svg, tag) as SVGElement,
             attributes,
             formatter
         )
@@ -42,9 +42,9 @@ export default class SvgElement {
     }
 
     static set(
-        node: Element,
+        node: SVGElement,
         attributes: { [key: string]: string | number },
-        formatter: Formatter
+        formatter?: Formatter
     ) {
         for (const name in attributes) {
             let value = attributes[name]

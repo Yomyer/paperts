@@ -8,7 +8,9 @@ import {
     BoundsOptions,
     DrawOptions,
     ItemSerializeFields,
-    Exportable
+    Exportable,
+    FontWeights,
+    Justifications
 } from '../'
 
 export type GroupSerializeFields = ItemSerializeFields & {
@@ -219,5 +221,132 @@ export class Group extends Item {
             const item = children[i]
             if (item !== clipItem) item.draw(ctx, param)
         }
+    }
+
+    /**
+     * {@grouptitle Character Style}
+     *
+     * The font-family to be used in text content.
+     *
+     * @name TextItem#fontFamily
+     * @type String
+     * @default 'sans-serif'
+     */
+    getFontFamily(_dontMerge?: boolean): string {
+        return this._style.getFontFamily(_dontMerge)
+    }
+
+    setFontFamily(font: string): this {
+        this._style.setFontFamily(font)
+        return this
+    }
+
+    get fontFamily(): string {
+        return this.getFontFamily()
+    }
+
+    set fontFamily(font: string) {
+        this.setFontFamily(font)
+    }
+
+    /**
+     *
+     * The font-weight to be used in text content.
+     *
+     * @name TextItem#fontWeight
+     * @type String|Number
+     * @default 'normal'
+     */
+    getFontWeight(_dontMerge?: boolean): FontWeights {
+        return this._style.getFontWeight(_dontMerge)
+    }
+
+    setFontWeight(weight: FontWeights): this {
+        this._style.setFontWeight(weight)
+        return this
+    }
+
+    get fontWeight(): FontWeights {
+        return this.getFontWeight()
+    }
+
+    set fontWeight(weight: FontWeights) {
+        this.setFontWeight(weight)
+    }
+
+    /**
+     * The font size of text content, as a number in pixels, or as a string with
+     * optional units `'px'`, `'pt'` and `'em'`.
+     *
+     * @name TextItem#fontSize
+     * @type Number|String
+     * @default 10
+     */
+    getFontSize(_dontMerge?: boolean): number {
+        return this._style.getFontSize(_dontMerge)
+    }
+
+    setFontSize(size: number | string): this {
+        this._style.setFontSize(size)
+        return this
+    }
+
+    get fontSize(): number {
+        return this.getFontSize()
+    }
+
+    set fontSize(size: number | string) {
+        this.setFontSize(size)
+    }
+
+    /**
+     * The text leading of text content.
+     *
+     * @name TextItem#leading
+     * @type Number|String
+     * @default fontSize * 1.2
+     */
+    getLeading(_dontMerge?: boolean): number {
+        return this._style.getLeading(_dontMerge)
+    }
+
+    setLeading(leading: number): this {
+        this._style.setLeading(leading)
+        return this
+    }
+
+    get leading(): number {
+        return this.getLeading()
+    }
+
+    set leading(leading: number) {
+        this.setLeading(leading)
+    }
+
+    /**
+     * {@grouptitle Paragraph Style}
+     *
+     * The justification of text paragraphs.
+     *
+     * @name TextItem#justification
+     * @type String
+     * @values 'left', 'right', 'center'
+     * @default 'left'
+     */
+    getJustification(_dontMerge?: boolean): Justifications {
+        return this._style.getJustification()
+    }
+
+    setJustification(justification: Justifications): this {
+        this._style.setJustification(justification)
+        return this
+    }
+
+    get justification() {
+        return this.getJustification()
+    }
+
+    set justification(justification: Justifications) {
+        this.setJustification(justification)
     }
 }
