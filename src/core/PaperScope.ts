@@ -172,13 +172,13 @@ export class PaperScope extends Base {
                             n === 'opera'
                                 ? v2
                                 : /^(node|trident)$/.test(n)
-                                    ? rv
-                                    : v1
+                                ? rv
+                                : v1
                         agent.version = v
                         agent.versionNumber = parseFloat(v)
                         n =
                             ({ trident: 'msie', jsdom: 'node' } as unknown)[
-                            n
+                                n
                             ] || n
                         agent.name = n
                         agent[n] = true

@@ -8,13 +8,13 @@ export class UID {
      * @return {Number} the next unique id
      * @static
      **/
-    static get(name?: string): string {
+    static get(name?: string): number {
         if (name) {
             let pool = this._pools[name]
             if (!pool) pool = this._pools[name] = { _id: 1 }
-            return (pool._id++).toString()
+            return pool._id++
         } else {
-            return (this._id++).toString()
+            return this._id++
         }
     }
 }
