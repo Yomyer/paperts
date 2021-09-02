@@ -215,34 +215,39 @@ export class Item extends Emitter {
 
     handlers = Item.itemHandlers
 
-    protected _events = Item.itemHandlers.reduce(
-        (event: EventTypeHooks, name: EventTypes) => {
-            event[name] = {
-                install: (type: string) => {
-                    this.getView()._countItemEvent(type, 1)
-                },
-
-                uninstall: (type: string) => {
-                    this.getView()._countItemEvent(type, -1)
-                }
-            }
-            return event
+    protected _eventFrame = {
+        install: () => {
+            this.getView().animateItem(this, true)
         },
-        {
-            onFrame: {
-                install: () => {
-                    this.getView().animateItem(this, true)
-                },
 
-                uninstall: () => {
-                    this.getView().animateItem(this, false)
-                }
-            },
-
-            onLoad: {},
-            onError: {}
+        uninstall: () => {
+            this.getView().animateItem(this, false)
         }
-    )
+    }
+
+    protected _eventHandlers = {
+        install: (type: string) => {
+            this.getView()._countItemEvent(type, 1)
+        },
+
+        uninstall: (type: string) => {
+            this.getView()._countItemEvent(type, -1)
+        }
+    }
+
+    protected _eventTypes: EventTypeHooks = {
+        load: {},
+        error: {},
+        frame: this._eventFrame,
+        click: this._eventHandlers,
+        doubleClick: this._eventHandlers,
+        mouseDown: this._eventHandlers,
+        mouseUp: this._eventHandlers,
+        mouseDrag: this._eventHandlers,
+        mouseMove: this._eventHandlers,
+        mouseEnter: this._eventHandlers,
+        mouseLeave: this._eventHandlers
+    }
 
     constructor(props: ItemProps, point: Point)
     constructor(props?: ItemProps)
@@ -268,7 +273,6 @@ export class Item extends Emitter {
      * or if none were provided}
      */
     protected _initialize(props?: ItemProps, point?: Point): boolean {
-        this._injectEvents(this._events)
         const paper = PaperScope.paper
 
         const hasProps = props && Base.isPlainObject(props)

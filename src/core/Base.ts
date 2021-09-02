@@ -17,7 +17,7 @@ export type Dictionary = {
 }
 
 export class Base extends Straps {
-    protected _id: string
+    protected _id: number | string
     protected _name: string
     protected _index?: number
     protected _serialize?(
@@ -61,7 +61,7 @@ export class Base extends Straps {
         return this._id
     }
 
-    setId(id: string) {
+    setId(id: number | string) {
         this._id = id
     }
 
@@ -69,7 +69,7 @@ export class Base extends Straps {
         return this._id
     }
 
-    set id(id: string) {
+    set id(id: number | string) {
         this._id = id
     }
 

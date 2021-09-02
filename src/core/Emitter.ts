@@ -159,19 +159,6 @@ export abstract class Emitter extends Base {
         }
     }
 
-    protected _injectEvents(events: EventTypeHooks) {
-        const types = {}
-
-        Base.each(events, function (entry, key) {
-            const isString = typeof entry === 'string'
-            const name = isString ? entry : key
-            const type = name.substring(2).toLowerCase()
-            types[type] = isString ? {} : entry
-        })
-
-        this._eventTypes = types
-    }
-
     setEvent(name: string, func: EventFunc<any>) {
         const type = name.substring(2).toLowerCase()
 

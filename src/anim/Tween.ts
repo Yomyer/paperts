@@ -1,3 +1,4 @@
+import { EventTypeHooks } from 'core/Emitter'
 import { Base, Item, Emitter } from '../'
 
 export type TweenOptions = {
@@ -68,8 +69,8 @@ export class Tween extends Emitter {
         }
     }
 
-    protected _events: {
-        onUpdate: {}
+    protected _eventTypes: EventTypeHooks = {
+        update: {}
     }
 
     /**
@@ -100,8 +101,6 @@ export class Tween extends Emitter {
     }
 
     initialize(...args: any[]): this {
-        this._injectEvents(this._events)
-
         const object = args[0]
         const from = args[1]
         const to = args[2]
@@ -116,8 +115,8 @@ export class Tween extends Emitter {
         this.type = isFunction
             ? type
             : type === 'string'
-                ? (easing as string)
-                : 'linear'
+            ? (easing as string)
+            : 'linear'
         this.easing = isFunction ? easing : Tween.easings[this.type]
         this.duration = duration
         this.running = false
@@ -237,13 +236,10 @@ export class Tween extends Emitter {
             }
 
             if (this.responds('update')) {
-                this.emit(
-                    'update',
-                    {
-                        progress: progress,
-                        factor: factor
-                    }
-                )
+                this.emit('update', {
+                    progress: progress,
+                    factor: factor
+                })
             }
             if (!this.running && this._then) {
                 this._then(this.object)

@@ -25,8 +25,7 @@ import {
     KeyEvent as PaperKeyEvent,
     KeyEventTypes,
     ToolEventTypes,
-    EventTypeHooks,
-    EventTypes
+    EventTypeHooks
 } from '../'
 
 import Stats from '../utils/Stats'
@@ -88,24 +87,25 @@ export class View extends Emitter {
     static _views: View[] = []
     static _viewsById: { [key: string]: View } = {}
 
-    protected _events = Item.itemHandlers.reduce(
-        (event: EventTypeHooks, name: EventTypes) => {
-            event[name] = {}
+    protected _eventTypes: EventTypeHooks = {
+        frame: {
+            install: () => {
+                this.play()
+            },
 
-            return event
-        },
-        {
-            onFrame: {
-                install: () => {
-                    this.play()
-                },
-
-                uninstall: () => {
-                    this.pause()
-                }
+            uninstall: () => {
+                this.pause()
             }
-        }
-    )
+        },
+        click: {},
+        doubleClick: {},
+        mouseDown: {},
+        mouseUp: {},
+        mouseDrag: {},
+        mouseMove: {},
+        mouseEnter: {},
+        mouseLeave: {}
+    }
 
     constructor(project: Project, canvas: HTMLCanvasElement)
     constructor(project: Project, size: SizeType)
@@ -118,8 +118,6 @@ export class View extends Emitter {
     }
 
     initialize(project?: Project, element?: HTMLElement | Size): this {
-        this._injectEvents(this._events)
-
         function getSize(name: string) {
             return (
                 element[name] ||
@@ -321,7 +319,7 @@ export class View extends Emitter {
                     if (
                         (!DomElement.getPrefixed(document, 'hidden') ||
                             PaperScope.getAttribute(element, 'keepalive') ===
-                            'true') &&
+                                'true') &&
                         DomElement.isInView(element)
                     ) {
                         this._handleFrame()
@@ -395,14 +393,11 @@ export class View extends Emitter {
     protected _handleFrameItems(event: FrameEvent) {
         for (const i in this._frameItems) {
             const entry = this._frameItems[i]
-            entry.item.emit(
-                'frame',
-                {
-                    ...event,
-                    time: (entry.time += event.delta),
-                    count: entry.count++
-                }
-            )
+            entry.item.emit('frame', {
+                ...event,
+                time: (entry.time += event.delta),
+                count: entry.count++
+            })
         }
     }
 
@@ -1742,7 +1737,7 @@ export class View extends Emitter {
                 clickItem =
                 clickTime =
                 dblClick =
-                null
+                    null
         }
     }
 }

@@ -52,7 +52,7 @@ export class PaperScript {
                 PaperScope.get(canvas.getAttribute(scopeAttribute)) ||
                 new PaperScope().setup(canvas)
 
-            canvas.setAttribute(scopeAttribute, scope.id)
+            canvas.setAttribute(scopeAttribute, scope.id.toString())
 
             if (src) {
                 Http.request({
